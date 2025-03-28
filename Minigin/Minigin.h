@@ -1,14 +1,13 @@
 #pragma once
 #include <string>
 #include <functional>
-#include <filesystem>
 
 namespace dae
 {
 	class Minigin
 	{
 	public:
-		explicit Minigin(const std::filesystem::path& dataPath);
+		explicit Minigin(const std::string& dataPath);
 		~Minigin();
 		void Run(const std::function<void()>& load);
 

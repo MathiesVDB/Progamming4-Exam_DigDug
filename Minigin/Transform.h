@@ -1,14 +1,21 @@
 #pragma once
 #include <glm.hpp>
+#include <cmath>
+
+#include "Component.h"
 
 namespace dae
 {
-	class Transform final
+	class GameObject;
+	class Transform final : public Component
 	{
 	public:
-		const glm::vec3& GetPosition() const { return m_position; }
+		void Update(float deltaTime) override;
+
+		const glm::vec3& GetPosition() const;
 		void SetPosition(float x, float y, float z);
 	private:
-		glm::vec3 m_position;
+		glm::vec3 m_Position{ 0, 0, 0 };
+		float m_Time{ 0.0f };
 	};
 }
