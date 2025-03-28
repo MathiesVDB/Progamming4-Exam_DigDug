@@ -1,8 +1,11 @@
 #include "SceneManager.h"
+#include <steam_api.h>
 #include "Scene.h"
 
 void dae::SceneManager::Update(float deltaTime)
 {
+	SteamAPI_RunCallbacks();
+
 	for(auto& scene : m_scenes)
 	{
 		scene->Update(deltaTime);
@@ -11,7 +14,7 @@ void dae::SceneManager::Update(float deltaTime)
 
 void dae::SceneManager::FixedUpdate(const float)
 {
-
+	
 }
 
 void dae::SceneManager::Render()

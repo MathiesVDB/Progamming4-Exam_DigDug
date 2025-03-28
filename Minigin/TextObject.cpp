@@ -13,7 +13,7 @@ void dae::TextObject::Update(float)
 {
 	if (m_needsUpdate)
 	{
-		const SDL_Color color = { 255,255,255,255 }; // only white text is supported now
+		constexpr SDL_Color color = { 255,255,255,255 }; // only white text is supported now
 		const auto surf = TTF_RenderText_Blended(m_font->GetFont(), m_text.c_str(), color);
 		if (surf == nullptr) 
 		{
@@ -34,8 +34,21 @@ void dae::TextObject::Render() const
 {
 	if (m_textTexture != nullptr)
 	{
-		const auto& pos = m_transform.GetPosition();
-		Renderer::GetInstance().RenderTexture(*m_textTexture, pos.x, pos.y);
+		std::shared_ptr<Transform> transform = nullptr;
+		if (GetOwner())
+		{
+			transform = GetOwner()->GetComponent<dae::Transform>();
+		}
+
+		if (transform)
+		{
+			const auto& pos = transform->GetPosition();
+			dae::Renderer::GetInstance().RenderTexture(*m_textTexture, pos.x, pos.y);
+		}
+		else
+		{
+			dae::Renderer::GetInstance().RenderTexture(*m_textTexture, 0.f, 0.f);
+		}
 	}
 }
 
