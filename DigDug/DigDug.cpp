@@ -10,7 +10,7 @@
 using namespace dae;
 void load()
 {
-	auto& scene = dae::SceneManager::GetInstance().CreateScene("DigDug");
+	//auto& scene = dae::SceneManager::GetInstance().CreateScene("DigDug");
 }
 
 int main(int, char* []) {
