@@ -1,8 +1,9 @@
 #include "HealthDisplayer.h"
+
 #include "Observer.h"
 
 HealthDisplay::HealthDisplay(const dae::GameObject* displayObject, dae::GameObject* player)
-	: m_Player(player)
+    : m_Player(player)
 {
     m_Text = displayObject->GetComponent<dae::TextObject>().get();
     m_Health = player->GetComponent<HealthComponent>().get();
@@ -15,10 +16,10 @@ HealthDisplay::HealthDisplay(const dae::GameObject* displayObject, dae::GameObje
 
 void HealthDisplay::Notify(const dae::GameObject*, Event event)
 {
-	if (event == Event::HealthChanged)
-	{
-		OnLivesChanged();
-	}
+    if (event == Event::HealthChanged)
+    {
+        OnLivesChanged();
+    }
 }
 
 void HealthDisplay::OnLivesChanged()
@@ -31,7 +32,7 @@ void HealthDisplay::OnLivesChanged()
 
 void HealthDisplay::SetLives(int lives)
 {
-	m_Lives = lives;
+    m_Lives = lives;
 }
 
 void HealthDisplay::UpdateText()

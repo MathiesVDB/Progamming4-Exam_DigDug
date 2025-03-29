@@ -2,8 +2,8 @@
 #include "Component.h"
 #include "Transform.h"
 #include "GameObject.h"
-#include "HealthComponent.h"
 #include "Observer.h"
+#include "HealthComponent.h"
 
 class Command
 {

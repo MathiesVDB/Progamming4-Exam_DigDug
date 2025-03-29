@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 //-----------------------------------------------------
 // Include Files
@@ -17,8 +17,8 @@ public:
 	// -------------------------
 	// Copy/move constructors and assignment operators
 	// -------------------------    
-	HealthComponent(const HealthComponent& other)					= default;
-	HealthComponent(HealthComponent&& other) noexcept				= default;
+	HealthComponent(const HealthComponent& other) = default;
+	HealthComponent(HealthComponent&& other) noexcept = default;
 
 	//-------------------------------------------------
 	// Member functions						

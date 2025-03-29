@@ -1,4 +1,4 @@
-﻿//---------------------------
+//---------------------------
 // Include Files
 //---------------------------
 #include "HealthComponent.h"
@@ -7,7 +7,7 @@
 // Constructor & Destructor
 //---------------------------
 HealthComponent::HealthComponent(int maxLives)
-	: m_MaxLives{maxLives}
+	: m_MaxLives{ maxLives }
 {
 	SetLivesToMax();
 }
