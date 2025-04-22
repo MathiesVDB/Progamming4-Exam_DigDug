@@ -19,11 +19,19 @@
 #include "TextureComponent.h"
 #include "Transform.h"
 #include "InputManager.h"
+#include "SoundSystem.h"
 
 using namespace dae;
 
 void load()
 {
+#if _DEBUG
+    servicelocator::register_sound_system(
+        std::make_unique<logging_sound_system>(std::make_unique<sdl_sound_system>()));
+#else
+    servicelocator::register_sound_system(std::make_unique<sdl_sound_system>());
+#endif
+
     auto& scene = dae::SceneManager::GetInstance().CreateScene("DigDug");
 
     auto backgroundGameObject = std::make_shared<dae::GameObject>();
