@@ -5,7 +5,7 @@ class SoundSystem final
 {
 public:
 	SoundSystem();
-	~SoundSystem() = default;
+	~SoundSystem();
 
 	void AddSoundToQueue(const std::string& sound_path);
 

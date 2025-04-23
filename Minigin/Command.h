@@ -78,20 +78,3 @@ private:
 	dae::GameObject* m_Owner;
 };
 
-//class PickupPelletCommand final : public Command
-//{
-//public:
-//	explicit PickupPelletCommand(dae::GameObject* owner, ScoreDisplay* score)
-//		: m_Owner(owner), m_Score(score)
-//	{
-//	}
-//
-//	void Execute() override
-//	{
-//		m_Score->SetScore(m_Score->GetScore() + 100);
-//	}
-//
-//private:
-//	dae::GameObject* m_Owner;
-//	ScoreDisplay* m_Score;
-//};

@@ -151,11 +151,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DamageSound.cpp" />
     <ClCompile Include="DigDug.cpp" />
     <ClCompile Include="HealthComponent.cpp" />
     <ClCompile Include="HealthDisplayer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DamageSound.h" />
     <ClInclude Include="HealthComponent.h" />
     <ClInclude Include="HealthDisplayer.h" />
   </ItemGroup>

@@ -21,12 +21,13 @@
 #include "InputManager.h"
 #include "SoundSystem.h"
 #include "ServiceLocator.h"
+#include "DamageSound.h"
 
 using namespace dae;
 
 void load()
 {
-    ServiceLocator::register_sound_system(std::make_unique<SoundSystem>());
+    ServiceLocator::RegisterSoundSystem(std::make_unique<SoundSystem>());
 
     auto& scene = dae::SceneManager::GetInstance().CreateScene("DigDug");
 
@@ -44,6 +45,12 @@ void load()
     textGameObject->AddComponent<dae::TextObject>("Programming 4 Assignment", font);
     textGameObject->GetComponent<Transform>()->SetPosition(80, 20, 0);
     scene.Add(textGameObject);
+
+    auto smallFont = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 24);
+    auto infoTextGameObject = std::make_shared<dae::GameObject>();
+    infoTextGameObject->AddComponent<dae::TextObject>("Press 'C' to damage (and play damage sound)", smallFont);
+    infoTextGameObject->GetComponent<Transform>()->SetPosition(5, 120, 0);
+    scene.Add(infoTextGameObject);
 
     auto FPSGameObject = std::make_shared<dae::GameObject>();
     FPSGameObject->AddComponent<FPSComponent>();
@@ -63,6 +70,9 @@ void load()
     auto healthDisplay = std::make_shared<HealthDisplay>(lifeDisplay1GameObject.get(), Player1.get());
     Player1->GetComponent<HealthComponent>()->AddObserver(healthDisplay);
 
+    auto damageSound = std::make_shared<DamageSound>(Player1.get(), "Dig Dug SFX (4).wav");
+    Player1->GetComponent<HealthComponent>()->AddObserver(damageSound);
+
     auto& inputManager = InputManager::GetInstance();
 
     inputManager.AddCommand(SDL_SCANCODE_W, KeyState::Pressed, std::make_shared<MoveCommand>(Player1.get(), MoveCommand::Direction::Up));
@@ -71,9 +81,6 @@ void load()
     inputManager.AddCommand(SDL_SCANCODE_D, KeyState::Pressed, std::make_shared<MoveCommand>(Player1.get(), MoveCommand::Direction::Right));
 
     inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Pressed, std::make_shared<DamageCommand>(Player1.get()));
-
-	auto& ss = ServiceLocator::get_sound_system();
-    ss.AddSoundToQueue("Dig Dug SFX (1).wav");
 }
 
 int main(int, char* []) {

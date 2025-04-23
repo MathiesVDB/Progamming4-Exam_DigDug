@@ -16,8 +16,8 @@ public:
 	//-------------------------------------------------
 	// Member functions						
 	//-------------------------------------------------
-	static SoundSystem& get_sound_system() { return *_ss_instance; }
-	static void register_sound_system(std::unique_ptr<SoundSystem>&& ss) { _ss_instance = std::move(ss); }
+	static SoundSystem& GetSoundSystem() { return *_ss_instance; }
+	static void RegisterSoundSystem(std::unique_ptr<SoundSystem>&& ss) { _ss_instance = std::move(ss); }
 
 private:
 	//-------------------------------------------------
