@@ -1,39 +1,15 @@
 #pragma once
-#include <algorithm>
 #include <iostream>
 
-using sound_id = unsigned short;
-class sound_system
+class SoundSystem final
 {
 public:
-	virtual ~sound_system() = default;
-	virtual void play(const sound_id id, const float volume) = 0;
-};
+	SoundSystem();
+	~SoundSystem() = default;
 
-class servicelocator final
-{
-	static std::unique_ptr<sound_system> _ss_instance;
-public:
-	static sound_system& get_sound_system() { return *_ss_instance; }
-	static void register_sound_system(std::unique_ptr<sound_system>&& ss) { _ss_instance = std::move(ss); }
-};
+	void AddSoundToQueue(const std::string& sound_path);
 
-class sdl_sound_system final : public sound_system
-{
-public:
-	void play(const sound_id id, const float volume) override
-	{
-		// lots of sdl_mixer code
-	}
-};
-
-class logging_sound_system final : public sound_system {
-	std::unique_ptr<sound_system> _real_ss;
-public:
-	logging_sound_system(std::unique_ptr<sound_system>&& ss) : _real_ss(std::move(ss)) {}
-	virtual ~logging_sound_system() = default;
-	void play(const sound_id id, const float volume) override {
-		_real_ss->play(id, volume);
-		std::cout << "playing " << id << " at volume " << volume << std::endl;
-	}
+private:
+	class SoundSystemImpl;
+	std::unique_ptr<SoundSystemImpl> m_ImplPtr;
 };

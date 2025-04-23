@@ -20,17 +20,13 @@
 #include "Transform.h"
 #include "InputManager.h"
 #include "SoundSystem.h"
+#include "ServiceLocator.h"
 
 using namespace dae;
 
 void load()
 {
-#if _DEBUG
-    servicelocator::register_sound_system(
-        std::make_unique<logging_sound_system>(std::make_unique<sdl_sound_system>()));
-#else
-    servicelocator::register_sound_system(std::make_unique<sdl_sound_system>());
-#endif
+    ServiceLocator::register_sound_system(std::make_unique<SoundSystem>());
 
     auto& scene = dae::SceneManager::GetInstance().CreateScene("DigDug");
 
@@ -75,6 +71,9 @@ void load()
     inputManager.AddCommand(SDL_SCANCODE_D, KeyState::Pressed, std::make_shared<MoveCommand>(Player1.get(), MoveCommand::Direction::Right));
 
     inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Pressed, std::make_shared<DamageCommand>(Player1.get()));
+
+	auto& ss = ServiceLocator::get_sound_system();
+    ss.AddSoundToQueue("Dig Dug SFX (1).wav");
 }
 
 int main(int, char* []) {
