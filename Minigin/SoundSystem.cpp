@@ -38,7 +38,6 @@ public:
 	SoundSystemImpl& operator=(const SoundSystemImpl& other)		= delete;
 	SoundSystemImpl& operator=(SoundSystemImpl&& other) noexcept	= delete;
 
-	//File has to be in the ../Data/SFX/ folder
 	void AddSoundToQueue(const std::string& soundPath) 
 	{
 		{

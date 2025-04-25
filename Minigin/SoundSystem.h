@@ -7,6 +7,7 @@ public:
 	SoundSystem();
 	~SoundSystem();
 
+	//File has to be in the ../Data/SFX/ folder
 	void AddSoundToQueue(const std::string& sound_path);
 
 private:
