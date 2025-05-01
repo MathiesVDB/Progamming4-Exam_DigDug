@@ -11,7 +11,7 @@ namespace dae
 	class TextObject final : public Component
 	{
 	public:
-		TextObject(const std::string& text, std::shared_ptr<Font> font);
+		TextObject(dae::GameObject* owner, const std::string& text, std::shared_ptr<Font> font);
 		~TextObject() override = default;
 		TextObject(const TextObject& other) = delete;
 		TextObject(TextObject&& other) = delete;
@@ -27,7 +27,6 @@ namespace dae
 	private:
 		bool m_needsUpdate;
 		std::string m_text;
-		Transform m_transform{};
 		std::shared_ptr<Font> m_font;
 		std::shared_ptr<Texture2D> m_textTexture;
 	};

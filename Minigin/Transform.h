@@ -10,6 +10,8 @@ namespace dae
 	class Transform final : public Component
 	{
 	public:
+		Transform(GameObject* owner) : Component(owner) {};
+
 		void Update(float deltaTime) override;
 
 		const glm::vec3& GetPosition() const;

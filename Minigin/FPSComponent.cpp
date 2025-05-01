@@ -6,7 +6,8 @@
 #include <string>
 #include <cmath>
 
-FPSComponent::FPSComponent()
+FPSComponent::FPSComponent(dae::GameObject* owner)
+	: Component(owner)
 {
     auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 30);
     m_TextObject = std::make_shared<dae::TextObject>("0 FPS", font);

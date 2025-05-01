@@ -81,8 +81,8 @@ namespace dae
         auto typeId = std::type_index(typeid(T));
         if (m_Components.find(typeId) == m_Components.end())
         {
-            auto component = std::make_shared<T>(std::forward<Args>(args)...);
-            component->SetOwner(this);
+            auto component = std::make_shared<T>(this, std::forward<Args>(args)...);
+            //component->SetOwner(this);
             m_Components[typeId] = component;
             return component;
         }

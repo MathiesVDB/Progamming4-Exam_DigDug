@@ -5,9 +5,16 @@
 #include "Font.h"
 #include "Texture2D.h"
 
-dae::TextObject::TextObject(const std::string& text, std::shared_ptr<Font> font) 
-	: m_needsUpdate(true), m_text(text), m_font(std::move(font)), m_textTexture(nullptr)
-{ }
+dae::TextObject::TextObject(dae::GameObject* owner, const std::string& text, std::shared_ptr<Font> font)
+	:	Component(owner),
+		m_needsUpdate(true),
+		m_text(text),
+		m_font(std::move(font)),
+		m_textTexture(nullptr)
+{
+	m_transform = GetOwner()->GetComponent<dae::Transform>();
+
+}
 
 void dae::TextObject::Update(float)
 {

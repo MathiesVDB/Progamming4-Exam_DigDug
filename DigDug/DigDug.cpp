@@ -22,6 +22,7 @@
 #include "SoundSystem.h"
 #include "ServiceLocator.h"
 #include "DamageSound.h"
+#include "SpriteComponent.h"
 
 using namespace dae;
 
@@ -57,7 +58,7 @@ void load()
     scene.Add(FPSGameObject);
 
     auto Player1 = std::make_shared<dae::GameObject>();
-    Player1->AddComponent<TextureComponent>("enemy1.bmp");
+    Player1->AddComponent<SpriteComponent>("Sprites/Player/WalkingSprite.bmp", 1, 8, 0.25f, 0, 1);
     Player1->GetComponent<Transform>()->SetPosition(180, 90, 0);
     Player1->AddComponent<HealthComponent>(3);
     scene.Add(Player1);
