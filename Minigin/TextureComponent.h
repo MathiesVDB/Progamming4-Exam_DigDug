@@ -9,7 +9,7 @@
 
 class GameObject;
 
-class TextureComponent final : public Component
+class TextureComponent final : public dae::Component
 {
 public:
     TextureComponent(dae::GameObject* owner, std::string  filename);

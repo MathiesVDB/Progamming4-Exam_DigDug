@@ -9,7 +9,7 @@
 //-----------------------------------------------------
 // HealthComponent Class									 
 //-----------------------------------------------------
-class HealthComponent final : public Component, public Subject
+class HealthComponent final : public dae::Component, public Subject
 {
 public:
 	HealthComponent(dae::GameObject* owner, int maxLives);

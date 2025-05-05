@@ -84,7 +84,7 @@ namespace dae
         {
             auto component = std::make_unique<T>(this, std::forward<Args>(args)...);
             T* pointer = component.get();
-            m_Components[typeId] = component;
+            m_Components[typeId] = std::move(component);
             return pointer;
         }
 

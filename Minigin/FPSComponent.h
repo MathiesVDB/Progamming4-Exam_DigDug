@@ -14,7 +14,7 @@ namespace dae {
 //-----------------------------------------------------
 // FPSComponent Class									 
 //-----------------------------------------------------
-class FPSComponent final : public Component
+class FPSComponent final : public dae::Component
 {
 public:
 	FPSComponent(dae::GameObject* owner); // Constructor

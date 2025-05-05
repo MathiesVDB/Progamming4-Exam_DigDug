@@ -7,32 +7,32 @@
 
 namespace dae
 {
-	class GameObject;
-}
+    class GameObject;
 
-//---------------------------
-// Member functions
-//---------------------------
-void Component::Update(float)
-{
-}
-
-void Component::Render() const
-{
-}
-
-void Component::SetOwner(dae::GameObject* owner)
-{
-    if (m_OwnerPtr != nullptr)
+    //---------------------------
+    // Member functions
+    //---------------------------
+    void Component::Update(float)
     {
-        std::cerr << "Warning: Component already has an owner.\n";
     }
-    m_OwnerPtr = owner;
-}
 
-dae::GameObject* Component::GetOwner() const
-{
-    if (m_OwnerPtr != nullptr) return m_OwnerPtr;
+    void Component::Render() const
+    {
+    }
 
-    return nullptr;
+    void Component::SetOwner(dae::GameObject* owner)
+    {
+        if (m_OwnerPtr != nullptr)
+        {
+            std::cerr << "Warning: Component already has an owner.\n";
+        }
+        m_OwnerPtr = owner;
+    }
+
+    dae::GameObject* Component::GetOwner() const
+    {
+        if (m_OwnerPtr != nullptr) return m_OwnerPtr;
+
+        return nullptr;
+    }
 }

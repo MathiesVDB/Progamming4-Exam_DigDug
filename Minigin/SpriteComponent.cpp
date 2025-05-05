@@ -56,10 +56,12 @@ void SpriteComponent::Render() const
 {
 	const int rowIndex{ m_CurrentFrame / m_Columns };
 	const int colIndex{ m_CurrentFrame % m_Columns };
-	SDL_Rect sourceRect = { colIndex * m_FrameWidth,
-						rowIndex * m_FrameHeight,
-				     (colIndex + 1) * m_FrameWidth,
-					 (rowIndex + 1) * m_FrameHeight };
+	SDL_Rect sourceRect = {
+		colIndex * m_FrameWidth,
+		rowIndex * m_FrameHeight,
+		m_FrameWidth,
+		m_FrameHeight
+	};
 
 	m_Texture.Render(m_Position.x, m_Position.y, sourceRect);
 }

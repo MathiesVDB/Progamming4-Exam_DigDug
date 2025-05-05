@@ -9,7 +9,7 @@
 //-----------------------------------------------------
 // ColliderComponent Class									 
 //-----------------------------------------------------
-class ColliderComponent final : public Component
+class ColliderComponent final : public dae::Component
 {
 public:
 	ColliderComponent(dae::GameObject* owner); 

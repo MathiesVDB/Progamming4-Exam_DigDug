@@ -27,13 +27,21 @@ class Subject
 public:
     void AddObserver(std::unique_ptr<Observer> observer)
     {
-        m_Observers.push_back(observer);
+        m_Observers.push_back(std::move(observer));
     }
 
     void RemoveObserver(const Observer* observer)
     {
-        m_Observers.erase(std::remove(m_Observers.begin(), m_Observers.end(), observer), m_Observers.end());
+        m_Observers.erase(
+            std::remove_if(
+                m_Observers.begin(),
+                m_Observers.end(),
+                [observer](const std::unique_ptr<Observer>& ptr) { return ptr.get() == observer; }
+            ),
+            m_Observers.end()
+        );
     }
+
 
 protected:
     void Notify(const dae::GameObject* gameObject, Event event)

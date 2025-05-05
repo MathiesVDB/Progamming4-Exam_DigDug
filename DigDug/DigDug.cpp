@@ -61,12 +61,12 @@
         Player1->AddComponent<SpriteComponent>("Sprites/Player/WalkingSprite.bmp", 1, 8, 0.25f, 0, 1);
         Player1->GetComponent<Transform>()->SetPosition(180, 90, 0);
         Player1->AddComponent<HealthComponent>(3);
-        scene.Add(Player1);
+
+        int player1Lives = Player1->GetComponent<HealthComponent>()->GetLives();
 
         auto lifeDisplay1GameObject = std::make_unique<dae::GameObject>();
-        lifeDisplay1GameObject->AddComponent<dae::TextObject>("Lives: " + std::to_string(Player1->GetComponent<HealthComponent>()->GetLives()), font);
+        lifeDisplay1GameObject->AddComponent<dae::TextObject>("Lives: " + std::to_string(player1Lives), font);
         lifeDisplay1GameObject->GetComponent<Transform>()->SetPosition(10, 150, 0);
-        scene.Add(lifeDisplay1GameObject);
 
         auto healthDisplay = std::make_unique<HealthDisplay>(lifeDisplay1GameObject.get(), Player1.get());
         Player1->GetComponent<HealthComponent>()->AddObserver(std::move(healthDisplay));
@@ -82,6 +82,9 @@
         inputManager.AddCommand(SDL_SCANCODE_D, KeyState::Pressed, std::make_shared<MoveCommand>(Player1.get(), MoveCommand::Direction::Right));
 
         inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Pressed, std::make_shared<DamageCommand>(Player1.get()));
+
+        scene.Add(Player1);
+        scene.Add(lifeDisplay1GameObject);
     }
 
     int main(int, char* []) {

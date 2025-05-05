@@ -10,7 +10,7 @@
 //-----------------------------------------------------
 // SpriteComponent Class									 
 //-----------------------------------------------------
-class SpriteComponent final : public Component
+class SpriteComponent final : public dae::Component
 {
 public:
 	SpriteComponent(dae::GameObject* owner, const std::string& fileName, int rows, int columns, float frameDelay, int firstframe, int lastframe); //Don't forget to set the position of the sprite after
