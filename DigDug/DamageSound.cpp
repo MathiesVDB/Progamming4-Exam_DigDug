@@ -3,8 +3,8 @@
 #include "ServiceLocator.h"
 
 DamageSound::DamageSound(const dae::GameObject* player, const std::string& soundPath)
-	: m_Player(player)
-	, m_SoundPath(soundPath)
+	:	m_Player(player),
+		m_SoundPath(soundPath)
 {
 }
 

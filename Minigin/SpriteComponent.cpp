@@ -12,7 +12,7 @@
 //---------------------------
 SpriteComponent::SpriteComponent(dae::GameObject* owner, const std::string& fileName, int rows, int columns, float frameDelay, int firstframe, int lastframe)
 	:	Component(owner),
-		m_Texture(fileName),
+		m_Texture(owner, fileName),
 		m_Rows		{ rows },
 		m_Columns	{ columns },
 		m_FrameDelay{ frameDelay },

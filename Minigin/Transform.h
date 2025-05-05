@@ -18,6 +18,5 @@ namespace dae
 		void SetPosition(float x, float y, float z);
 	private:
 		glm::vec3 m_Position{0, 0, 0};
-		float m_Time{ 0.0f };
 	};
 }

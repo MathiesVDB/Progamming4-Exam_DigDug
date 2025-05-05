@@ -5,8 +5,8 @@
 HealthDisplay::HealthDisplay(const dae::GameObject* displayObject, dae::GameObject* player)
     : m_Player(player)
 {
-    m_Text = displayObject->GetComponent<dae::TextObject>().get();
-    m_Health = player->GetComponent<HealthComponent>().get();
+    m_Text = displayObject->GetComponent<dae::TextObject>();
+    m_Health = player->GetComponent<HealthComponent>();
 
     if (m_Health)
     {

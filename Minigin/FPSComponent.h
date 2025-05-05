@@ -42,7 +42,7 @@ private:
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
-	std::shared_ptr<dae::TextObject> m_TextObject;
+	std::unique_ptr<dae::TextObject> m_TextObject;
 	int m_FrameCount = 0;
 	float m_ElapsedTime = 0.0f;
 	float m_DeltaTime{}; // Need this to give deltaTime to my render function

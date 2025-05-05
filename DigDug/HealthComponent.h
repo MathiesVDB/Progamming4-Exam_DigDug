@@ -12,7 +12,7 @@
 class HealthComponent final : public Component, public Subject
 {
 public:
-	HealthComponent(int maxLives);
+	HealthComponent(dae::GameObject* owner, int maxLives);
 
 	// -------------------------
 	// Copy/move constructors and assignment operators

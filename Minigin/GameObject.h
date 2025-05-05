@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include "Component.h"
 #include "Transform.h"
+#include "TextObject.h"
 
 namespace dae
 {
@@ -37,13 +38,13 @@ namespace dae
 
         //Template functions
 		template <typename T, typename... Args>
-        std::shared_ptr<T> AddComponent(Args&&... args);
+        T* AddComponent(Args&&... args);
 
 		template <typename T>
 		void RemoveComponent();
 
 		template <typename T>
-        std::shared_ptr<T> GetComponent() const;
+        T* GetComponent() const;
 
 		template <typename T>
 		bool HasComponent() const;
@@ -63,7 +64,7 @@ namespace dae
         //---------------------------------------------------------------------------------
 		//Private member variables
         //---------------------------------------------------------------------------------
-        std::unordered_map<std::type_index, std::shared_ptr<Component>> m_Components;
+        std::unordered_map<std::type_index, std::unique_ptr<Component>> m_Components;
         glm::vec3 m_LocalPosition{ 0, 0, 0 };
         glm::vec3 m_WorldPosition{ 0, 0, 0 };
         bool m_IsPositionDirty{ true };
@@ -74,17 +75,17 @@ namespace dae
 
     // add component
     template <typename T, typename... Args>
-    std::shared_ptr<T> GameObject::AddComponent(Args&&... args)
+    T* GameObject::AddComponent(Args&&... args)
     {
         static_assert(std::is_base_of<Component, T>::value, "T must inherit from component");
 
         auto typeId = std::type_index(typeid(T));
         if (m_Components.find(typeId) == m_Components.end())
         {
-            auto component = std::make_shared<T>(this, std::forward<Args>(args)...);
-            //component->SetOwner(this);
+            auto component = std::make_unique<T>(this, std::forward<Args>(args)...);
+            T* pointer = component.get();
             m_Components[typeId] = component;
-            return component;
+            return pointer;
         }
 
         return nullptr;
@@ -100,13 +101,13 @@ namespace dae
 
     // get component
     template <typename T>
-    std::shared_ptr<T> GameObject::GetComponent() const
+    T* GameObject::GetComponent() const
     {
         auto typeId = std::type_index(typeid(T));
         auto it = m_Components.find(typeId);
         if (it != m_Components.end())
         {
-            return std::dynamic_pointer_cast<T>(it->second);
+            return static_cast<T*>(it->second.get());
         }
 
         return nullptr;

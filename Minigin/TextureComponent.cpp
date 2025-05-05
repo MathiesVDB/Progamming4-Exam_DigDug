@@ -23,9 +23,7 @@ void TextureComponent::Render() const
 
     if (owner && m_Texture)
     {
-        auto transform = owner->GetComponent<dae::Transform>();
-
-        if (transform)
+	    if (auto transform = owner->GetComponent<dae::Transform>())
         {
             const auto& pos = transform->GetPosition();
             dae::Renderer::GetInstance().RenderTexture(*m_Texture, pos.x, pos.y);

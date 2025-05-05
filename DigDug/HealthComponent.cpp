@@ -3,11 +3,14 @@
 //---------------------------
 #include "HealthComponent.h"
 
+#include "GameObject.h"
+
 //---------------------------
 // Constructor & Destructor
 //---------------------------
-HealthComponent::HealthComponent(int maxLives)
-	: m_MaxLives{ maxLives }
+HealthComponent::HealthComponent(dae::GameObject* owner, int maxLives)
+	:	Component(owner),
+		m_MaxLives{ maxLives }
 {
 	SetLivesToMax();
 }

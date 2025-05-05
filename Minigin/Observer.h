@@ -15,18 +15,22 @@ class Observer
 {
 public:
     virtual ~Observer() = default;
+
+    Observer& operator= (const Observer&) = delete;
+    Observer& operator= (const Observer&&) = delete;
+
     virtual void Notify(const dae::GameObject* gameObject, Event event) = 0;
 };
 
 class Subject
 {
 public:
-    void AddObserver(std::shared_ptr<Observer> observer)
+    void AddObserver(std::unique_ptr<Observer> observer)
     {
         m_Observers.push_back(observer);
     }
 
-    void RemoveObserver(const std::shared_ptr<Observer> observer)
+    void RemoveObserver(const Observer* observer)
     {
         m_Observers.erase(std::remove(m_Observers.begin(), m_Observers.end(), observer), m_Observers.end());
     }
@@ -34,14 +38,14 @@ public:
 protected:
     void Notify(const dae::GameObject* gameObject, Event event)
     {
-        for (const std::shared_ptr<Observer>& observer : m_Observers)
+        for (const std::unique_ptr<Observer>& observer : m_Observers)
         {
             observer->Notify(gameObject, event);
         }
     }
 
 private:
-    std::vector<std::shared_ptr<Observer>> m_Observers;
+    std::vector<std::unique_ptr<Observer>> m_Observers;
 };
 
 

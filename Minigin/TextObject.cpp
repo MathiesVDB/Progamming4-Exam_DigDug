@@ -1,6 +1,9 @@
 #include <stdexcept>
 #include <SDL_ttf.h>
 #include "TextObject.h"
+
+#include <numeric>
+
 #include "Renderer.h"
 #include "Font.h"
 #include "Texture2D.h"
@@ -12,7 +15,6 @@ dae::TextObject::TextObject(dae::GameObject* owner, const std::string& text, std
 		m_font(std::move(font)),
 		m_textTexture(nullptr)
 {
-	m_transform = GetOwner()->GetComponent<dae::Transform>();
 
 }
 
@@ -41,7 +43,7 @@ void dae::TextObject::Render() const
 {
 	if (m_textTexture != nullptr)
 	{
-		std::shared_ptr<Transform> transform = nullptr;
+		Transform* transform = nullptr;
 		if (GetOwner())
 		{
 			transform = GetOwner()->GetComponent<dae::Transform>();
@@ -68,7 +70,7 @@ void dae::TextObject::SetText(const std::string& text)
 
 void dae::TextObject::SetPosition(const float x, const float y)
 {
-	m_transform.SetPosition(x, y, 0.0f);
+	GetOwner()->GetComponent<dae::Transform>()->SetPosition(x, y, 0.0f);
 }
 
 
