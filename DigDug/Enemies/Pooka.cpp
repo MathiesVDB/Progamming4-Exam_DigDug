@@ -3,7 +3,7 @@
 Pooka::Pooka(dae::GameObject* owner)
 	:	Component(owner)
 {
-	m_State = std::make_unique<PookaState>();
+	m_State = &PookaState::moving;
 }
 
 void Pooka::HandleInput()
@@ -19,4 +19,9 @@ void Pooka::Update(float deltaTime)
 void Pooka::Render() const
 {
 	Component::Render();
+}
+
+void Pooka::SetState(PookaState* state)
+{
+	m_State = state;
 }

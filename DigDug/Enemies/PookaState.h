@@ -1,13 +1,12 @@
 #pragma once
-#include <iostream>
-#include <memory>
-#include "Pooka.h"
 
 class MovingState;
 class InflatedState;
 class DeathState;
 class GhostState;
 
+
+class Pooka;
 class PookaState 
 {
 public:
@@ -18,7 +17,7 @@ public:
 
     virtual ~PookaState() {}
     virtual void HandleInput(Pooka& ) {};
-    virtual void Update(Pooka& pooka, float deltaTime) {};
+    virtual void Update(Pooka&, float ) {};
 
 protected:
     float m_AccTime{};
@@ -26,88 +25,28 @@ protected:
 
 class MovingState : public PookaState
 {
-    void HandleInput(Pooka& ) override
-    {
-
-    }
-
-    void Update(Pooka& pooka, float deltaTime) override
-    {
-        m_AccTime += deltaTime;
-
-        if (m_AccTime >= 2.f)
-        {
-            pooka.m_State = &PookaState::inflating;
-        }
-        else
-        {
-            std::cout << "Current state = moving\n";
-        }
-    }
+public:
+	void HandleInput(Pooka&) override;
+	void Update(Pooka& pooka, float deltaTime) override;
 };
 
 class InflatedState : public PookaState
 {
-    void HandleInput(Pooka& ) override
-    {
-
-    }
-
-    void Update(Pooka& pooka, float deltaTime) override
-    {
-        m_AccTime += deltaTime;
-
-        if (m_AccTime >= 2.f)
-        {
-            pooka.m_State = &PookaState::dying;
-        }
-        else
-        {
-            std::cout << "Current state = inflating\n";
-        }
-    }
+public:
+	void HandleInput(Pooka&) override;
+	void Update(Pooka& pooka, float deltaTime) override;
 };
 
 class DeathState : public PookaState
 {
-    void HandleInput(Pooka& ) override
-    {
-
-    }
-
-    void Update(Pooka& pooka, float deltaTime) override
-    {
-        m_AccTime += deltaTime;
-
-        if (m_AccTime >= 2.f)
-        {
-            pooka.m_State = &PookaState::ghosting;
-        }
-        else
-        {
-            std::cout << "Current state = dying\n";
-        }
-    }
+public:
+	void HandleInput(Pooka&) override;
+	void Update(Pooka& pooka, float deltaTime) override;
 };
 
 class GhostState : public PookaState
 {
-    void HandleInput(Pooka& ) override
-    {
-
-    }
-
-    void Update(Pooka& pooka, float deltaTime) override
-    {
-        m_AccTime += deltaTime;
-
-        if (m_AccTime >= 2.f)
-        {
-            pooka.m_State = &PookaState::moving;
-        }
-        else
-        {
-            std::cout << "Current state = ghosting\n";
-        }
-    }
+public:
+    void HandleInput(Pooka&) override;
+    void Update(Pooka& pooka, float deltaTime) override;
 };

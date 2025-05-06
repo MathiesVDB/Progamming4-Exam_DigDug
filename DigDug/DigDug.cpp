@@ -22,6 +22,7 @@
     #include "SoundSystem.h"
     #include "ServiceLocator.h"
     #include "DamageSound.h"
+    #include "Pooka.h"
     #include "SpriteComponent.h"
 
     using namespace dae;
@@ -56,6 +57,12 @@
         auto FPSGameObject = std::make_unique<dae::GameObject>();
         FPSGameObject->AddComponent<FPSComponent>();
         scene.Add(FPSGameObject);
+
+		auto PookaGameObject = std::make_unique<dae::GameObject>();
+		PookaGameObject->AddComponent<SpriteComponent>("Sprites/Pooka/DefaultSprite.bmp", 2, 5, 0.25f, 0, 1);
+        PookaGameObject->GetComponent<Transform>()->SetPosition(100, 90, 0);
+		PookaGameObject->AddComponent<Pooka>();
+		scene.Add(PookaGameObject);
 
         auto Player1 = std::make_unique<dae::GameObject>();
         Player1->AddComponent<SpriteComponent>("Sprites/Player/WalkingSprite.bmp", 1, 8, 0.25f, 0, 1);

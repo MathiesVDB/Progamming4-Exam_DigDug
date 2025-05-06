@@ -6,3 +6,9 @@ struct Vector3
 	float y;
 	float z;
 };
+
+struct Point2f
+{
+	float x;
+	float y;
+};

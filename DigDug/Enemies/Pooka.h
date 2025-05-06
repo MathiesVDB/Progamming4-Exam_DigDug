@@ -21,6 +21,8 @@ public:
 	void Update(float deltaTime) override;
 	void Render() const override;
 
+	void SetState(PookaState* state);
+
 private:
-	std::unique_ptr<PookaState> m_State;
+	PookaState* m_State;
 };
