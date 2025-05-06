@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <memory>
 #include "Pooka.h"
 
@@ -17,7 +18,10 @@ public:
 
     virtual ~PookaState() {}
     virtual void HandleInput(Pooka& ) {};
-    virtual void Update(Pooka& , float ) {};
+    virtual void Update(Pooka& pooka, float deltaTime) {};
+
+protected:
+    float m_AccTime{};
 };
 
 class MovingState : public PookaState
@@ -27,9 +31,18 @@ class MovingState : public PookaState
 
     }
 
-    void Update(Pooka& , float ) override
+    void Update(Pooka& pooka, float deltaTime) override
     {
+        m_AccTime += deltaTime;
 
+        if (m_AccTime >= 2.f)
+        {
+            pooka.m_State = &PookaState::inflating;
+        }
+        else
+        {
+            std::cout << "Current state = moving\n";
+        }
     }
 };
 
@@ -40,9 +53,18 @@ class InflatedState : public PookaState
 
     }
 
-    void Update(Pooka& , float ) override
+    void Update(Pooka& pooka, float deltaTime) override
     {
+        m_AccTime += deltaTime;
 
+        if (m_AccTime >= 2.f)
+        {
+            pooka.m_State = &PookaState::dying;
+        }
+        else
+        {
+            std::cout << "Current state = inflating\n";
+        }
     }
 };
 
@@ -53,9 +75,18 @@ class DeathState : public PookaState
 
     }
 
-    void Update(Pooka& , float ) override
+    void Update(Pooka& pooka, float deltaTime) override
     {
+        m_AccTime += deltaTime;
 
+        if (m_AccTime >= 2.f)
+        {
+            pooka.m_State = &PookaState::ghosting;
+        }
+        else
+        {
+            std::cout << "Current state = dying\n";
+        }
     }
 };
 
@@ -66,8 +97,17 @@ class GhostState : public PookaState
 
     }
 
-    void Update(Pooka& , float ) override
+    void Update(Pooka& pooka, float deltaTime) override
     {
+        m_AccTime += deltaTime;
 
+        if (m_AccTime >= 2.f)
+        {
+            pooka.m_State = &PookaState::moving;
+        }
+        else
+        {
+            std::cout << "Current state = ghosting\n";
+        }
     }
 };

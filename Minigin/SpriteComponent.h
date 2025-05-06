@@ -39,7 +39,7 @@ private:
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
-	Point2f m_Position;
+	SDL_Point m_Position;
 	TextureComponent m_Texture;
 
 	int m_Rows;

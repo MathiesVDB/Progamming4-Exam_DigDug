@@ -1,23 +1,22 @@
-﻿//---------------------------
-// Include Files
-//---------------------------
-#include "Pooka.h"
+﻿#include "Pooka.h"
 
-//---------------------------
-// Constructor & Destructor
-//---------------------------
-Pooka::Pooka()
+Pooka::Pooka(dae::GameObject* owner)
+	:	Component(owner)
 {
-	// nothing to create
+	m_State = std::make_unique<PookaState>();
 }
 
-Pooka::~Pooka()
+void Pooka::HandleInput()
 {
-	// nothing to destroy
+	m_State->HandleInput(*this);
 }
 
-//---------------------------
-// Member functions
-//---------------------------
+void Pooka::Update(float deltaTime)
+{
+	m_State->Update(*this, deltaTime);
+}
 
-// Write member functions here
+void Pooka::Render() const
+{
+	Component::Render();
+}

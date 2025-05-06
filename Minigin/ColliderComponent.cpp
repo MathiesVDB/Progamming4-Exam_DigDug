@@ -7,21 +7,16 @@
 // Constructor & Destructor
 //---------------------------
 ColliderComponent::ColliderComponent(dae::GameObject* owner)
-	: Component(owner)
+	:	Component(owner)
 {
 	// nothing to create
 }
 
-ColliderComponent::~ColliderComponent()
+bool ColliderComponent::IsOverlapping(const SDL_Rect& otherBoundingBox) const
 {
-	// nothing to destroy
+	return (m_BoundingBox.x						< otherBoundingBox.x + otherBoundingBox.w	&&
+			m_BoundingBox.x + m_BoundingBox.w	> otherBoundingBox.x						&&
+			m_BoundingBox.y + m_BoundingBox.h	< otherBoundingBox.y						&&
+			m_BoundingBox.y						> otherBoundingBox.y + otherBoundingBox.h);
 }
 
-bool ColliderComponent::IsOverlapping(const ColliderComponent& other) const
-{
-	// Check if the bounding boxes of the two colliders overlap
-	return (m_BoundingBox.x						< other.m_BoundingBox.x + other.m_BoundingBox.w &&
-			m_BoundingBox.x + m_BoundingBox.w	> other.m_BoundingBox.x &&
-			m_BoundingBox.y + m_BoundingBox.h	< other.m_BoundingBox.y &&
-			m_BoundingBox.y						> other.m_BoundingBox.y + other.m_BoundingBox.h);
-}

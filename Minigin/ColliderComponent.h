@@ -5,6 +5,7 @@
 //-----------------------------------------------------
 #include <SDL_rect.h>
 #include "Component.h"
+#include "Helpers.h"
 
 //-----------------------------------------------------
 // ColliderComponent Class									 
@@ -12,8 +13,7 @@
 class ColliderComponent final : public dae::Component
 {
 public:
-	ColliderComponent(dae::GameObject* owner); 
-	~ColliderComponent();
+	ColliderComponent(dae::GameObject* owner);
 
 	// -------------------------
 	// Copy/move constructors and assignment operators
@@ -26,9 +26,13 @@ public:
 	//-------------------------------------------------
 	// Member functions						
 	//-------------------------------------------------
-	bool IsOverlapping(const ColliderComponent& other) const;
+	bool IsOverlapping(const SDL_Rect& otherBoundingBox) const;
 
 private:
+	//-------------------------------------------------
+	// Member functions								
+	//-------------------------------------------------
+
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
