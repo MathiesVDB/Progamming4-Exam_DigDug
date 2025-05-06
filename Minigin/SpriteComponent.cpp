@@ -84,6 +84,19 @@ void SpriteComponent::SetSpriteLocation()
 
 }
 
+void SpriteComponent::SetNewTexture(const std::string& fileName, int rows, int columns, int firstframe, int lastframe)
+{
+	m_Texture.SetTexture(fileName);
+
+	m_Rows = rows;
+	m_Columns = columns;
+
+	m_FrameWidth = m_Texture.GetWidth() / m_Columns;
+	m_FrameHeight = m_Texture.GetHeight() / m_Rows;
+
+	SetSpriteBounds(firstframe, lastframe, true);
+}
+
 int SpriteComponent::GetCurrentFrame() const
 {
 	return m_CurrentFrame;

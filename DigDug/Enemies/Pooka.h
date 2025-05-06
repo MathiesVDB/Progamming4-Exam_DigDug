@@ -22,6 +22,7 @@ public:
 	void Render() const override;
 
 	void SetState(PookaState* state);
+	void UpdateSpriteForCurrentState();
 
 private:
 	PookaState* m_State;

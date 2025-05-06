@@ -32,6 +32,7 @@ public:
 
 	void SetSpriteBounds(const int newFirstFrame, const int newLastFrame, const bool setCurrentFrame);
 	void SetSpriteLocation(); //Does not need argument, because it uses the position of the GameObject
+	void SetNewTexture(const std::string& fileName, int rows, int columns, int firstframe, int lastframe);
 
 	int GetCurrentFrame() const;
 
