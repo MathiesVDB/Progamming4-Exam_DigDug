@@ -8,7 +8,7 @@
 //---------------------------
 Level::Level()
 {
-	// nothing to create
+	m_GridUPtr = std::make_unique<Grid>();
 }
 
 Level::~Level()
@@ -16,8 +16,22 @@ Level::~Level()
 	// nothing to destroy
 }
 
-//---------------------------
-// Member functions
-//---------------------------
+void Level::LoadLevel(const std::string& fileName)
+{
+}
 
-// Write member functions here
+void Level::SpawnPlayer()
+{
+}
+
+void Level::SpawnPooka()
+{
+}
+
+void Level::SpawnFygar()
+{
+}
+
+void Level::SpawnRock()
+{
+}

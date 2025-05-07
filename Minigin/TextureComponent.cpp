@@ -44,6 +44,7 @@ void TextureComponent::SetTexture(const std::string& filename)
 {
     if (m_Filename == filename && m_Texture) return; // Avoid redundant loading
 
+    m_Filename = filename;
     m_Texture = dae::ResourceManager::GetInstance().LoadTexture(filename);
 
 	m_Width = m_Texture->GetSize().x;
