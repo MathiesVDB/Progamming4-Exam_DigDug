@@ -3,17 +3,18 @@
 //-----------------------------------------------------
 // Include Files
 //-----------------------------------------------------
-#include "Grid.h"
+#include "GridComponent.h"
+#include "Component.h"
 #include <iostream>
+#include "Scene.h"
 
 //-----------------------------------------------------
 // Level Class									 
 //-----------------------------------------------------
-class Level final
+class Level final : public dae::Component
 {
 public:
-	Level(); 
-	~Level(); 
+	Level(dae::GameObject* owner, const std::string& sceneName);
 
 	// -------------------------------------------------
 	// Copy/move constructors and assignment operators
@@ -26,20 +27,25 @@ public:
 	//-------------------------------------------------
 	// Member functions						
 	//-------------------------------------------------
-	void LoadLevel(const std::string& fileName);
+	void LoadLevel(const std::string& fileName); // Will look for file in ../Data/Levels/
 
 private:
 	//-------------------------------------------------
 	// Private member functions								
 	//-------------------------------------------------
-	void SpawnPlayer();
-	void SpawnPooka();
-	void SpawnFygar();
-	void SpawnRock();
-
+	void SpawnPlayer(const Point2f& spawnPos) const;
+	void SpawnPooka(const Point2f& spawnPos) const;
+	void SpawnFygar(const Point2f& spawnPos) const;
+	void SpawnRock(const Point2f& spawnPos) const;
+	void SpawnDirtYellow(const Point2f& spawnPos) const;
+	void SpawnDirtOrangeLight(const Point2f& spawnPos) const;
+	void SpawnDirtOrangeDark(const Point2f& spawnPos) const;
+	void SpawnDirtRed(const Point2f& spawnPos) const;
+	void SpawnEmpty(const Point2f& spawnPos) const;
 
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
-	std::unique_ptr<Grid> m_GridUPtr;
+	dae::Scene& m_Scene;
+
 };

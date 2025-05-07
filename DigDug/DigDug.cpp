@@ -24,6 +24,7 @@
     #include "DamageSound.h"
     #include "Pooka.h"
     #include "SpriteComponent.h"
+	#include "Level.h"
 
     using namespace dae;
 
@@ -58,40 +59,11 @@
         FPSGameObject->AddComponent<FPSComponent>();
         scene.Add(FPSGameObject);
 
-		auto PookaGameObject = std::make_unique<dae::GameObject>();
-		PookaGameObject->AddComponent<SpriteComponent>("Sprites/Pooka/DefaultSprite.bmp", 2, 5, 0.25f, 0, 1);
-        PookaGameObject->GetComponent<Transform>()->SetPosition(100, 90, 0);
-		PookaGameObject->AddComponent<Pooka>();
-		scene.Add(PookaGameObject);
-
-        auto Player1 = std::make_unique<dae::GameObject>();
-        Player1->AddComponent<SpriteComponent>("Sprites/Player/WalkingSprite.bmp", 1, 8, 0.25f, 0, 1);
-        Player1->GetComponent<Transform>()->SetPosition(180, 90, 0);
-        Player1->AddComponent<HealthComponent>(3);
-
-        int player1Lives = Player1->GetComponent<HealthComponent>()->GetLives();
-
-        auto lifeDisplay1GameObject = std::make_unique<dae::GameObject>();
-        lifeDisplay1GameObject->AddComponent<dae::TextObject>("Lives: " + std::to_string(player1Lives), font);
-        lifeDisplay1GameObject->GetComponent<Transform>()->SetPosition(10, 150, 0);
-
-        auto healthDisplay = std::make_unique<HealthDisplay>(lifeDisplay1GameObject.get(), Player1.get());
-        Player1->GetComponent<HealthComponent>()->AddObserver(std::move(healthDisplay));
-
-        auto damageSound = std::make_unique<DamageSound>(Player1.get(), "Dig Dug SFX (4).wav");
-        Player1->GetComponent<HealthComponent>()->AddObserver(std::move(damageSound));
-
-        auto& inputManager = InputManager::GetInstance();
-
-        inputManager.AddCommand(SDL_SCANCODE_W, KeyState::Pressed, std::make_shared<MoveCommand>(Player1.get(), MoveCommand::Direction::Up));
-        inputManager.AddCommand(SDL_SCANCODE_A, KeyState::Pressed, std::make_shared<MoveCommand>(Player1.get(), MoveCommand::Direction::Left));
-        inputManager.AddCommand(SDL_SCANCODE_S, KeyState::Pressed, std::make_shared<MoveCommand>(Player1.get(), MoveCommand::Direction::Down));
-        inputManager.AddCommand(SDL_SCANCODE_D, KeyState::Pressed, std::make_shared<MoveCommand>(Player1.get(), MoveCommand::Direction::Right));
-
-        inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Pressed, std::make_shared<DamageCommand>(Player1.get()));
-
-        scene.Add(Player1);
-        scene.Add(lifeDisplay1GameObject);
+        auto levelGameObject = std::make_unique<dae::GameObject>();
+        levelGameObject->AddComponent<Level>("Level1");
+        levelGameObject->AddComponent<GridComponent>();
+		levelGameObject->GetComponent<Level>()->LoadLevel("Level1.json");
+        scene.Add(levelGameObject);
     }
 
     int main(int, char* []) {

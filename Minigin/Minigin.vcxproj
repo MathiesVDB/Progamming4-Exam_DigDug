@@ -106,7 +106,7 @@
     <ClInclude Include="FPSComponent.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GamePad.h" />
-    <ClInclude Include="Grid.h" />
+    <ClInclude Include="GridComponent.h" />
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Level.h" />
@@ -132,7 +132,7 @@
     <ClCompile Include="FPSComponent.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GamePad.cpp" />
-    <ClCompile Include="Grid.cpp" />
+    <ClCompile Include="GridComponent.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="Minigin.cpp" />

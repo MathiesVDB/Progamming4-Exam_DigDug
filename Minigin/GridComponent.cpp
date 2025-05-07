@@ -1,40 +1,56 @@
 ﻿//---------------------------
 // Include Files
 //---------------------------
-#include "Grid.h"
+#include "GridComponent.h"
 #include "Renderer.h"
 
 //---------------------------
 // Constructor & Destructor
 //---------------------------
-Grid::Grid()
+GridComponent::GridComponent(dae::GameObject* owner)
+	: Component(owner)
 {
 	CreateGrid();
 
 #if _DEBUG
-	std::cout << "Grid created with " << ROWS * COLUMNS << " cells." << std::endl;
+	std::cout << "GridComponent created with " << ROWS * COLUMNS << " cells." << std::endl;
 	DrawGrid();
 #endif
 }
 
-Grid::~Grid()
+void GridComponent::Update(float )
 {
-	// nothing to destroy
 }
 
-void Grid::CreateGrid()
+void GridComponent::Render() const
+{
+#if _DEBUG
+	DrawGrid();
+#endif
+}
+
+void GridComponent::CreateGrid()
 {
 	m_Grid = std::vector<Cell>(ROWS * COLUMNS);
+
+	for (int row = 0; row < ROWS; ++row)
+	{
+		for (int col = 0; col < COLUMNS; ++col)
+		{
+			int index = row * COLUMNS + col;
+			m_Grid[index].spawnPosition = Point2f{ col * CELL_SIZE * 1.0f, row * CELL_SIZE * 1.0f };
+		}
+	}
 }
 
-void Grid::DrawGrid() const
+void GridComponent::DrawGrid() const
 {
 	SDL_Renderer* sdlRenderer = dae::Renderer::GetInstance().GetSDLRenderer();
 	SDL_SetRenderDrawColor(sdlRenderer, 255, 255, 255, 255);
 
-	for (int y = 0; y < ROWS; ++y)
+	for (int y = 0; y < COLUMNS; ++y)
 	{
-		for (int x = 0; x < COLUMNS; ++x)
+		for (int x = 0; x < ROWS; ++x)
 		{
 			SDL_Rect cellRect{};
 			cellRect.x = x * CELL_SIZE;
@@ -47,7 +63,7 @@ void Grid::DrawGrid() const
 	}
 }
 
-int Grid::GetCellIndex(const Point2f& pos)
+int GridComponent::GetCellIndex(const Point2f& pos)
 {
 	int x = static_cast<int>(pos.x) / CELL_SIZE;
 	int y = static_cast<int>(pos.y) / CELL_SIZE;
