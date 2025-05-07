@@ -13,7 +13,6 @@ GridComponent::GridComponent(dae::GameObject* owner)
 	CreateGrid();
 
 #if _DEBUG
-	std::cout << "GridComponent created with " << ROWS * COLUMNS << " cells." << std::endl;
 	DrawGrid();
 #endif
 }
@@ -33,45 +32,49 @@ void GridComponent::CreateGrid()
 {
 	m_Grid = std::vector<Cell>(ROWS * COLUMNS);
 
-	for (int row = 0; row < ROWS; ++row)
+	for (int col = 0; col < COLUMNS; ++col)
 	{
-		for (int col = 0; col < COLUMNS; ++col)
+		for (int row = 0; row < ROWS; ++row)
 		{
-			int index = row * COLUMNS + col;
-			m_Grid[index].spawnPosition = Point2f{ col * CELL_SIZE * 1.0f, row * CELL_SIZE * 1.0f };
+			int index = row * ROWS + col;
+			m_Grid[index].spawnPosition = Point2f{
+				static_cast<float>(col * CELL_SIZE),
+				static_cast<float>(row * CELL_SIZE)
+			};
 		}
 	}
 }
+
 
 void GridComponent::DrawGrid() const
 {
 	SDL_Renderer* sdlRenderer = dae::Renderer::GetInstance().GetSDLRenderer();
 	SDL_SetRenderDrawColor(sdlRenderer, 255, 255, 255, 255);
 
-	for (int y = 0; y < COLUMNS; ++y)
+	for (int col = 0; col < COLUMNS; ++col)
 	{
-		for (int x = 0; x < ROWS; ++x)
+		for (int row = 0; row < ROWS; ++row)
 		{
 			SDL_Rect cellRect{};
-			cellRect.x = x * CELL_SIZE;
-			cellRect.y = y * CELL_SIZE;
-			cellRect.w =	 CELL_SIZE;
-			cellRect.h =	 CELL_SIZE;
+			cellRect.x = row * CELL_SIZE;
+			cellRect.y = col * CELL_SIZE;
+			cellRect.w = CELL_SIZE;
+			cellRect.h = CELL_SIZE;
 
 			SDL_RenderDrawRect(sdlRenderer, &cellRect);
 		}
 	}
 }
 
-int GridComponent::GetCellIndex(const Point2f& pos)
+int GridComponent::GetCellIndex(const Point2f& pos) 
 {
-	int x = static_cast<int>(pos.x) / CELL_SIZE;
-	int y = static_cast<int>(pos.y) / CELL_SIZE;
+	int row = static_cast<int>(pos.x) / CELL_SIZE;
+	int col = static_cast<int>(pos.y) / CELL_SIZE;
 
-	if (x < 0 || x >= COLUMNS || y < 0 || y >= ROWS)
+	if (row < 0 || row >= COLUMNS || col < 0 || col >= ROWS)
 	{
 		return -1; // Out of bounds
 	}
 
-	return y * COLUMNS + x;
+	return row * ROWS + col;
 }

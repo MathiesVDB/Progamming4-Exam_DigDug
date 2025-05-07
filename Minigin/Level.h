@@ -42,6 +42,7 @@ private:
 	void SpawnDirtOrangeDark(const Point2f& spawnPos) const;
 	void SpawnDirtRed(const Point2f& spawnPos) const;
 	void SpawnEmpty(const Point2f& spawnPos) const;
+	void SpawnFlower(const Point2f& spawnPos) const;
 
 	//-------------------------------------------------
 	// Datamembers								

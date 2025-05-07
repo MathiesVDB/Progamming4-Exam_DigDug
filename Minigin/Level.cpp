@@ -9,7 +9,7 @@
 #include "DamageSound.h"
 #include "HealthDisplayer.h"
 #include "InputManager.h"
-#include "ResourceManager.h"
+#include "ResourceManager.h" 
 #include "SpriteComponent.h"
 #include "Enemies/Pooka.h"
 
@@ -24,69 +24,99 @@ Level::Level(dae::GameObject* owner, const std::string& sceneName)
 
 void Level::LoadLevel(const std::string& fileName)
 {
-	auto grid = GetOwner()->GetComponent<GridComponent>()->GetGrid();
+    auto gridComponent = GetOwner()->GetComponent<GridComponent>();
 
-	std::string filePath = "../Data/Levels/" + fileName;
-	std::ifstream file(filePath);
-	if (!file.is_open())
-	{
-		std::cerr << "Failed to open level file: " << fileName << std::endl;
-		return;
-	}
+    std::string filePath = "../Data/Levels/" + fileName;
 
-	std::string line;
-	bool inLevelArray = false;
-	int row = 0;
+    std::ifstream file(filePath);
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open level file: " << fileName << std::endl;
+        return;
+    }
 
-	while (std::getline(file, line))
-	{
-		if (!inLevelArray)
-		{
-			if (line.find("\"level\"") != std::string::npos)
-				inLevelArray = true;
+    std::string fileContent((std::istreambuf_iterator<char>(file)),
+        std::istreambuf_iterator<char>());
 
-			continue;
-		}
+    size_t levelStartPos = fileContent.find("\"level\"");
 
-		if (line.find("]") != std::string::npos)
-			break;
+    if (levelStartPos == std::string::npos)
+    {
+        std::cerr << "Level array not found in the file!" << std::endl;
+        return;
+    }
 
-		line.erase(remove(line.begin(), line.end(), '\"'), line.end());
-		line.erase(remove(line.begin(), line.end(), ','), line.end());
-		line.erase(remove(line.begin(), line.end(), '\n'), line.end());
-		line.erase(remove(line.begin(), line.end(), '\r'), line.end());
+    levelStartPos = fileContent.find("[", levelStartPos);
 
-		for (size_t col = 0; col < line.length(); ++col)
-		{
-			char tile = line[col];
-			int x = static_cast<int>(col * 16); 
-			int y = static_cast<int>(row * 16);
+    if (levelStartPos == std::string::npos)
+    {
+        std::cerr << "No level array found!" << std::endl;
+        return;
+    }
 
-			int index = y * GridComponent::COLUMNS + x;
+    size_t levelEndPos = fileContent.find("]", levelStartPos);
 
-			if (index < 0 || index >= GridComponent::ROWS * GridComponent::COLUMNS) continue;
+    if (levelEndPos == std::string::npos)
+    {
+        std::cerr << "Invalid level array!" << std::endl;
+        return;
+    }
 
-			Point2f spawnPos = grid[index].spawnPosition;
+    std::string levelData = fileContent.substr(levelStartPos + 1, levelEndPos - levelStartPos - 1);
 
-			switch (tile)
-			{
-			case 'R': SpawnRock(spawnPos);			 break;
-			case '1': SpawnDirtYellow(spawnPos);	 break;
-			case '2': SpawnDirtOrangeLight(spawnPos);break;
-			case '3': SpawnDirtOrangeDark(spawnPos); break;
-			case '4': SpawnDirtRed(spawnPos);		 break;
-			case 'p': SpawnPlayer(spawnPos);		 break;
-			case 'P': SpawnPooka(spawnPos);			 break;
-			case 'F': SpawnFygar(spawnPos);			 break;
-			case '#': SpawnEmpty(spawnPos);			 break;
-			default:
-				std::cerr << "Unknown tile type: " << tile << std::endl;
-				break;
-			}
-		}
-		row++;
-	}
+    std::istringstream levelStream(levelData);
+    std::string line;
+    int row = 0;
+
+    while (std::getline(levelStream, line, ','))
+    {
+        line.erase(remove(line.begin(), line.end(), '\"'), line.end());
+        line.erase(remove(line.begin(), line.end(), '\n'), line.end()); 
+        line.erase(remove(line.begin(), line.end(), '\r'), line.end()); 
+
+        if (line.empty()) continue;
+
+        line = line.substr(1);
+
+        std::cout << "Row " << row << " (" << line.length() << " chars): " << line << std::endl;
+
+        for (size_t col = 0; col < line.length(); ++col)
+        {
+            char tile = line[col];
+
+			if (tile == ' ') continue;
+
+            float x = static_cast<float>(row) * GridComponent::CELL_SIZE;
+            float y = static_cast<float>(col) * GridComponent::CELL_SIZE;
+
+            int index = gridComponent->GetCellIndex({ x, y });
+			std::cout << "Row: " << row << ", Col: " << col << ", Index: " << index << std::endl;
+            if (index < 0 || index >= GridComponent::ROWS * GridComponent::COLUMNS) continue;
+
+			auto grid = gridComponent->GetGrid();
+            Point2f spawnPos = grid[index].spawnPosition;
+
+            switch (tile)
+            {
+            case 'R': SpawnRock(spawnPos);             break;
+            case '1': SpawnDirtYellow(spawnPos);      break;
+            case '2': SpawnDirtOrangeLight(spawnPos); break;
+            case '3': SpawnDirtOrangeDark(spawnPos);  break;
+            case '4': SpawnDirtRed(spawnPos);         break;
+            case 'p': SpawnPlayer(spawnPos);          break;
+            case 'P': SpawnPooka(spawnPos);           break;
+            case 'F': SpawnFygar(spawnPos);           break;
+            case '#': SpawnEmpty(spawnPos);           break;
+            case 'f': SpawnFlower(spawnPos);          break;
+            default:
+                std::cerr << "Unknown tile type: " << tile << std::endl;
+                break;
+            }
+        }
+        ++row;
+    }
 }
+
 
 void Level::SpawnPlayer(const Point2f& spawnPos) const
 {
@@ -154,7 +184,7 @@ void Level::SpawnRock(const Point2f& spawnPos) const
 void Level::SpawnDirtYellow(const Point2f& spawnPos) const
 {
 	auto DirtYellowGameObject = std::make_unique<dae::GameObject>();
-	DirtYellowGameObject->AddComponent<TextureComponent>("Sprites/WorldTiles/Yellow.png");
+	DirtYellowGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/Yellow.png");
 	DirtYellowGameObject->AddComponent<ColliderComponent>();
 	DirtYellowGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 	m_Scene.Add(DirtYellowGameObject);
@@ -163,7 +193,7 @@ void Level::SpawnDirtYellow(const Point2f& spawnPos) const
 void Level::SpawnDirtOrangeLight(const Point2f& spawnPos) const
 {
 	auto DirtOrangeLightGameObject = std::make_unique<dae::GameObject>();
-	DirtOrangeLightGameObject->AddComponent<TextureComponent>("Sprites/WorldTiles/OrangeLight.png");
+	DirtOrangeLightGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/OrangeLight.png");
 	DirtOrangeLightGameObject->AddComponent<ColliderComponent>();
 	DirtOrangeLightGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 	m_Scene.Add(DirtOrangeLightGameObject);
@@ -172,7 +202,7 @@ void Level::SpawnDirtOrangeLight(const Point2f& spawnPos) const
 void Level::SpawnDirtOrangeDark(const Point2f& spawnPos) const
 {
 	auto DirtOrangeDarkGameObject = std::make_unique<dae::GameObject>();
-	DirtOrangeDarkGameObject->AddComponent<TextureComponent>("Sprites/WorldTiles/OrangeDark.png");
+	DirtOrangeDarkGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/OrangeDark.png");
 	DirtOrangeDarkGameObject->AddComponent<ColliderComponent>();
 	DirtOrangeDarkGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 	m_Scene.Add(DirtOrangeDarkGameObject);
@@ -181,7 +211,7 @@ void Level::SpawnDirtOrangeDark(const Point2f& spawnPos) const
 void Level::SpawnDirtRed(const Point2f& spawnPos) const
 {
 	auto DirtRedGameObject = std::make_unique<dae::GameObject>();
-	DirtRedGameObject->AddComponent<TextureComponent>("Sprites/WorldTiles/Red.png");
+	DirtRedGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/Red.png");
 	DirtRedGameObject->AddComponent<ColliderComponent>();
 	DirtRedGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 	m_Scene.Add(DirtRedGameObject);
@@ -193,4 +223,12 @@ void Level::SpawnEmpty(const Point2f& spawnPos) const
 	EmptyGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/DiggedArea.png");
 	EmptyGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 	m_Scene.Add(EmptyGameObject);
+}
+
+void Level::SpawnFlower(const Point2f& spawnPos) const
+{
+	auto FlowerGameObject = std::make_unique<dae::GameObject>();
+	FlowerGameObject->AddComponent<SpriteComponent>("Sprites/Misc/EnvironmentSprite.bmp", 1, 7, 0.25f, 5, 5);
+	FlowerGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+	m_Scene.Add(FlowerGameObject);
 }
