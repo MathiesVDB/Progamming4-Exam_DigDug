@@ -18,7 +18,8 @@ SpriteComponent::SpriteComponent(dae::GameObject* owner, const std::string& file
 		m_FrameDelay{ frameDelay },
 		m_StartFrame{ firstframe },
 		m_MaxFrame	{ lastframe },
-		m_Position	{}
+		m_Position	{},
+		m_CurrentFrame{ firstframe }
 {
 	m_FrameWidth = m_Texture.GetWidth() / m_Columns;
 	m_FrameHeight = m_Texture.GetHeight() / m_Rows;

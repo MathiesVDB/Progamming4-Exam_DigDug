@@ -36,10 +36,10 @@ void GridComponent::CreateGrid()
 	{
 		for (int row = 0; row < ROWS; ++row)
 		{
-			int index = row * ROWS + col;
+			int index = col * ROWS + row;
 			m_Grid[index].spawnPosition = Point2f{
-				static_cast<float>(col * CELL_SIZE),
-				static_cast<float>(row * CELL_SIZE)
+				static_cast<float>(row * CELL_SIZE),
+				static_cast<float>(col * CELL_SIZE)
 			};
 		}
 	}
@@ -71,10 +71,10 @@ int GridComponent::GetCellIndex(const Point2f& pos)
 	int row = static_cast<int>(pos.x) / CELL_SIZE;
 	int col = static_cast<int>(pos.y) / CELL_SIZE;
 
-	if (row < 0 || row >= COLUMNS || col < 0 || col >= ROWS)
+	if (row < 0 || row >= ROWS || col < 0 || col >= COLUMNS)
 	{
 		return -1; // Out of bounds
 	}
 
-	return row * ROWS + col;
+	return col * ROWS + row;
 }

@@ -78,19 +78,17 @@ void Level::LoadLevel(const std::string& fileName)
 
         line = line.substr(1);
 
-        std::cout << "Row " << row << " (" << line.length() << " chars): " << line << std::endl;
-
         for (size_t col = 0; col < line.length(); ++col)
         {
             char tile = line[col];
 
 			if (tile == ' ') continue;
 
-            float x = static_cast<float>(row) * GridComponent::CELL_SIZE;
-            float y = static_cast<float>(col) * GridComponent::CELL_SIZE;
+            float x = static_cast<float>(col) * GridComponent::CELL_SIZE;
+            float y = static_cast<float>(row) * GridComponent::CELL_SIZE;
 
             int index = gridComponent->GetCellIndex({ x, y });
-			std::cout << "Row: " << row << ", Col: " << col << ", Index: " << index << std::endl;
+
             if (index < 0 || index >= GridComponent::ROWS * GridComponent::COLUMNS) continue;
 
 			auto grid = gridComponent->GetGrid();
@@ -98,7 +96,7 @@ void Level::LoadLevel(const std::string& fileName)
 
             switch (tile)
             {
-            case 'R': SpawnRock(spawnPos);             break;
+            case 'R': SpawnRock(spawnPos);            break;
             case '1': SpawnDirtYellow(spawnPos);      break;
             case '2': SpawnDirtOrangeLight(spawnPos); break;
             case '3': SpawnDirtOrangeDark(spawnPos);  break;
@@ -159,7 +157,7 @@ void Level::SpawnPlayer(const Point2f& spawnPos) const
 void Level::SpawnPooka(const Point2f& spawnPos) const
 {
 	auto PookaGameObject = std::make_unique<dae::GameObject>();
-	PookaGameObject->AddComponent<SpriteComponent>("Sprites/Pooka/DefaultSprite.bmp", 2, 5, 0.25f, 0, 1);
+	PookaGameObject->AddComponent<SpriteComponent>("Sprites/Pooka/PookaDefaultSprite.bmp", 2, 5, 0.25f, 0, 1);
 	PookaGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 	PookaGameObject->AddComponent<Pooka>();
 	m_Scene.Add(PookaGameObject);
@@ -168,7 +166,7 @@ void Level::SpawnPooka(const Point2f& spawnPos) const
 void Level::SpawnFygar(const Point2f& spawnPos) const
 {
 	auto FygarGameObject = std::make_unique<dae::GameObject>();
-	FygarGameObject->AddComponent<SpriteComponent>("Sprites/Fygar/DefaultSprite.bmp", 2, 8, 0.25f, 0, 1);
+	FygarGameObject->AddComponent<SpriteComponent>("Sprites/Fygar/FygarDefaultSprite.bmp", 2, 8, 0.25f, 0, 1);
 	FygarGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 	m_Scene.Add(FygarGameObject);
 }

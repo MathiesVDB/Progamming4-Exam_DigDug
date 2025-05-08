@@ -27,6 +27,16 @@ void MovingState::Update(Pooka& pooka, float deltaTime)
     }
 }
 
+void MovingState::OnEnter()
+{
+	
+}
+
+void MovingState::OnExit()
+{
+	
+}
+
 //-----------------------------------------------------
 // InflatedState Class
 //-----------------------------------------------------
@@ -49,6 +59,16 @@ void InflatedState::Update(Pooka& pooka, float deltaTime)
     {
         std::cout << "Current state = inflating\n";
     }
+}
+
+void InflatedState::OnEnter()
+{
+
+}
+
+void InflatedState::OnExit()
+{
+
 }
 
 //-----------------------------------------------------
@@ -75,6 +95,16 @@ void DeathState::Update(Pooka& pooka, float deltaTime)
     }
 }
 
+void DeathState::OnEnter()
+{
+
+}
+
+void DeathState::OnExit()
+{
+
+}
+
 //-----------------------------------------------------
 // GhostState Class
 //-----------------------------------------------------
@@ -90,6 +120,39 @@ void GhostState::Update(Pooka& pooka, float deltaTime)
 
     if (m_AccTime >= 2.f)
     {
+        pooka.SetState(&PookaState::fleeing);
+        m_AccTime = 0.f;
+    }
+    else
+    {
+        std::cout << "Current state = ghosting\n";
+    }
+}
+
+void GhostState::OnEnter()
+{
+
+}
+
+void GhostState::OnExit()
+{
+
+}
+
+//-----------------------------------------------------
+// FleeingState Class
+//-----------------------------------------------------
+
+void FleeingState::HandleInput(Pooka& )
+{
+}
+
+void FleeingState::Update(Pooka& pooka, float deltaTime)
+{
+    m_AccTime += deltaTime;
+
+    if (m_AccTime >= 2.f)
+    {
         pooka.SetState(&PookaState::moving);
         m_AccTime = 0.f;
     }
@@ -97,6 +160,16 @@ void GhostState::Update(Pooka& pooka, float deltaTime)
     {
         std::cout << "Current state = ghosting\n";
     }
+}
+
+void FleeingState::OnEnter()
+{
+    PookaState::OnEnter();
+}
+
+void FleeingState::OnExit()
+{
+    PookaState::OnExit();
 }
 
 //-----------------------------------------------------
