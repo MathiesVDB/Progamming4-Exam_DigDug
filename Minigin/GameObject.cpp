@@ -59,7 +59,7 @@ namespace dae
     {
         if (child && !IsChild(child))
         {
-            m_Children.push_back(child);
+            m_Children.emplace_back(child);
         }
     }
 

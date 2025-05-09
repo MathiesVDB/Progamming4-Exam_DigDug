@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)DigDug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DigDug;$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems;$(SolutionDir)Minigin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -82,7 +82,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)DigDug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DigDug;$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems;$(SolutionDir)Minigin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -99,54 +99,55 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ColliderComponent.h" />
-    <ClInclude Include="Command.h" />
-    <ClInclude Include="Component.h" />
-    <ClInclude Include="Font.h" />
-    <ClInclude Include="FPSComponent.h" />
+    <ClInclude Include="Components\ColliderComponent.h" />
+    <ClInclude Include="Components\Component.h" />
+    <ClInclude Include="ResourceHandling\Font.h" />
+    <ClInclude Include="Components\FPSComponent.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="GamePad.h" />
-    <ClInclude Include="GridComponent.h" />
-    <ClInclude Include="Helpers.h" />
-    <ClInclude Include="InputManager.h" />
-    <ClInclude Include="Level.h" />
+    <ClInclude Include="Input\GamePad.h" />
+    <ClInclude Include="Components\GridComponent.h" />
+    <ClInclude Include="Misc\Helpers.h" />
+    <ClInclude Include="Input\InputManager.h" />
+    <ClInclude Include="Components\Level.h" />
     <ClInclude Include="Minigin.h" />
-    <ClInclude Include="Observer.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="SceneManager.h" />
-    <ClInclude Include="ServiceLocator.h" />
-    <ClInclude Include="Singleton.h" />
-    <ClInclude Include="SoundSystem.h" />
-    <ClInclude Include="SpriteComponent.h" />
-    <ClInclude Include="TextObject.h" />
-    <ClInclude Include="Texture2D.h" />
-    <ClInclude Include="TextureComponent.h" />
-    <ClInclude Include="Transform.h" />
+    <ClInclude Include="Misc\Observer.h" />
+    <ClInclude Include="Scene\Renderer.h" />
+    <ClInclude Include="ResourceHandling\ResourceManager.h" />
+    <ClInclude Include="Scene\Scene.h" />
+    <ClInclude Include="Scene\SceneManager.h" />
+    <ClInclude Include="Misc\ServiceLocator.h" />
+    <ClInclude Include="Misc\Singleton.h" />
+    <ClInclude Include="Systems\RealCollisionSystem.h" />
+    <ClInclude Include="Systems\SoundSystem.h" />
+    <ClInclude Include="Components\SpriteComponent.h" />
+    <ClInclude Include="Components\TextObject.h" />
+    <ClInclude Include="ResourceHandling\Texture2D.h" />
+    <ClInclude Include="Components\TextureComponent.h" />
+    <ClInclude Include="Components\Transform.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ColliderComponent.cpp" />
-    <ClCompile Include="Component.cpp" />
-    <ClCompile Include="Font.cpp" />
-    <ClCompile Include="FPSComponent.cpp" />
+    <ClCompile Include="Components\ColliderComponent.cpp" />
+    <ClCompile Include="Components\Component.cpp" />
+    <ClCompile Include="ResourceHandling\Font.cpp" />
+    <ClCompile Include="Components\FPSComponent.cpp" />
     <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="GamePad.cpp" />
-    <ClCompile Include="GridComponent.cpp" />
-    <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="Level.cpp" />
+    <ClCompile Include="Input\GamePad.cpp" />
+    <ClCompile Include="Components\GridComponent.cpp" />
+    <ClCompile Include="Input\InputManager.cpp" />
+    <ClCompile Include="Components\Level.cpp" />
     <ClCompile Include="Minigin.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="ResourceManager.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="SceneManager.cpp" />
-    <ClCompile Include="ServiceLocator.cpp" />
-    <ClCompile Include="SoundSystem.cpp" />
-    <ClCompile Include="SpriteComponent.cpp" />
-    <ClCompile Include="TextObject.cpp" />
-    <ClCompile Include="Texture2D.cpp" />
-    <ClCompile Include="TextureComponent.cpp" />
-    <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="Scene\Renderer.cpp" />
+    <ClCompile Include="ResourceHandling\ResourceManager.cpp" />
+    <ClCompile Include="Scene\Scene.cpp" />
+    <ClCompile Include="Scene\SceneManager.cpp" />
+    <ClCompile Include="Misc\ServiceLocator.cpp" />
+    <ClCompile Include="Systems\RealCollisionSystem.cpp" />
+    <ClCompile Include="Systems\SoundSystem.cpp" />
+    <ClCompile Include="Components\SpriteComponent.cpp" />
+    <ClCompile Include="Components\TextObject.cpp" />
+    <ClCompile Include="ResourceHandling\Texture2D.cpp" />
+    <ClCompile Include="Components\TextureComponent.cpp" />
+    <ClCompile Include="Components\Transform.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

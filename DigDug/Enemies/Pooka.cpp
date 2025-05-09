@@ -30,26 +30,3 @@ void Pooka::SetState(PookaState* state)
 	m_State = state;
 	m_State->OnEnter(*this);
 }
-
-//void Pooka::UpdateSpriteForCurrentState()
-//{
-//	auto sprite = GetOwner()->GetComponent<SpriteComponent>();
-//    if (!sprite) return;
-//
-//    if (m_State == &PookaState::moving)
-//    {
-//        sprite->SetNewTexture("Sprites/Pooka/DefaultSprite.bmp", 2, 5, 0, 1);
-//    }
-//    else if (m_State == &PookaState::inflating)
-//    {
-//        sprite->SetNewTexture("Sprites/Pooka/InflateRightSprite.bmp", 1, 4, 0, 3);
-//    }
-//    else if (m_State == &PookaState::dying)
-//    {
-//        sprite->SetNewTexture("Sprites/Pooka/DefaultSprite.bmp", 2, 5, 2, 2);
-//    }
-//    else if (m_State == &PookaState::ghosting)
-//    {
-//        sprite->SetNewTexture("Sprites/Pooka/DefaultSprite.bmp", 2, 5, 3, 4);
-//    }
-//}
