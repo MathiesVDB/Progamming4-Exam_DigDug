@@ -23,8 +23,8 @@ public:
 
 	bool ProcessInput();
 
-	void AddCommand(unsigned int key, KeyState state, std::shared_ptr<Command> command);
-	void AddControllerCommand(unsigned int button, KeyState state, std::shared_ptr<Command> command);
+	void AddCommand(unsigned int key, KeyState state, std::unique_ptr<Command> command);
+	void AddControllerCommand(unsigned int button, KeyState state, std::unique_ptr<Command> command);
 
 private:
 	class InputManagerImpl;

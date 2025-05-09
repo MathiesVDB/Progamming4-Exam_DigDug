@@ -51,13 +51,15 @@ public:
         {
             bool isPressed = keyboardState[key];
 
-            for (const auto& [keyState, command] : commands)
+            for (const auto& [keyState, commandPtr] : commands)
             {
                 if (keyState == KeyState::Pressed && isPressed)
                 {
-                    command->Execute();
+                    if (commandPtr)
+                        commandPtr->Execute();
                 }
             }
+
 
             m_PreviousKeyState[key] = isPressed;
         }
@@ -103,19 +105,19 @@ public:
         return true;
     }
 
-    void AddCommand(unsigned int key, KeyState state, std::shared_ptr<Command> command)
+    void AddCommand(unsigned int key, KeyState state, std::unique_ptr<Command> command)
     {
-        m_KeyboardCommands[key].emplace_back(state, command);
+        m_KeyboardCommands[key].emplace_back(state, std::move(command));
     }
 
-    void AddControllerCommand(unsigned int button, KeyState state, std::shared_ptr<Command> command)
+    void AddControllerCommand(unsigned int button, KeyState state, std::unique_ptr<Command> command)
     {
-        m_ControllerCommands[button].emplace_back(state, command);
+        m_ControllerCommands[button].emplace_back(state, std::move(command));
     }
 
 private:
-    std::unordered_map<unsigned int, std::vector<std::pair<KeyState, std::shared_ptr<Command>>>> m_KeyboardCommands;
-    std::unordered_map<unsigned int, std::vector<std::pair<KeyState, std::shared_ptr<Command>>>> m_ControllerCommands;
+    std::unordered_map<unsigned int, std::vector<std::pair<KeyState, std::unique_ptr<Command>>>> m_KeyboardCommands;
+    std::unordered_map<unsigned int, std::vector<std::pair<KeyState, std::unique_ptr<Command>>>> m_ControllerCommands;
     std::unordered_map<unsigned int, bool> m_PreviousKeyState; // Store key states dynamically
     GamePad m_Gamepad;
 };
@@ -128,11 +130,11 @@ InputManager::InputManager()
 InputManager::~InputManager() = default;
 
 bool InputManager::ProcessInput() { return m_pImpl->ProcessInput(); }
-void InputManager::AddCommand(unsigned int key, KeyState state, std::shared_ptr<Command> command)
+void InputManager::AddCommand(unsigned int key, KeyState state, std::unique_ptr<Command> command)
 {
-    m_pImpl->AddCommand(key, state, command);
+    m_pImpl->AddCommand(key, state, std::move(command));
 }
-void InputManager::AddControllerCommand(unsigned int button, KeyState state, std::shared_ptr<Command> command)
+void InputManager::AddControllerCommand(unsigned int button, KeyState state, std::unique_ptr<Command> command)
 {
-    m_pImpl->AddControllerCommand(button, state, command);
+    m_pImpl->AddControllerCommand(button, state, std::move(command));
 }

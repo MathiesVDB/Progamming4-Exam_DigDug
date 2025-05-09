@@ -181,12 +181,12 @@ void Level::SpawnPlayer(const Point2f& spawnPos) const
 
     auto& inputManager = InputManager::GetInstance();
 
-    inputManager.AddCommand(SDL_SCANCODE_W, KeyState::Pressed, std::make_shared<MoveCommand>(Player1.get(), MoveCommand::Direction::Up));
-    inputManager.AddCommand(SDL_SCANCODE_A, KeyState::Pressed, std::make_shared<MoveCommand>(Player1.get(), MoveCommand::Direction::Left));
-    inputManager.AddCommand(SDL_SCANCODE_S, KeyState::Pressed, std::make_shared<MoveCommand>(Player1.get(), MoveCommand::Direction::Down));
-    inputManager.AddCommand(SDL_SCANCODE_D, KeyState::Pressed, std::make_shared<MoveCommand>(Player1.get(), MoveCommand::Direction::Right));
+    inputManager.AddCommand(SDL_SCANCODE_W, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveCommand::Direction::Up));
+    inputManager.AddCommand(SDL_SCANCODE_A, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveCommand::Direction::Left));
+    inputManager.AddCommand(SDL_SCANCODE_S, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveCommand::Direction::Down));
+    inputManager.AddCommand(SDL_SCANCODE_D, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveCommand::Direction::Right));
 
-    inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Pressed, std::make_shared<DamageCommand>(Player1.get()));
+    inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Pressed, std::make_unique<DamageCommand>(Player1.get()));
 
     m_Scene.Add(Player1);
     m_Scene.Add(lifeDisplay1GameObject);
@@ -197,6 +197,7 @@ void Level::SpawnPooka(const Point2f& spawnPos) const
 	auto PookaGameObject = std::make_unique<dae::GameObject>();
 	PookaGameObject->AddComponent<SpriteComponent>("Sprites/Pooka/PookaDefaultSprite.bmp", 2, 5, 0.25f, 0, 1);
 	PookaGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+	PookaGameObject->AddComponent<ColliderComponent>();
 	PookaGameObject->AddComponent<Pooka>();
 	m_Scene.Add(PookaGameObject);
 }

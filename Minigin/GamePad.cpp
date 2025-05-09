@@ -51,7 +51,7 @@ private:
 	XINPUT_STATE m_PreviousState{};
 	unsigned int m_ButtonsPressedThisFrame{};
 	unsigned int m_ButtonsReleasedThisFrame{};
-	bool m_IsConnected; // New member to track connection status
+	bool m_IsConnected;
 };
 
 GamePad::GamePad(int controllerIndex)
