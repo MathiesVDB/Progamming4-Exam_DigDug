@@ -18,10 +18,10 @@ public:
 
     virtual ~PookaState() {}
     virtual void HandleInput(Pooka& ) {};
-    virtual void Update(Pooka&, float ) {};
+    virtual void Update(Pooka& , float ) {};
 
-    virtual void OnEnter();
-	virtual void OnExit();
+    virtual void OnEnter(Pooka& ) {};
+	virtual void OnExit(Pooka& ) {};
 
 protected:
     float m_AccTime{};
@@ -30,49 +30,49 @@ protected:
 class MovingState : public PookaState
 {
 public:
-	void HandleInput(Pooka&) override;
+	void HandleInput(Pooka& pooka) override;
 	void Update(Pooka& pooka, float deltaTime) override;
 
-	void OnEnter() override;
-	void OnExit() override;
+	void OnEnter(Pooka& pooka) override;
+	void OnExit(Pooka& pooka) override;
 };
 
 class InflatedState : public PookaState
 {
 public:
-	void HandleInput(Pooka&) override;
+	void HandleInput(Pooka& pooka) override;
 	void Update(Pooka& pooka, float deltaTime) override;
 
-    void OnEnter() override;
-    void OnExit() override;
+    void OnEnter(Pooka& pooka) override;
+    void OnExit(Pooka& pooka) override;
 };
 
 class DeathState : public PookaState
 {
 public:
-	void HandleInput(Pooka&) override;
+	void HandleInput(Pooka& pooka) override;
 	void Update(Pooka& pooka, float deltaTime) override;
 
-    void OnEnter() override;
-    void OnExit() override;
+    void OnEnter(Pooka& pooka) override;
+    void OnExit(Pooka& pooka) override;
 };
 
 class GhostState : public PookaState
 {
 public:
-    void HandleInput(Pooka&) override;
+    void HandleInput(Pooka& pooka) override;
     void Update(Pooka& pooka, float deltaTime) override;
 
-    void OnEnter() override;
-    void OnExit() override;
+    void OnEnter(Pooka& pooka) override;
+    void OnExit(Pooka& pooka) override;
 };
 
 class FleeingState : public PookaState
 {
 public:
-    void HandleInput(Pooka&) override;
+    void HandleInput(Pooka& pooka) override;
     void Update(Pooka& pooka, float deltaTime) override;
 
-    void OnEnter() override;
-    void OnExit() override;
+    void OnEnter(Pooka& pooka) override;
+    void OnExit(Pooka& pooka) override;
 };

@@ -1,7 +1,9 @@
 #include "PookaState.h"
 #include <iostream>
 
+#include "GameObject.h"
 #include "Pooka.h"
+#include "SpriteComponent.h"
 
 //-----------------------------------------------------
 // MovingState Class
@@ -27,14 +29,14 @@ void MovingState::Update(Pooka& pooka, float deltaTime)
     }
 }
 
-void MovingState::OnEnter()
+void MovingState::OnEnter(Pooka& pooka)
 {
-	
+	pooka.GetOwner()->GetComponent<SpriteComponent>()->SetNewTexture("Sprites/Pooka/PookaDefaultSprite.bmp", 2, 5, 0, 1);
 }
 
-void MovingState::OnExit()
+void MovingState::OnExit(Pooka&)
 {
-	
+    m_AccTime = 0.f;
 }
 
 //-----------------------------------------------------
@@ -61,14 +63,14 @@ void InflatedState::Update(Pooka& pooka, float deltaTime)
     }
 }
 
-void InflatedState::OnEnter()
+void InflatedState::OnEnter(Pooka& pooka)
 {
-
+    pooka.GetOwner()->GetComponent<SpriteComponent>()->SetNewTexture("Sprites/Pooka/PookaInflateRightSprite.bmp", 1, 4, 0, 3);
 }
 
-void InflatedState::OnExit()
+void InflatedState::OnExit(Pooka&)
 {
-
+    m_AccTime = 0.f;
 }
 
 //-----------------------------------------------------
@@ -95,14 +97,14 @@ void DeathState::Update(Pooka& pooka, float deltaTime)
     }
 }
 
-void DeathState::OnEnter()
+void DeathState::OnEnter(Pooka& pooka)
 {
-
+    pooka.GetOwner()->GetComponent<SpriteComponent>()->SetNewTexture("Sprites/Pooka/PookaDefaultSprite.bmp", 2, 5, 2, 2);
 }
 
-void DeathState::OnExit()
+void DeathState::OnExit(Pooka&)
 {
-
+    m_AccTime = 0.f;
 }
 
 //-----------------------------------------------------
@@ -129,14 +131,14 @@ void GhostState::Update(Pooka& pooka, float deltaTime)
     }
 }
 
-void GhostState::OnEnter()
+void GhostState::OnEnter(Pooka& pooka)
 {
-
+    pooka.GetOwner()->GetComponent<SpriteComponent>()->SetNewTexture("Sprites/Pooka/PookaDefaultSprite.bmp", 2, 5, 3, 4);
 }
 
-void GhostState::OnExit()
+void GhostState::OnExit(Pooka&)
 {
-
+    m_AccTime = 0.f;
 }
 
 //-----------------------------------------------------
@@ -162,14 +164,14 @@ void FleeingState::Update(Pooka& pooka, float deltaTime)
     }
 }
 
-void FleeingState::OnEnter()
+void FleeingState::OnEnter(Pooka& pooka)
 {
-    PookaState::OnEnter();
+    pooka.GetOwner()->GetComponent<SpriteComponent>()->SetNewTexture("Sprites/Pooka/PookaDefaultSprite.bmp", 2, 5, 5, 6);
 }
 
-void FleeingState::OnExit()
+void FleeingState::OnExit(Pooka&)
 {
-    PookaState::OnExit();
+	m_AccTime = 0.f;
 }
 
 //-----------------------------------------------------
@@ -180,3 +182,4 @@ MovingState     PookaState::moving;
 InflatedState   PookaState::inflating;
 DeathState      PookaState::dying;
 GhostState      PookaState::ghosting;
+FleeingState    PookaState::fleeing;

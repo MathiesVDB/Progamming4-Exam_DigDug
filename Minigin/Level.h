@@ -16,14 +16,6 @@ class Level final : public dae::Component
 public:
 	Level(dae::GameObject* owner, const std::string& sceneName);
 
-	// -------------------------------------------------
-	// Copy/move constructors and assignment operators
-	// -------------------------------------------------
-	Level(const Level& other)					= default;
-	Level(Level&& other) noexcept				= default;
-	Level& operator=(const Level& other)		= default;
-	Level& operator=(Level&& other) noexcept	= default;
-
 	//-------------------------------------------------
 	// Member functions						
 	//-------------------------------------------------
