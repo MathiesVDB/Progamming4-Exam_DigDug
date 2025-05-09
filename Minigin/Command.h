@@ -33,24 +33,20 @@ public:
 
 	void Execute() override
 	{
-		if (auto transform = m_Owner->GetComponent<dae::Transform>())
+		switch (m_Direction)
 		{
-			auto pos = transform->GetPosition();
-			switch (m_Direction)
-			{
-			case Direction::Left:
-				transform->SetPosition(pos.x - 5.f, pos.y, pos.z);
-				break;
-			case Direction::Right:
-				transform->SetPosition(pos.x + 5.f, pos.y, pos.z);
-				break;
-			case Direction::Up:
-				transform->SetPosition(pos.x, pos.y - 5.f, pos.z);
-				break;
-			case Direction::Down:
-				transform->SetPosition(pos.x, pos.y + 5.f, pos.z);
-				break;
-			}
+		case Direction::Left:
+			m_Owner->SetVelocity({ -50.f, 0.f, 0.f });
+			break;
+		case Direction::Right:
+			m_Owner->SetVelocity({ +50.f, 0.f, 0.f });
+			break;
+		case Direction::Up:
+			m_Owner->SetVelocity({ 0.f, -50.f, 0.f });
+			break;
+		case Direction::Down:
+			m_Owner->SetVelocity({ 0.f, +50.f, 0.f });
+			break;
 		}
 	}
 

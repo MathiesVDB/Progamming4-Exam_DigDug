@@ -17,6 +17,11 @@ namespace dae
         {
             component->Update(deltaTime);
         }
+
+		glm::vec3 newPos = m_LocalPosition + m_Velocity * deltaTime;
+        SetLocalPosition(newPos);
+
+		m_Velocity = glm::vec3(0, 0, 0);
     }
 
     void GameObject::Render() const
@@ -86,6 +91,21 @@ namespace dae
 			UpdateWorldPosition();
 		}
 		return m_WorldPosition;
+    }
+
+    const glm::vec3& GameObject::GetVelocity() const
+    {
+		return m_Velocity;
+    }
+
+    void GameObject::SetVelocity(const glm::vec3& velocity)
+    {
+		m_Velocity = velocity;
+    }
+
+    void GameObject::AddVelocity(const glm::vec3& velocity)
+    {
+		m_Velocity += velocity;
     }
 
     void GameObject::UpdateWorldPosition()

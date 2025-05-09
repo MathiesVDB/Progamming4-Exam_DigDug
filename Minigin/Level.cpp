@@ -27,7 +27,6 @@ void Level::LoadLevel(const std::string& fileName)
     auto gridComponent = GetOwner()->GetComponent<GridComponent>();
 
     std::string filePath = "../Data/Levels/" + fileName;
-
     std::ifstream file(filePath);
     if (!file.is_open())
     {
@@ -35,35 +34,25 @@ void Level::LoadLevel(const std::string& fileName)
         return;
     }
 
-    std::string fileContent((std::istreambuf_iterator<char>(file)),
-        std::istreambuf_iterator<char>());
+    std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
-    size_t levelStartPos = fileContent.find("\"level\"");
-
-    if (levelStartPos == std::string::npos)
+    // --- Parse "level" array ---
+    size_t levelStart = fileContent.find("\"level\"");
+    if (levelStart == std::string::npos)
     {
-        std::cerr << "Level array not found in the file!" << std::endl;
+        std::cerr << "Missing \"level\" section in file.\n";
         return;
     }
 
-    levelStartPos = fileContent.find("[", levelStartPos);
-
-    if (levelStartPos == std::string::npos)
+    size_t levelArrayStart = fileContent.find("[", levelStart);
+    size_t levelArrayEnd = fileContent.find("]", levelArrayStart);
+    if (levelArrayStart == std::string::npos || levelArrayEnd == std::string::npos)
     {
-        std::cerr << "No level array found!" << std::endl;
+        std::cerr << "Malformed \"level\" array.\n";
         return;
     }
 
-    size_t levelEndPos = fileContent.find("]", levelStartPos);
-
-    if (levelEndPos == std::string::npos)
-    {
-        std::cerr << "Invalid level array!" << std::endl;
-        return;
-    }
-
-    std::string levelData = fileContent.substr(levelStartPos + 1, levelEndPos - levelStartPos - 1);
-
+    std::string levelData = fileContent.substr(levelArrayStart + 1, levelArrayEnd - levelArrayStart - 1);
     std::istringstream levelStream(levelData);
     std::string line;
     int row = 0;
@@ -71,9 +60,8 @@ void Level::LoadLevel(const std::string& fileName)
     while (std::getline(levelStream, line, ','))
     {
         line.erase(remove(line.begin(), line.end(), '\"'), line.end());
-        line.erase(remove(line.begin(), line.end(), '\n'), line.end()); 
-        line.erase(remove(line.begin(), line.end(), '\r'), line.end()); 
-
+        line.erase(remove(line.begin(), line.end(), '\n'), line.end());
+        line.erase(remove(line.begin(), line.end(), '\r'), line.end());
         if (line.empty()) continue;
 
         line = line.substr(1);
@@ -81,39 +69,89 @@ void Level::LoadLevel(const std::string& fileName)
         for (size_t col = 0; col < line.length(); ++col)
         {
             char tile = line[col];
-
-			if (tile == ' ') continue;
+            if (tile == ' ' || tile == 'P' || tile == 'p' || tile == 'F' || tile == 'R') continue; // Skip spawns
 
             float x = static_cast<float>(col) * GridComponent::CELL_SIZE;
             float y = static_cast<float>(row) * GridComponent::CELL_SIZE;
-
             int index = gridComponent->GetCellIndex({ x, y });
-
             if (index < 0 || index >= GridComponent::ROWS * GridComponent::COLUMNS) continue;
 
-			auto grid = gridComponent->GetGrid();
-            Point2f spawnPos = grid[index].spawnPosition;
+            Point2f spawnPos = gridComponent->GetGrid()[index].spawnPosition;
 
             switch (tile)
             {
-            case 'R': SpawnRock(spawnPos);            break;
             case '1': SpawnDirtYellow(spawnPos);      break;
             case '2': SpawnDirtOrangeLight(spawnPos); break;
             case '3': SpawnDirtOrangeDark(spawnPos);  break;
             case '4': SpawnDirtRed(spawnPos);         break;
-            case 'p': SpawnPlayer(spawnPos);          break;
-            case 'P': SpawnPooka(spawnPos);           break;
-            case 'F': SpawnFygar(spawnPos);           break;
+            case 'f': SpawnFlower(spawnPos);         break;
             case '#': SpawnEmpty(spawnPos);           break;
-            case 'f': SpawnFlower(spawnPos);          break;
             default:
-                std::cerr << "Unknown tile type: " << tile << std::endl;
+                std::cerr << "Unknown tile: " << tile << std::endl;
                 break;
             }
         }
         ++row;
     }
+
+    // --- Parse "spawn" array ---
+    size_t spawnStart = fileContent.find("\"spawn\"");
+    if (spawnStart == std::string::npos) return;
+
+    size_t arrayStart = fileContent.find("[", spawnStart);
+    if (arrayStart == std::string::npos) return;
+
+    int bracketCount = 0;
+    size_t arrayEnd = arrayStart;
+
+    for (; arrayEnd < fileContent.size(); ++arrayEnd)
+    {
+        if (fileContent[arrayEnd] == '[') ++bracketCount;
+        else if (fileContent[arrayEnd] == ']') --bracketCount;
+
+        if (bracketCount == 0) break;
+    }
+
+    if (bracketCount != 0)
+    {
+        std::cerr << "Mismatched brackets in spawn array.\n";
+        return;
+    }
+
+    std::string spawnSection = fileContent.substr(arrayStart, arrayEnd - arrayStart + 1);
+    std::istringstream spawnStream(spawnSection);
+    std::string entry;
+
+    while (std::getline(spawnStream, entry, ']'))
+    {
+        size_t typeStart = entry.find('\"');
+        size_t typeEnd = entry.find('\"', typeStart + 1);
+        if (typeStart == std::string::npos || typeEnd == std::string::npos) continue;
+
+        char tileType = entry[typeStart + 1];
+
+        size_t comma = entry.find(',', typeEnd);
+        if (comma == std::string::npos) continue;
+
+        std::string indexStr = entry.substr(comma + 1);
+        int index = std::stoi(indexStr);
+
+        if (index < 0 || index >= GridComponent::ROWS * GridComponent::COLUMNS) continue;
+
+        Point2f spawnPos = gridComponent->GetGrid()[index].spawnPosition;
+
+        switch (tileType)
+        {
+        case 'P': SpawnPooka(spawnPos);  break;
+        case 'p': SpawnPlayer(spawnPos); break;
+        case 'F': SpawnFygar(spawnPos);  break;
+        case 'R': SpawnRock(spawnPos);   break;
+        default:
+            break;
+        }
+    }
 }
+
 
 
 void Level::SpawnPlayer(const Point2f& spawnPos) const

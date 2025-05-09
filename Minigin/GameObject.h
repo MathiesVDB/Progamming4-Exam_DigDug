@@ -36,6 +36,11 @@ namespace dae
 
         const glm::vec3& GetWorldPosition();
 
+		//Velocity functions
+		const glm::vec3& GetVelocity() const;
+		void SetVelocity(const glm::vec3& velocity);
+		void AddVelocity(const glm::vec3& velocity);
+
         //Template functions
 		template <typename T, typename... Args>
         T* AddComponent(Args&&... args);
@@ -67,6 +72,7 @@ namespace dae
         std::unordered_map<std::type_index, std::unique_ptr<Component>> m_Components;
         glm::vec3 m_LocalPosition{ 0, 0, 0 };
         glm::vec3 m_WorldPosition{ 0, 0, 0 };
+		glm::vec3 m_Velocity{ 0, 0, 0 };
         bool m_IsPositionDirty{ true };
 
         GameObject* m_Parent{ nullptr };
