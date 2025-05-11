@@ -72,7 +72,7 @@ void SpriteComponent::SetSpriteBounds(const int newFirstFrame, const int newLast
 	m_StartFrame = newFirstFrame;
 	m_MaxFrame = newLastFrame;
 
-	if (setCurrentFrame)
+	if (setCurrentFrame && (m_CurrentFrame < m_StartFrame || m_CurrentFrame > m_MaxFrame))
 	{
 		m_CurrentFrame = m_StartFrame;
 	}

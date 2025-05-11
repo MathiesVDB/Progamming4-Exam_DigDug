@@ -16,7 +16,6 @@ namespace dae
         virtual void Update(float deltaTime);
         virtual void Render() const;
 
-        void SetOwner(dae::GameObject* owner);
         dae::GameObject* GetOwner() const;
 
     private:

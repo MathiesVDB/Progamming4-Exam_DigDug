@@ -14,5 +14,4 @@ Rock::Rock(dae::GameObject* owner)
 
 void Rock::HandleCollision(const CollisionEvent& )
 {
-	std::cout << "Rock handled collision!\n";
 }

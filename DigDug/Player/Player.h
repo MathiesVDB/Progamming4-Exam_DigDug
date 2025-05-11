@@ -6,6 +6,7 @@
 #include "ColliderComponent.h"
 #include "RealCollisionSystem.h"
 #include "Helpers.h"
+#include "PlayerState.h"
 //-----------------------------------------------------
 // Player Class									 
 //-----------------------------------------------------
@@ -25,10 +26,15 @@ public:
 	//-------------------------------------------------
 	// Member functions						
 	//-------------------------------------------------
+	void Update(float deltaTime) override;
+	void Render() const override;
+
 	void HandleCollision(const CollisionEvent& collision);
 	bool CanSwitchMovement(MoveDirection direction);
 
 	void SnapToCellCenter();
+
+	void SetState(PlayerStates::PlayerState* state);
 
 	//-------------------------------------------------
 	// Constants					
@@ -44,6 +50,7 @@ private:
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
-	MoveAxis m_CurrentAxis;
-	GridComponent* m_GridPtr;
+	MoveAxis					m_CurrentAxis;
+	GridComponent*				m_GridPtr;
+	PlayerStates::PlayerState*	m_State;
 };

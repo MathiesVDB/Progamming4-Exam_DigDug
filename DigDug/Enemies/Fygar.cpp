@@ -14,5 +14,4 @@ Fygar::Fygar(dae::GameObject* owner)
 
 void Fygar::HandleCollision(const CollisionEvent& )
 {
-	std::cout << "Fygar handled collision!\n";
 }

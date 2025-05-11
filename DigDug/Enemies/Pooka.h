@@ -24,8 +24,8 @@ public:
 
 	void HandleCollision(const CollisionEvent& collision);
 
-	void SetState(PookaState* state);
+	void SetState(PookaStates::PookaState* state);
 
 private:
-	PookaState* m_State;
+	PookaStates::PookaState* m_State;
 };

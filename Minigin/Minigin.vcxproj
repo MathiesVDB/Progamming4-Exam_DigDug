@@ -126,7 +126,6 @@
     <ClInclude Include="Components\Transform.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\DigDug\Enemies\Rock.cpp" />
     <ClCompile Include="Components\ColliderComponent.cpp" />
     <ClCompile Include="Components\Component.cpp" />
     <ClCompile Include="ResourceHandling\Font.cpp" />

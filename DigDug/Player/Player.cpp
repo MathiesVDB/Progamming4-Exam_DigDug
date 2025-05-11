@@ -12,7 +12,26 @@ Player::Player(dae::GameObject* owner, GridComponent* grid)
 		m_CurrentAxis{MoveAxis::None},
 		m_GridPtr{grid}
 {
+    m_State = &PlayerStates::PlayerState::idling;
+
     SnapToCellCenter();
+}
+
+void Player::Update(float deltaTime)
+{
+    m_State->Update(*this, deltaTime);
+}
+
+void Player::Render() const
+{
+    m_State->Render(*this);
+}
+
+void Player::SetState(PlayerStates::PlayerState* state)
+{
+    m_State->OnExit(*this);
+    m_State = state;
+    m_State->OnEnter(*this);
 }
 
 void Player::SnapToCellCenter()
@@ -36,10 +55,9 @@ void Player::SnapToCellCenter()
     GetOwner()->GetComponent<dae::Transform>()->SetPosition(newX, newY, 0.0f);
 }
 
-
 void Player::HandleCollision(const CollisionEvent& )
 {
-	std::cout << "Player handled collision!\n";
+	
 }
 
 bool Player::CanSwitchMovement(MoveDirection direction)

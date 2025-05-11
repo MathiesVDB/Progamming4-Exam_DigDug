@@ -5,6 +5,7 @@
 #include "Pooka.h"
 #include "SpriteComponent.h"
 
+using namespace PookaStates;
 //-----------------------------------------------------
 // MovingState Class
 //-----------------------------------------------------

@@ -6,7 +6,7 @@
 Pooka::Pooka(dae::GameObject* owner)
 	:	Component(owner)
 {
-	m_State = &PookaState::moving;
+	m_State = &PookaStates::PookaState::moving;
 }
 
 void Pooka::HandleInput()
@@ -21,15 +21,14 @@ void Pooka::Update(float deltaTime)
 
 void Pooka::Render() const
 {
-	Component::Render();
+	
 }
 
 void Pooka::HandleCollision(const CollisionEvent& )
 {
-	std::cout << "Pooka handled collision!\n";
 }
 
-void Pooka::SetState(PookaState* state)
+void Pooka::SetState(PookaStates::PookaState* state)
 {
 	m_State->OnExit(*this);
 	m_State = state;
