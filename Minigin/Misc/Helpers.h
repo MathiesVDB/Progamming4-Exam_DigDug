@@ -13,3 +13,10 @@ enum class MoveDirection
 	Up,
 	Down
 };
+
+enum class RenderLayer
+{
+	Ground,
+	Entity,
+	Player
+};

@@ -187,6 +187,7 @@ void Level::SpawnPlayer(const Point2f& spawnPos) const
 
     inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Down, std::make_unique<DamageCommand>(Player1.get()));
 
+    Player1->SetRenderLayer(RenderLayer::Player);
     m_Scene.Add(Player1);
     m_Scene.Add(lifeDisplay1GameObject);
 }
@@ -198,6 +199,8 @@ void Level::SpawnPooka(const Point2f& spawnPos) const
 	PookaGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 	PookaGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
 	PookaGameObject->AddComponent<Pooka>();
+
+    PookaGameObject->SetRenderLayer(RenderLayer::Entity);
 	m_Scene.Add(PookaGameObject);
 }
 
@@ -208,6 +211,8 @@ void Level::SpawnFygar(const Point2f& spawnPos) const
 	FygarGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 	FygarGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
     FygarGameObject->AddComponent<Fygar>();
+
+    FygarGameObject->SetRenderLayer(RenderLayer::Entity);
 	m_Scene.Add(FygarGameObject);
 }
 
@@ -218,6 +223,8 @@ void Level::SpawnRock(const Point2f& spawnPos) const
 	RockGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 	RockGameObject->AddComponent<ColliderComponent>(ROCK);
     RockGameObject->AddComponent<Rock>();
+
+    RockGameObject->SetRenderLayer(RenderLayer::Entity); //May not technically be an entity but should render between ground and player
 	m_Scene.Add(RockGameObject);
 }
 
@@ -227,6 +234,8 @@ void Level::SpawnDirtYellow(const Point2f& spawnPos) const
 	DirtYellowGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/Yellow.png");
 	DirtYellowGameObject->AddComponent<ColliderComponent>(GROUND);
 	DirtYellowGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+
+    DirtYellowGameObject->SetRenderLayer(RenderLayer::Ground);
 	m_Scene.Add(DirtYellowGameObject);
 }
 
@@ -236,6 +245,8 @@ void Level::SpawnDirtOrangeLight(const Point2f& spawnPos) const
 	DirtOrangeLightGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/OrangeLight.png");
 	DirtOrangeLightGameObject->AddComponent<ColliderComponent>(GROUND);
 	DirtOrangeLightGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+
+    DirtOrangeLightGameObject->SetRenderLayer(RenderLayer::Ground);
 	m_Scene.Add(DirtOrangeLightGameObject);
 }
 
@@ -245,6 +256,8 @@ void Level::SpawnDirtOrangeDark(const Point2f& spawnPos) const
 	DirtOrangeDarkGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/OrangeDark.png");
 	DirtOrangeDarkGameObject->AddComponent<ColliderComponent>(GROUND);
 	DirtOrangeDarkGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+
+    DirtOrangeDarkGameObject->SetRenderLayer(RenderLayer::Ground);
 	m_Scene.Add(DirtOrangeDarkGameObject);
 }
 
@@ -254,6 +267,8 @@ void Level::SpawnDirtRed(const Point2f& spawnPos) const
 	DirtRedGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/Red.png");
 	DirtRedGameObject->AddComponent<ColliderComponent>(GROUND);
 	DirtRedGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+
+    DirtRedGameObject->SetRenderLayer(RenderLayer::Ground);
 	m_Scene.Add(DirtRedGameObject);
 }
 
@@ -262,6 +277,9 @@ void Level::SpawnEmpty(const Point2f& spawnPos) const
 	auto EmptyGameObject = std::make_unique<dae::GameObject>();
 	EmptyGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/DiggedArea.png");
 	EmptyGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+    EmptyGameObject->AddComponent<ColliderComponent>(GROUND);
+
+    EmptyGameObject->SetRenderLayer(RenderLayer::Ground);
 	m_Scene.Add(EmptyGameObject);
 }
 
@@ -270,5 +288,7 @@ void Level::SpawnFlower(const Point2f& spawnPos) const
 	auto FlowerGameObject = std::make_unique<dae::GameObject>();
 	FlowerGameObject->AddComponent<SpriteComponent>("Sprites/Misc/EnvironmentSprite.png", 1, 7, 0.25f, 5, 5);
 	FlowerGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+
+    FlowerGameObject->SetRenderLayer(RenderLayer::Ground);
 	m_Scene.Add(FlowerGameObject);
 }

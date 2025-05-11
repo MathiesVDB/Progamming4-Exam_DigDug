@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include "Component.h"
+#include "Helpers.h"
 #include "Transform.h"
 #include "TextObject.h"
 
@@ -23,6 +24,10 @@ namespace dae
 
 		void Update(float deltaTime);
 		void Render() const;
+
+        //Render layer
+        void SetRenderLayer(RenderLayer layer) { m_RenderLayer = layer; }
+        RenderLayer GetRenderLayer() const { return m_RenderLayer; }
 
 		//Handle parent/child relationship
 		void SetParent(GameObject* parent, bool keepWorldPosition);
@@ -70,9 +75,10 @@ namespace dae
 		//Private member variables
         //---------------------------------------------------------------------------------
         std::unordered_map<std::type_index, std::unique_ptr<Component>> m_Components;
-        glm::vec3 m_LocalPosition{ 0, 0, 0 };
-        glm::vec3 m_WorldPosition{ 0, 0, 0 };
-		glm::vec3 m_Velocity{ 0, 0, 0 };
+        glm::vec3 m_LocalPosition   { 0, 0, 0 };
+        glm::vec3 m_WorldPosition   { 0, 0, 0 };
+		glm::vec3 m_Velocity        { 0, 0, 0 };
+        RenderLayer m_RenderLayer{};
         bool m_IsPositionDirty{ true };
 
         GameObject* m_Parent{ nullptr };

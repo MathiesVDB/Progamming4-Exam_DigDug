@@ -33,7 +33,7 @@ public:
 	//-------------------------------------------------
 	// Constants					
 	//-------------------------------------------------
-	static constexpr int SNAP_DISTANCE = 3;
+	static constexpr int SNAP_DISTANCE = 1;
 private:
 	//-------------------------------------------------
 	// Private member functions								

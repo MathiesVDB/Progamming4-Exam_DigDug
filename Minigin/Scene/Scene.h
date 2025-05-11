@@ -16,16 +16,19 @@ namespace dae
 		void Render() const;
 
 		~Scene();
-		Scene(const Scene& other) = delete;
-		Scene(Scene&& other) = delete;
-		Scene& operator=(const Scene& other) = delete;
-		Scene& operator=(Scene&& other) = delete;
+		Scene(const Scene& other)				= delete;
+		Scene(Scene&& other)					= delete;
+		Scene& operator=(const Scene& other)	= delete;
+		Scene& operator=(Scene&& other)			= delete;
 
 	private: 
 		explicit Scene(const std::string& name);
 
+		//Member variables
 		std::string m_name;
-		std::vector <std::unique_ptr<dae::GameObject>> m_objects{};
+		std::vector <std::unique_ptr<dae::GameObject>> m_Ground{};
+		std::vector <std::unique_ptr<dae::GameObject>> m_Entities{};
+		std::vector <std::unique_ptr<dae::GameObject>> m_Players{};
 
 		static unsigned int m_idCounter; 
 	};

@@ -72,7 +72,7 @@ bool Player::CanMoveHorizontal(const SDL_Rect& boundingBox)
 
     int index = m_GridPtr->GetCellIndex(center);
     //Don't move when going out of the map
-    if (index < 0 || index >= static_cast<int>(m_GridPtr->GetGrid().size())) return false;
+    if (index == -1) return false;
 
     auto cellCenter = m_GridPtr->GetGrid()[index].centerPoint;
 
@@ -84,7 +84,7 @@ bool Player::CanMoveHorizontal(const SDL_Rect& boundingBox)
         return true;
     }
 
-    float correction = 2 * (distanceToCenter > 0 ? -1.f : 1.f); // move up/down
+    float correction = 1 * (distanceToCenter > 0 ? -1.f : 1.f); // move up/down
     auto currentPos = GetOwner()->GetComponent<dae::Transform>()->GetPosition();
     GetOwner()->GetComponent<dae::Transform>()->SetPosition(currentPos.x, currentPos.y + correction, currentPos.z);
 
