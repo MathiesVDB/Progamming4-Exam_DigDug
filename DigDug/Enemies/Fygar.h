@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "RealCollisionSystem.h"
 
 //-----------------------------------------------------
 // Include Files
@@ -8,24 +9,15 @@
 //-----------------------------------------------------
 // Fygar Class									 
 //-----------------------------------------------------
-class Fygar final
+class Fygar final : public dae::Component
 {
 public:
-	Fygar(); // Constructor
-	~Fygar(); // Destructor
-
-	// -------------------------
-	// Copy/move constructors and assignment operators
-	// -------------------------    
-	Fygar(const Fygar& other) = default;
-	Fygar(Fygar&& other) noexcept = default;
-	Fygar& operator=(const Fygar& other) = default;
-	Fygar& operator=(Fygar&& other) noexcept = default;
+	Fygar(dae::GameObject* owner);
 
 	//-------------------------------------------------
 	// Member functions						
 	//-------------------------------------------------
-
+	void HandleCollision(const CollisionEvent& collision);
 
 private:
 	//-------------------------------------------------

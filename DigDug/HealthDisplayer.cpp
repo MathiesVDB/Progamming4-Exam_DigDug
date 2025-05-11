@@ -14,9 +14,11 @@ HealthDisplay::HealthDisplay(const dae::GameObject* displayObject, dae::GameObje
     }
 }
 
-void HealthDisplay::Notify(const dae::GameObject*, Event event)
+void HealthDisplay::Notify(const dae::GameObject*, dae::EventID event)
 {
-    if (event == Event::HealthChanged)
+    std::string eventName = dae::EventRegistry::GetInstance().GetName(event);
+
+    if (eventName == "HealthChanged")
     {
         OnLivesChanged();
     }

@@ -2,6 +2,7 @@
 #include "Transform.h"
 #include "GameObject.h"
 #include "HealthComponent.h"
+#include "Player.h"
 
 class Command
 {
@@ -17,32 +18,30 @@ public:
 class MoveCommand final : public Command
 {
 public:
-	enum class Direction
+	explicit MoveCommand(dae::GameObject* owner, MoveDirection direction)
+		: m_Owner(owner), m_Direction(direction), m_Player{nullptr}
 	{
-		Left,
-		Right,
-		Up,
-		Down
-	};
-
-	explicit MoveCommand(dae::GameObject* owner, Direction direction)
-		: m_Owner(owner), m_Direction(direction) {
+		if (owner->HasComponent<Player>()) m_Player = owner->GetComponent<Player>();
+		else std::cout << "'Player' component required to check gridmovement!\n";
 	}
 
 	void Execute() override
 	{
+		if (!m_Player) return;
+		if (!m_Player->CanSwitchMovement(m_Direction)) return;
+
 		switch (m_Direction)
 		{
-		case Direction::Left:
+		case MoveDirection::Left:
 			m_Owner->SetVelocity({ -50.f, 0.f, 0.f });
 			break;
-		case Direction::Right:
+		case MoveDirection::Right:
 			m_Owner->SetVelocity({ +50.f, 0.f, 0.f });
 			break;
-		case Direction::Up:
+		case MoveDirection::Up:
 			m_Owner->SetVelocity({ 0.f, -50.f, 0.f });
 			break;
-		case Direction::Down:
+		case MoveDirection::Down:
 			m_Owner->SetVelocity({ 0.f, +50.f, 0.f });
 			break;
 		}
@@ -50,7 +49,8 @@ public:
 
 private:
 	dae::GameObject* m_Owner;
-	Direction m_Direction;
+	MoveDirection m_Direction;
+	Player* m_Player;
 };
 
 class DamageCommand final : public Command

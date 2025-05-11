@@ -1,18 +1,18 @@
 ﻿//---------------------------
 // Include Files
 //---------------------------
-#include "Fygar.h"
+#include "Rock.h"
 
 //---------------------------
 // Constructor & Destructor
 //---------------------------
-Fygar::Fygar(dae::GameObject* owner)
+Rock::Rock(dae::GameObject* owner)
 	:	Component(owner)
 {
 	// nothing to create
 }
 
-void Fygar::HandleCollision(const CollisionEvent& )
+void Rock::HandleCollision(const CollisionEvent& )
 {
-	std::cout << "Fygar handled collision!\n";
+	std::cout << "Rock handled collision!\n";
 }

@@ -4,10 +4,16 @@
 // Include Files
 //-----------------------------------------------------
 #include <vector>
-
 #include "ColliderComponent.h"
+#include "Observer.h"
 
-class CollisionSystem
+struct CollisionEvent
+{
+	dae::GameObject* sender;  // Collider
+	dae::GameObject* receiver; // Collided
+};
+
+class CollisionSystem : public dae::Subject
 {
 public:
 	virtual ~CollisionSystem() = default;
@@ -15,6 +21,11 @@ public:
 	virtual void RegisterCollider(ColliderComponent* collider) = 0;
 	virtual void UnregisterCollider(ColliderComponent* collider) = 0;
 	virtual void CheckCollisions() = 0;
+
+	virtual const CollisionEvent& GetLastCollisionEvent() const = 0;
+
+protected:
+	CollisionEvent m_LastCollisionEvent{};
 };
 
 class RealCollisionSystem final : public CollisionSystem
@@ -38,6 +49,8 @@ public:
 	void UnregisterCollider(ColliderComponent* collider) override;
 	void CheckCollisions() override;
 
+	const CollisionEvent& GetLastCollisionEvent() const override;
+
 private:
 	//-------------------------------------------------
 	// Private member functions								
@@ -56,4 +69,6 @@ public:
 	void RegisterCollider(ColliderComponent*) override { std::cout << "NULL COLLISION SYSTEM\n"; }
 	void UnregisterCollider(ColliderComponent*) override { std::cout << "NULL COLLISION SYSTEM\n"; }
 	void CheckCollisions() override { std::cout << "NULL COLLISION SYSTEM\n"; }
+
+	virtual const CollisionEvent& GetLastCollisionEvent() const override { return m_LastCollisionEvent; };
 };

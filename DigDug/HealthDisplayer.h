@@ -3,13 +3,13 @@
 #include "TextObject.h"
 #include "Observer.h"
 
-class HealthDisplay : public Observer
+class HealthDisplay : public dae::Observer
 {
 public:
     explicit HealthDisplay(const dae::GameObject* displayObject, dae::GameObject* player);
     ~HealthDisplay() override = default;
 
-    void Notify(const dae::GameObject* gameObject, Event event) override;
+    void Notify(const dae::GameObject* gameObject, dae::EventID event) override;
 
     void OnLivesChanged();
 

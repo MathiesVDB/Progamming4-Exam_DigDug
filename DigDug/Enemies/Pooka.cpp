@@ -24,6 +24,11 @@ void Pooka::Render() const
 	Component::Render();
 }
 
+void Pooka::HandleCollision(const CollisionEvent& )
+{
+	std::cout << "Pooka handled collision!\n";
+}
+
 void Pooka::SetState(PookaState* state)
 {
 	m_State->OnExit(*this);

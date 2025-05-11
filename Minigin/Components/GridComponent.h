@@ -11,11 +11,11 @@ public:
 	{
 		bool hasBeenDug{ false };
 		Point2f spawnPosition{};
+		Point2f centerPoint{};
 	};
 
 	GridComponent(dae::GameObject* owner);
 
-	void Update(float deltaTime) override;
 	void Render() const override;
 
 	void CreateGrid();

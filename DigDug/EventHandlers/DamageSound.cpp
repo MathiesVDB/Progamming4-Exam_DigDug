@@ -1,6 +1,8 @@
 #include "DamageSound.h"
-
+#include "Observer.h"
 #include "ServiceLocator.h"
+
+
 
 DamageSound::DamageSound(const dae::GameObject* player, const std::string& soundPath)
 	:	m_Player(player),
@@ -8,9 +10,11 @@ DamageSound::DamageSound(const dae::GameObject* player, const std::string& sound
 {
 }
 
-void DamageSound::Notify(const dae::GameObject* gameObject, Event event)
+void DamageSound::Notify(const dae::GameObject* gameObject, dae::EventID event)
 {
-	if (event == Event::HealthChanged)
+	std::string eventName = dae::EventRegistry::GetInstance().GetName(event);
+
+	if (eventName == "HealthChanged")
 	{
 		if (gameObject == m_Player)
 		{

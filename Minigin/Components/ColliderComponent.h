@@ -14,7 +14,8 @@ enum Tag
 {
 	GROUND,
 	FRIENDLY_ENTITY,
-	ENEMY_ENTITY
+	ENEMY_ENTITY,
+	ROCK
 };
 
 class ColliderComponent final : public dae::Component

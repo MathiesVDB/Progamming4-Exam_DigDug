@@ -2,7 +2,7 @@
 // Include Files
 //---------------------------
 #include "HealthComponent.h"
-
+#include "Observer.h"
 #include "GameObject.h"
 
 //---------------------------
@@ -31,12 +31,16 @@ void HealthComponent::SetMaxLives(int newMaxLives)
 
 void HealthComponent::TakeDamage(int takenDamage)
 {
+	dae::EventID HealthChangedEventID = dae::EventRegistry::GetInstance().GetEventID("HealthChanged");
+
 	m_Lives -= takenDamage;
-	Notify(GetOwner(), Event::HealthChanged);
+	Notify(GetOwner(), HealthChangedEventID);
 }
 
 void HealthComponent::SetLivesToMax()
 {
+	dae::EventID HealthChangedEventID = dae::EventRegistry::GetInstance().GetEventID("HealthChanged");
+
 	m_Lives = m_MaxLives;
-	Notify(GetOwner(), Event::HealthChanged);
+	Notify(GetOwner(), HealthChangedEventID);
 }

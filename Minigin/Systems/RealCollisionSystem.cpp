@@ -2,6 +2,8 @@
 // Include Files
 //---------------------------
 #include "RealCollisionSystem.h"
+#include "Observer.h"
+#include "CollisionHandler.h"
 
 //---------------------------
 // Constructor & Destructor
@@ -52,9 +54,9 @@ void RealCollisionSystem::CheckCollisions()
 			Tag tagA = colliderA->GetTag();
 			Tag tagB = colliderB->GetTag();
 
-			// Skip GROUND vs GROUND and FRIENDLY vs FRIENDLY
 			if ((tagA == GROUND				&& tagB == GROUND)			||
-				(tagA == FRIENDLY_ENTITY	&& tagB == FRIENDLY_ENTITY))
+				(tagA == FRIENDLY_ENTITY	&& tagB == FRIENDLY_ENTITY) ||
+				(tagA == ENEMY_ENTITY		&& tagB == ENEMY_ENTITY))
 			{
 				continue;
 			}
@@ -62,9 +64,18 @@ void RealCollisionSystem::CheckCollisions()
             if (IsOverlapping(colliderA->GetBoundingBox(), colliderB->GetBoundingBox())) 
             {
 				colliderA->m_WasHit = true;
+
+				m_LastCollisionEvent = { colliderA->GetOwner(), colliderB->GetOwner() };
+				Notify(colliderA->GetOwner(), dae::EventRegistry::GetInstance().GetEventID("CollisionEvent"));
+				Notify(colliderB->GetOwner(), dae::EventRegistry::GetInstance().GetEventID("CollisionEvent"));
             }
         }
     }
+}
+
+const CollisionEvent& RealCollisionSystem::GetLastCollisionEvent() const
+{
+	return m_LastCollisionEvent;
 }
 
 bool RealCollisionSystem::IsOverlapping(const SDL_Rect& callingBoundingBox, const SDL_Rect& otherBoundingBox) const

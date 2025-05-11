@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)DigDug;$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems;$(SolutionDir)Minigin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DigDug;$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems;$(SolutionDir)Minigin;$(SolutionDir)DigDug/EventHandlers;$(SolutionDir)DigDug/Enemies;$(SolutionDir)DigDug/Player;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -82,7 +82,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)DigDug;$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems;$(SolutionDir)Minigin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DigDug;$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems;$(SolutionDir)Minigin;$(SolutionDir)DigDug/EventHandlers;$(SolutionDir)DigDug/Enemies;$(SolutionDir)DigDug/Player;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -126,6 +126,7 @@
     <ClInclude Include="Components\Transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\DigDug\Enemies\Rock.cpp" />
     <ClCompile Include="Components\ColliderComponent.cpp" />
     <ClCompile Include="Components\Component.cpp" />
     <ClCompile Include="ResourceHandling\Font.cpp" />

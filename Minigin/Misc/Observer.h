@@ -1,91 +1,93 @@
 #pragma once
 #include <vector>
 #include <memory>
-
+#include <string>
+#include <unordered_map>
+#include <algorithm>
+#include <cstdint>
 #include "Component.h"
+#include "Singleton.h"
 
-
-enum class Event
+namespace dae
 {
-    HealthChanged,
-    ScoreChanged
-};
+	using EventID = std::uint32_t;
 
-class Observer
-{
-public:
-    virtual ~Observer() = default;
+	class EventRegistry final : public Singleton<EventRegistry>
+	{
+	public:
+		EventID RegisterEvent(const std::string& name)
+		{
+			auto it = m_NameToID.find(name);
+			if (it != m_NameToID.end())
+				return it->second;
 
-    Observer& operator= (const Observer&) = delete;
-    Observer& operator= (const Observer&&) = delete;
+			EventID newID = m_NextID++;
+			m_NameToID[name] = newID;
+			m_IDToName[newID] = name;
+			return newID;
+		}
 
-    virtual void Notify(const dae::GameObject* gameObject, Event event) = 0;
-};
+		EventID GetEventID(const std::string& name) const
+		{
+			auto it = m_NameToID.find(name);
+			if (it != m_NameToID.end())
+				return it->second;
+			return INVALID_EVENT_ID;
+		}
 
-class Subject
-{
-public:
-    void AddObserver(std::unique_ptr<Observer> observer)
-    {
-        m_Observers.push_back(std::move(observer));
-    }
+		std::string GetName(EventID id) const
+		{
+			auto it = m_IDToName.find(id);
+			if (it != m_IDToName.end())
+				return it->second;
+			return {};
+		}
 
-    void RemoveObserver(const Observer* observer)
-    {
-        m_Observers.erase(
-            std::remove_if(
-                m_Observers.begin(),
-                m_Observers.end(),
-                [observer](const std::unique_ptr<Observer>& ptr) { return ptr.get() == observer; }
-            ),
-            m_Observers.end()
-        );
-    }
+		static constexpr EventID INVALID_EVENT_ID = static_cast<EventID>(-1);
 
+	private:
+		std::unordered_map<std::string, EventID> m_NameToID;
+		std::unordered_map<EventID, std::string> m_IDToName;
+		EventID m_NextID{ 0 };
+	};
 
-protected:
-    void Notify(const dae::GameObject* gameObject, Event event)
-    {
-        for (const std::unique_ptr<Observer>& observer : m_Observers)
-        {
-            observer->Notify(gameObject, event);
-        }
-    }
+	class Observer
+	{
+	public:
+		virtual ~Observer() = default;
 
-private:
-    std::vector<std::unique_ptr<Observer>> m_Observers;
-};
+		Observer& operator=(const Observer&) = delete;
+		Observer& operator=(Observer&&) = delete;
 
+		virtual void Notify(const dae::GameObject* gameObject, EventID event) = 0;
+	};
 
-//class ScoreDisplay
-//{
-//public:
-//    explicit ScoreDisplay(std::shared_ptr<dae::GameObject>& displayObject)
-//    {
-//        m_DisplayObject = std::move(displayObject);
-//
-//        Observer::GetInstance().AddEventListener(Event::ScoreChanged, &ScoreDisplay::UpdateText);
-//    }
-//
-//    static void UpdateText()
-//    {
-//        auto textComponent = instance->m_DisplayObject->GetComponent<dae::TextObject>();
-//        if (!textComponent) return;
-//
-//        textComponent->SetText("Score: " + std::to_string(instance->m_Score));
-//    }
-//
-//    void SetScore(int score)
-//    {
-//	    m_Score = score;
-//    	instance = this;
-//
-//		Observer::GetInstance().Notify(Event::ScoreChanged);
-//    }
-//	int GetScore() const { return m_Score; }
-//
-//private:
-//    std::shared_ptr<dae::GameObject> m_DisplayObject;
-//    int m_Score = 0;
-//    static ScoreDisplay* instance;
-//};
+	class Subject
+	{
+	public:
+		void AddObserver(std::unique_ptr<Observer> observer)
+		{
+			m_Observers.push_back(std::move(observer));
+		}
+
+		void RemoveObserver(const Observer* observer)
+		{
+			std::erase_if(
+				m_Observers,
+				[observer](const std::unique_ptr<Observer>& ptr) { return ptr.get() == observer; }
+			);
+		}
+
+	protected:
+		void Notify(const dae::GameObject* gameObject, EventID event) const
+		{
+			for (const auto& observer : m_Observers)
+			{
+				observer->Notify(gameObject, event);
+			}
+		}
+
+	private:
+		std::vector<std::unique_ptr<Observer>> m_Observers;
+	};
+}

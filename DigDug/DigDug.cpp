@@ -8,6 +8,7 @@
     #endif
     #endif
 
+#include "CollisionHandler.h"
     #include "FPSComponent.h"
     #include "Minigin.h"
     #include "SceneManager.h"
@@ -16,6 +17,7 @@
     #include "SoundSystem.h"
     #include "ServiceLocator.h"
 	#include "Level.h"
+#include "Observer.h"
 
     using namespace dae;
 
@@ -23,6 +25,12 @@
     {
         ServiceLocator::RegisterSoundSystem(std::make_unique<RealSoundSystem>());
         ServiceLocator::RegisterCollisionSystem(std::make_unique<RealCollisionSystem>());
+
+        dae::EventRegistry::GetInstance().RegisterEvent("HealthChanged");
+        dae::EventRegistry::GetInstance().RegisterEvent("CollisionEvent");
+
+        static auto collisionHandler = std::make_unique<CollisionHandler>();
+        ServiceLocator::GetCollisionSystem().AddObserver(std::move(collisionHandler));
 
         auto& scene = dae::SceneManager::GetInstance().CreateScene("DigDug");
 

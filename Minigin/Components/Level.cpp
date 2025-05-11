@@ -7,11 +7,14 @@
 #include "ColliderComponent.h"
 #include "Command.h"
 #include "DamageSound.h"
+#include "Fygar.h"
 #include "HealthDisplayer.h"
 #include "InputManager.h"
 #include "ResourceManager.h" 
 #include "SpriteComponent.h"
-#include "Enemies/Pooka.h"
+#include "Pooka.h"
+#include "Player.h"
+#include "Rock.h"
 
 //---------------------------
 // Constructor & Destructor
@@ -69,7 +72,7 @@ void Level::LoadLevel(const std::string& fileName)
         for (size_t col = 0; col < line.length(); ++col)
         {
             char tile = line[col];
-            if (tile == ' ' || tile == 'P' || tile == 'p' || tile == 'F' || tile == 'R') continue; // Skip spawns
+            if (tile == ' ' || tile == 'P' || tile == 'p' || tile == 'F' || tile == 'R') continue;
 
             float x = static_cast<float>(col) * GridComponent::CELL_SIZE;
             float y = static_cast<float>(row) * GridComponent::CELL_SIZE;
@@ -77,6 +80,7 @@ void Level::LoadLevel(const std::string& fileName)
             if (index < 0 || index >= GridComponent::ROWS * GridComponent::COLUMNS) continue;
 
             Point2f spawnPos = gridComponent->GetGrid()[index].spawnPosition;
+            if (tile == '#') gridComponent->GetGrid()[index].hasBeenDug = true;
 
             switch (tile)
             {
@@ -94,7 +98,6 @@ void Level::LoadLevel(const std::string& fileName)
         ++row;
     }
 
-    // --- Parse "spawn" array ---
     size_t spawnStart = fileContent.find("\"spawn\"");
     if (spawnStart == std::string::npos) return;
 
@@ -161,6 +164,7 @@ void Level::SpawnPlayer(const Point2f& spawnPos) const
     Player1->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
     Player1->AddComponent<HealthComponent>(3);
 	Player1->AddComponent<ColliderComponent>(FRIENDLY_ENTITY);
+    Player1->AddComponent<Player>(GetOwner()->GetComponent<GridComponent>());
 
     int player1Lives = Player1->GetComponent<HealthComponent>()->GetLives();
 
@@ -176,12 +180,12 @@ void Level::SpawnPlayer(const Point2f& spawnPos) const
 
     auto& inputManager = InputManager::GetInstance();
 
-    inputManager.AddCommand(SDL_SCANCODE_W, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveCommand::Direction::Up));
-    inputManager.AddCommand(SDL_SCANCODE_A, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveCommand::Direction::Left));
-    inputManager.AddCommand(SDL_SCANCODE_S, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveCommand::Direction::Down));
-    inputManager.AddCommand(SDL_SCANCODE_D, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveCommand::Direction::Right));
+    inputManager.AddCommand(SDL_SCANCODE_W, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Up));
+    inputManager.AddCommand(SDL_SCANCODE_A, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Left));
+    inputManager.AddCommand(SDL_SCANCODE_S, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Down));
+    inputManager.AddCommand(SDL_SCANCODE_D, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Right));
 
-    inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Pressed, std::make_unique<DamageCommand>(Player1.get()));
+    inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Down, std::make_unique<DamageCommand>(Player1.get()));
 
     m_Scene.Add(Player1);
     m_Scene.Add(lifeDisplay1GameObject);
@@ -203,6 +207,7 @@ void Level::SpawnFygar(const Point2f& spawnPos) const
 	FygarGameObject->AddComponent<SpriteComponent>("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0.25f, 0, 1);
 	FygarGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 	FygarGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
+    FygarGameObject->AddComponent<Fygar>();
 	m_Scene.Add(FygarGameObject);
 }
 
@@ -211,7 +216,8 @@ void Level::SpawnRock(const Point2f& spawnPos) const
 	auto RockGameObject = std::make_unique<dae::GameObject>();
 	RockGameObject->AddComponent<SpriteComponent>("Sprites/Misc/EnvironmentSprite.png", 1, 7, 0.25f, 0, 0);
 	RockGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
-	RockGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
+	RockGameObject->AddComponent<ColliderComponent>(ROCK);
+    RockGameObject->AddComponent<Rock>();
 	m_Scene.Add(RockGameObject);
 }
 

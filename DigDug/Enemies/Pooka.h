@@ -5,6 +5,7 @@
 //-----------------------------------------------------
 #include "Component.h"
 #include "PookaState.h"
+#include "RealCollisionSystem.h"
 
 //-----------------------------------------------------
 // Pooka Class									 
@@ -20,6 +21,8 @@ public:
 	void HandleInput();
 	void Update(float deltaTime) override;
 	void Render() const override;
+
+	void HandleCollision(const CollisionEvent& collision);
 
 	void SetState(PookaState* state);
 

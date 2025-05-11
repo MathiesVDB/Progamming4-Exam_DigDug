@@ -14,7 +14,10 @@
 //---------------------------
 ColliderComponent::ColliderComponent(dae::GameObject* owner, Tag tag)
 	:	Component(owner),
-		m_Tag{ tag }
+		m_Tag{ tag },
+		m_Width{},
+		m_Height{},
+		m_BoundingBox{}
 {
 	ServiceLocator::GetCollisionSystem().RegisterCollider(this);
 

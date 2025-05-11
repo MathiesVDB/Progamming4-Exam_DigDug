@@ -17,10 +17,6 @@ GridComponent::GridComponent(dae::GameObject* owner)
 #endif
 }
 
-void GridComponent::Update(float )
-{
-}
-
 void GridComponent::Render() const
 {
 #if _DEBUG
@@ -41,6 +37,11 @@ void GridComponent::CreateGrid()
 				static_cast<float>(row * CELL_SIZE),
 				static_cast<float>(col * CELL_SIZE)
 			};
+			m_Grid[index].centerPoint = {
+			m_Grid[index].spawnPosition.x + CELL_SIZE / 2.0f,
+			m_Grid[index].spawnPosition.y + CELL_SIZE / 2.0f
+			};
+			m_Grid[index].hasBeenDug = true; //Set default on true and turn false in level loader
 		}
 	}
 }

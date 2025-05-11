@@ -118,7 +118,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)DigDug/Player;$(SolutionDir)DigDug/Enemies;$(SolutionDir)Minigin;$(SolutionDir)DigDug;%(AdditionalIncludeDirectories)$(SolutionDir)DigDug;$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DigDug/Player;$(SolutionDir)DigDug/EventHandlers;$(SolutionDir)Minigin;$(SolutionDir)DigDug;%(AdditionalIncludeDirectories)$(SolutionDir)DigDug;$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems;$(SolutionDir)DigDug/Enemies</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -137,7 +137,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)DigDug/Player;$(SolutionDir)DigDug/Enemies;$(SolutionDir)Minigin;$(SolutionDir)DigDug;%(AdditionalIncludeDirectories)$(SolutionDir)DigDug;$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)DigDug/Player;$(SolutionDir)DigDug/EventHandlers;$(SolutionDir)Minigin;$(SolutionDir)DigDug;%(AdditionalIncludeDirectories)$(SolutionDir)DigDug;$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems;$(SolutionDir)DigDug/Enemies</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -151,20 +151,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DamageSound.cpp" />
+    <ClCompile Include="EventHandlers\CollisionHandler.cpp" />
+    <ClCompile Include="EventHandlers\DamageSound.cpp" />
     <ClCompile Include="DigDug.cpp" />
     <ClCompile Include="Enemies\Fygar.cpp" />
-    <ClCompile Include="HealthComponent.cpp" />
+    <ClCompile Include="EventHandlers\HealthComponent.cpp" />
     <ClCompile Include="HealthDisplayer.cpp" />
     <ClCompile Include="Enemies\Pooka.cpp" />
     <ClCompile Include="Player\Player.cpp" />
     <ClCompile Include="Enemies\PookaState.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Enemies\Rock.h" />
+    <ClInclude Include="EventHandlers\CollisionHandler.h" />
     <ClInclude Include="Command.h" />
-    <ClInclude Include="DamageSound.h" />
+    <ClInclude Include="EventHandlers\DamageSound.h" />
     <ClInclude Include="Enemies\Fygar.h" />
-    <ClInclude Include="HealthComponent.h" />
+    <ClInclude Include="EventHandlers\HealthComponent.h" />
     <ClInclude Include="HealthDisplayer.h" />
     <ClInclude Include="Enemies\Pooka.h" />
     <ClInclude Include="Player\Player.h" />
