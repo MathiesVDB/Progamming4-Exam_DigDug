@@ -22,7 +22,7 @@ namespace PlayerStates
     
         virtual ~PlayerState() {}
         virtual void Render(const Player&) const {}
-        virtual void Update(Player&, float) {}
+        virtual PlayerStates::PlayerState* Update(Player&, float) { return nullptr; }
     
         virtual void OnEnter(Player&) {}
         virtual void OnExit(Player&) {}
@@ -32,7 +32,7 @@ namespace PlayerStates
     {
     public:
         void Render(const Player& player) const override;
-        void Update(Player& player, float deltaTime) override;
+        PlayerStates::PlayerState* Update(Player& player, float deltaTime) override;
     
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;
@@ -42,7 +42,7 @@ namespace PlayerStates
     {
     public:
         void Render(const Player& player) const override;
-        void Update(Player& player, float deltaTime) override;
+        PlayerStates::PlayerState* Update(Player& player, float deltaTime) override;
     
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;
@@ -52,7 +52,7 @@ namespace PlayerStates
     {
     public:
         void Render(const Player& player) const override;
-        void Update(Player& player, float deltaTime) override;
+        PlayerStates::PlayerState* Update(Player& player, float deltaTime) override;
     
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;
@@ -62,7 +62,7 @@ namespace PlayerStates
     {
     public:
         void Render(const Player& player) const override;
-        void Update(Player& player, float deltaTime) override;
+        PlayerStates::PlayerState* Update(Player& player, float deltaTime) override;
     
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;
@@ -72,7 +72,7 @@ namespace PlayerStates
     {
     public:
         void Render(const Player& player) const override;
-        void Update(Player& player, float deltaTime) override;
+        PlayerStates::PlayerState* Update(Player& player, float deltaTime) override;
     
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;

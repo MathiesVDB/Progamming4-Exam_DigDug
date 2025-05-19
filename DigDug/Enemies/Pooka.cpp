@@ -16,7 +16,10 @@ void Pooka::HandleInput()
 
 void Pooka::Update(float deltaTime)
 {
-	m_State->Update(*this, deltaTime);
+	auto newState = m_State->Update(*this, deltaTime);
+
+	if (newState == nullptr) return;
+	SetState(newState);
 }
 
 void Pooka::Render() const

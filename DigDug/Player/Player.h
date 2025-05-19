@@ -36,6 +36,9 @@ public:
 
 	void SetState(PlayerStates::PlayerState* state);
 
+	GridComponent* GetGridPtr() const { return m_GridPtr; }
+
+
 	//-------------------------------------------------
 	// Constants					
 	//-------------------------------------------------

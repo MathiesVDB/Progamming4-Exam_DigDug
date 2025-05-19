@@ -15,15 +15,13 @@ void MovingState::HandleInput(Pooka&)
 
 }
 
-void MovingState::Update(Pooka& pooka, float deltaTime) 
+PookaStates::PookaState* MovingState::Update(Pooka& , float deltaTime)
 {
     m_AccTime += deltaTime;
 
-    if (m_AccTime >= 2.f)
-    {
-        pooka.SetState(&PookaState::inflating);
-		m_AccTime = 0.f;
-    }
+	if (m_AccTime >= 2.f) return &PookaState::inflating;
+
+	return nullptr;
 }
 
 void MovingState::OnEnter(Pooka& pooka)
@@ -46,15 +44,13 @@ void InflatedState::HandleInput(Pooka&)
 
 }
 
-void InflatedState::Update(Pooka& pooka, float deltaTime) 
+PookaStates::PookaState* InflatedState::Update(Pooka& , float deltaTime)
 {
     m_AccTime += deltaTime;
 
-    if (m_AccTime >= 2.f)
-    {
-        pooka.SetState(&PookaState::dying);
-		m_AccTime = 0.f;
-    }
+	if (m_AccTime >= 2.f) return &PookaState::dying;
+
+    return nullptr;
 }
 
 void InflatedState::OnEnter(Pooka& pooka)
@@ -77,15 +73,13 @@ void DeathState::HandleInput(Pooka&)
 
 }
 
-void DeathState::Update(Pooka& pooka, float deltaTime) 
+PookaStates::PookaState* DeathState::Update(Pooka& , float deltaTime)
 {
     m_AccTime += deltaTime;
 
-    if (m_AccTime >= 2.f)
-    {
-        pooka.SetState(&PookaState::ghosting);
-        m_AccTime = 0.f;
-    }
+	if (m_AccTime >= 2.f) return &PookaState::ghosting;
+
+    return nullptr;
 }
 
 void DeathState::OnEnter(Pooka& pooka)
@@ -108,15 +102,13 @@ void GhostState::HandleInput(Pooka&)
 
 }
 
-void GhostState::Update(Pooka& pooka, float deltaTime)
+PookaStates::PookaState* GhostState::Update(Pooka& , float deltaTime)
 {
     m_AccTime += deltaTime;
 
-    if (m_AccTime >= 2.f)
-    {
-        pooka.SetState(&PookaState::fleeing);
-        m_AccTime = 0.f;
-    }
+	if (m_AccTime >= 2.f) return &PookaState::fleeing;
+
+    return nullptr;
 }
 
 void GhostState::OnEnter(Pooka& pooka)
@@ -138,15 +130,13 @@ void FleeingState::HandleInput(Pooka& )
 {
 }
 
-void FleeingState::Update(Pooka& pooka, float deltaTime)
+PookaStates::PookaState* FleeingState::Update(Pooka& , float deltaTime)
 {
     m_AccTime += deltaTime;
 
-    if (m_AccTime >= 2.f)
-    {
-        pooka.SetState(&PookaState::moving);
-        m_AccTime = 0.f;
-    }
+    if (m_AccTime >= 2.f) return &PookaState::moving;
+
+	return nullptr;
 }
 
 void FleeingState::OnEnter(Pooka& pooka)

@@ -21,7 +21,7 @@ namespace PookaStates
     
         virtual ~PookaState() {}
         virtual void HandleInput(Pooka& ) {}
-        virtual void Update(Pooka& , float ) {}
+        virtual PookaStates::PookaState* Update(Pooka&, float) { return nullptr; }
     
         virtual void OnEnter(Pooka& ) {}
     	virtual void OnExit(Pooka& ) {}
@@ -34,7 +34,7 @@ namespace PookaStates
     {
     public:
     	void HandleInput(Pooka& pooka) override;
-    	void Update(Pooka& pooka, float deltaTime) override;
+        PookaStates::PookaState* Update(Pooka& pooka, float deltaTime) override;
     
     	void OnEnter(Pooka& pooka) override;
     	void OnExit(Pooka& pooka) override;
@@ -44,7 +44,7 @@ namespace PookaStates
     {
     public:
     	void HandleInput(Pooka& pooka) override;
-    	void Update(Pooka& pooka, float deltaTime) override;
+        PookaStates::PookaState* Update(Pooka& pooka, float deltaTime) override;
     
         void OnEnter(Pooka& pooka) override;
         void OnExit(Pooka& pooka) override;
@@ -54,7 +54,7 @@ namespace PookaStates
     {
     public:
     	void HandleInput(Pooka& pooka) override;
-    	void Update(Pooka& pooka, float deltaTime) override;
+        PookaStates::PookaState* Update(Pooka& pooka, float deltaTime) override;
     
         void OnEnter(Pooka& pooka) override;
         void OnExit(Pooka& pooka) override;
@@ -64,7 +64,7 @@ namespace PookaStates
     {
     public:
         void HandleInput(Pooka& pooka) override;
-        void Update(Pooka& pooka, float deltaTime) override;
+        PookaStates::PookaState* Update(Pooka& pooka, float deltaTime) override;
     
         void OnEnter(Pooka& pooka) override;
         void OnExit(Pooka& pooka) override;
@@ -74,7 +74,7 @@ namespace PookaStates
     {
     public:
         void HandleInput(Pooka& pooka) override;
-        void Update(Pooka& pooka, float deltaTime) override;
+        PookaStates::PookaState* Update(Pooka& pooka, float deltaTime) override;
     
         void OnEnter(Pooka& pooka) override;
         void OnExit(Pooka& pooka) override;

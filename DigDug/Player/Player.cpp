@@ -19,7 +19,10 @@ Player::Player(dae::GameObject* owner, GridComponent* grid)
 
 void Player::Update(float deltaTime)
 {
-    m_State->Update(*this, deltaTime);
+    auto newState = m_State->Update(*this, deltaTime);
+
+	if (newState == nullptr) return;
+    SetState(newState);
 }
 
 void Player::Render() const
