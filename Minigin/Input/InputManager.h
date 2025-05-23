@@ -3,10 +3,6 @@
 
 #include "Singleton.h"
 #include "Command.h"
-#include "GamePad.h"
-#include <unordered_map>
-#include <vector>
-#include <SDL.h>
 
 enum class KeyState
 {

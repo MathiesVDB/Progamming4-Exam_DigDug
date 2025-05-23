@@ -87,8 +87,7 @@ namespace PlayerStates
 	
 	PlayerStates::PlayerState* DiggingState::Update(Player& player, float )
 	{
-
-		if (player.GetGridPtr()->GetGrid()[player.GetGridPtr()->GetCellIndex(player.)])
+		//if (player.GetGridPtr()->GetGrid()[player.GetGridPtr()->GetCellIndex(player.)])
 
 		auto sprite = player.GetOwner()->GetComponent<SpriteComponent>();
 

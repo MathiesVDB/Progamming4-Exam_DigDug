@@ -12,30 +12,12 @@ public:
     InputManagerImpl()
         : m_Gamepad(0) // Controller 0
     {
-        if (SDL_Init(SDL_INIT_GAMECONTROLLER) != 0)
-        {
-            std::cerr << "SDL_Init(SDL_INIT_GAMECONTROLLER) failed: " << SDL_GetError() << std::endl;
-        }
-        else
-        {
-            if (!SDL_IsGameController(0))
-            {
-                std::cout << "No game controller detected!" << std::endl;
-            }
-            else
-            {
-                std::cout << "Game controller detected!" << std::endl;
-            }
-        }
+        std::cout << "InputManager initialized.\n";
     }
 
     bool ProcessInput()
     {
-        SDL_PumpEvents();
-        m_Gamepad.Update();
-
         SDL_Event e;
-
         while (SDL_PollEvent(&e))
         {
 	        if (e.type == SDL_QUIT)
@@ -45,36 +27,47 @@ public:
 	        }
         }
 
+        m_Gamepad.Update();
+
         const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
         for (const auto& [key, commands] : m_KeyboardCommands)
         {
             bool isPressed = keyboardState[key];
+            bool wasPressed = m_PreviousKeyState[key];
 
             for (const auto& [keyState, commandPtr] : commands)
             {
-                if (keyState == KeyState::Pressed && isPressed)
+                bool execute = false;
+
+                switch (keyState)
                 {
-                    if (commandPtr)
-                        commandPtr->Execute();
+                case KeyState::Pressed:
+                    execute = isPressed;
+                    break;
+                case KeyState::Down:
+                    execute = isPressed && !wasPressed;
+                    break;
+                case KeyState::Up:
+                    execute = !isPressed && wasPressed;
+                    break;
+                }
+
+                if (execute && commandPtr)
+                {
+                    commandPtr->Execute();
                 }
             }
 
-
             m_PreviousKeyState[key] = isPressed;
         }
+
 
         for (const auto& [button, commands] : m_ControllerCommands)
         {
             bool buttonDown = m_Gamepad.IsButtonDown(button);
             bool buttonPressed = m_Gamepad.IsButtonPressed(button);
             bool buttonUp = m_Gamepad.IsButtonUp(button);
-
-            // Debugging output for button states
-            std::cout << "Button: " << button
-                << " Down: " << buttonDown
-                << " Pressed: " << buttonPressed
-                << " Up: " << buttonUp << std::endl;
 
             // Execute commands based on button states
             for (const auto& [keyState, command] : commands)
@@ -95,8 +88,6 @@ public:
 
                 if (execute)
                 {
-                    // Debugging message for command execution
-                    std::cout << "Executing command for button: " << button << std::endl;
                     command->Execute();
                 }
             }

@@ -1,58 +1,87 @@
 ﻿#include "Gamepad.h"
-#include <Windows.h>
-#include <Xinput.h>
+#include <SDL.h>
 #include <memory>
-
-#pragma comment(lib, "xinput.lib")
+#include <unordered_set>
+#include <unordered_map>
 
 class GamePad::GamepadImpl
 {
 public:
-	explicit GamepadImpl(int controllerIndex)
-		: m_ControllerIndex(controllerIndex), m_IsConnected(false)
-	{
-		ZeroMemory(&m_CurrentState, sizeof(XINPUT_STATE));
-		ZeroMemory(&m_PreviousState, sizeof(XINPUT_STATE));
-		m_ButtonsPressedThisFrame = 0;
-		m_ButtonsReleasedThisFrame = 0;
-	}
+    explicit GamepadImpl(int controllerIndex)
+        : m_ControllerIndex(controllerIndex), m_Controller(nullptr), m_IsConnected(false)
+    {
+        if (SDL_Init(SDL_INIT_GAMECONTROLLER) < 0) {
+            SDL_Log("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+            return;
+        }
 
-	void Update()
-	{
-		m_PreviousState = m_CurrentState;
-		ZeroMemory(&m_CurrentState, sizeof(XINPUT_STATE));
+        if (SDL_IsGameController(m_ControllerIndex)) {
+            m_Controller = SDL_GameControllerOpen(m_ControllerIndex);
+            m_IsConnected = (m_Controller != nullptr);
+        }
+    }
 
-		// Check if controller is connected
-		DWORD result = XInputGetState(m_ControllerIndex, &m_CurrentState);
-		m_IsConnected = (result == ERROR_SUCCESS);
+    ~GamepadImpl()
+    {
+        if (m_Controller)
+            SDL_GameControllerClose(m_Controller);
+        // Do not call SDL_QuitSubSystem here if other SDL parts are in use.
+    }
 
-		if (!m_IsConnected)
-		{
-			// Controller is disconnected, reset state
-			ZeroMemory(&m_CurrentState, sizeof(XINPUT_STATE));
-			m_ButtonsPressedThisFrame = 0;
-			m_ButtonsReleasedThisFrame = 0;
-			return;
-		}
+    void Update()
+    {
+        m_ButtonsPressedThisFrame.clear();
+        m_ButtonsReleasedThisFrame.clear();
 
-		// Calculate button changes
-		auto buttonChanges = m_CurrentState.Gamepad.wButtons ^ m_PreviousState.Gamepad.wButtons;
-		m_ButtonsPressedThisFrame = buttonChanges & m_CurrentState.Gamepad.wButtons;
-		m_ButtonsReleasedThisFrame = buttonChanges & (~m_CurrentState.Gamepad.wButtons);
-	}
+        if (!m_IsConnected) return;
 
-	bool IsButtonDown(unsigned int button) const { return m_IsConnected && (m_ButtonsPressedThisFrame & button); }
-	bool IsButtonUp(unsigned int button) const { return m_IsConnected && (m_ButtonsReleasedThisFrame & button); }
-	bool IsButtonPressed(unsigned int button) const { return m_IsConnected && (m_CurrentState.Gamepad.wButtons & button); }
+        m_PreviousButtonState = m_CurrentButtonState;
+
+        for (unsigned char i = 0; i < SDL_CONTROLLER_BUTTON_MAX; ++i)
+        {
+            auto button = static_cast<SDL_GameControllerButton>(i);
+            bool isPressed = SDL_GameControllerGetButton(m_Controller, button);
+            m_CurrentButtonState[i] = isPressed;
+
+            bool wasPressed = m_PreviousButtonState[i];
+
+            if (isPressed && !wasPressed)
+                m_ButtonsPressedThisFrame.insert(i);
+
+            if (!isPressed && wasPressed)
+                m_ButtonsReleasedThisFrame.insert(i);
+        }
+    }
+
+    bool IsButtonDown(unsigned int button) const
+    {
+        return m_ButtonsPressedThisFrame.count(static_cast<Uint8>(button)) > 0;
+    }
+
+    bool IsButtonUp(unsigned int button) const
+    {
+        return m_ButtonsReleasedThisFrame.count(static_cast<Uint8>(button)) > 0;
+    }
+
+    bool IsButtonPressed(unsigned int button) const
+    {
+        auto it = m_CurrentButtonState.find(static_cast<Uint8>(button));
+        return it != m_CurrentButtonState.end() && it->second;
+    }
 
 private:
-	int m_ControllerIndex{};
-	XINPUT_STATE m_CurrentState{};
-	XINPUT_STATE m_PreviousState{};
-	unsigned int m_ButtonsPressedThisFrame{};
-	unsigned int m_ButtonsReleasedThisFrame{};
-	bool m_IsConnected;
+    int m_ControllerIndex;
+    SDL_GameController* m_Controller;
+    bool m_IsConnected;
+
+    std::unordered_set<Uint8> m_ButtonsPressedThisFrame;
+    std::unordered_set<Uint8> m_ButtonsReleasedThisFrame;
+
+    std::unordered_map<Uint8, bool> m_CurrentButtonState;
+    std::unordered_map<Uint8, bool> m_PreviousButtonState;
 };
+
+
 
 GamePad::GamePad(int controllerIndex)
 	: m_pImpl(std::make_unique<GamepadImpl>(controllerIndex))
