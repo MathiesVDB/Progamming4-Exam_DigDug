@@ -94,7 +94,6 @@ namespace PlayerStates
 		if (player.GetOwner()->GetVelocity() == glm::vec3{ 0, 0, 0 }) return &PlayerStates::PlayerState::idling;
 
 		Point2f position { player.GetOwner()->GetLocalPosition().x, player.GetOwner()->GetLocalPosition().y };
-		std::cout << "Position: " << position.x << ", " << position.y << std::endl;
 		int index{ player.GetGridPtr()->GetCellIndex(position) };
 
 		if (player.GetGridPtr()->GetGrid()[index].hasBeenDug) return &PlayerStates::PlayerState::moving;
@@ -137,8 +136,22 @@ namespace PlayerStates
 			player.GetLevelPtr()->GetScene().Add(emptyTile);
 		}
 
-		//auto coverTile{ player.GetGridPtr()->GetGrid()[index].coverTile };
+		auto coverTile{ player.GetGridPtr()->GetGrid()[index].coverTile };
 
+		if (player.GetDirection() != m_PreviousDirection) return;
+
+		coverTile->GetComponent<dae::Transform>()->SetPosition(playerPos.x, playerPos.y, 0.0f);
+
+		Point2f tileLocation{ coverTile->GetComponent<dae::Transform>()->GetPosition().x, coverTile->GetComponent<dae::Transform>()->GetPosition().y };
+		Point2f spawnPosition{ player.GetGridPtr()->GetGrid()[index].spawnPosition.x, player.GetGridPtr()->GetGrid()[index].spawnPosition.y };
+
+		float deltaX = tileLocation.x - spawnPosition.x;
+		float deltaY = tileLocation.y - spawnPosition.y;
+
+		float distanceSquared = deltaX * deltaX + deltaY * deltaY;
+		float margin = 3.f;
+
+		if (distanceSquared <= margin * margin) player.GetGridPtr()->GetGrid()[index].hasBeenDug = true;
 		// Shift the tile with the player over the undug tile
 
 		// Set tile as has been dug if empty tile is completely over the undug tile
@@ -150,6 +163,8 @@ namespace PlayerStates
 	void DiggingState::OnEnter(Player& player)
 	{
 		player.GetOwner()->GetComponent<SpriteComponent>()->SetNewTexture("Sprites/Player/DiggingSprite.png", 1, 16, 0, 1);
+
+		m_PreviousDirection = player.GetDirection();
 	}
 	
 	void DiggingState::OnExit(Player& )

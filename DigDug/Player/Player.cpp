@@ -9,7 +9,7 @@
 //---------------------------
 Player::Player(dae::GameObject* owner, GridComponent* grid)
 	:	Component(owner),
-		m_CurrentAxis{MoveAxis::None},
+		m_Direction{MoveDirection::Right},
 		m_GridPtr{ grid }
 {
     m_State = &PlayerStates::PlayerState::idling;
@@ -67,22 +67,35 @@ bool Player::CanSwitchMovement(MoveDirection direction)
 {
     const auto boundingBox = GetOwner()->GetComponent<ColliderComponent>()->GetBoundingBox();
 
-    MoveAxis newAxis{ MoveAxis::None };
-    if (direction == MoveDirection::Left || direction == MoveDirection::Right) newAxis = MoveAxis::Horizontal;
-    else newAxis = MoveAxis::Vertical;
+    if (m_Direction == direction) return true;
 
-    if (newAxis != m_CurrentAxis && m_CurrentAxis != MoveAxis::None)
+    if ((IsVertical(m_Direction) && IsHorizontal(direction)) || (IsHorizontal(m_Direction) && IsVertical(direction)))
     {
         bool canSwitch = false;
-        if (newAxis == MoveAxis::Vertical)  canSwitch = CanMoveVertical(boundingBox);
-        else                                canSwitch = CanMoveHorizontal(boundingBox);
+        if (IsVertical(direction))
+            canSwitch = CanMoveVertical(boundingBox);
+        else
+            canSwitch = CanMoveHorizontal(boundingBox);
 
-        if (!canSwitch) return false;
+        if (!canSwitch)
+            return false;
     }
-    m_CurrentAxis = newAxis;
 
+    m_Direction = direction;
     return true;
 }
+
+
+bool Player::IsVertical(MoveDirection dir) const
+{
+    return dir == MoveDirection::Up || dir == MoveDirection::Down;
+}
+
+bool Player::IsHorizontal(MoveDirection dir) const
+{
+    return dir == MoveDirection::Left || dir == MoveDirection::Right;
+}
+
 
 bool Player::CanMoveHorizontal(const SDL_Rect& boundingBox)
 {

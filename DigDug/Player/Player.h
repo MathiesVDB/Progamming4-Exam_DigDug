@@ -15,13 +15,6 @@ class GridComponent;
 class Player final : public dae::Component
 {
 public:
-	enum class MoveAxis
-	{
-		Horizontal,
-		Vertical,
-		None
-	};
-
 	Player(dae::GameObject* owner, GridComponent* grid);
 
 	//-------------------------------------------------
@@ -38,9 +31,9 @@ public:
 	void SetState(PlayerStates::PlayerState* state);
 	void SetLevelPtr(Level* level) { m_LevelPtr = level; }
 
-	GridComponent*	GetGridPtr()  const { return m_GridPtr;  }
-	Level*			GetLevelPtr() const { return m_LevelPtr; }
-
+	GridComponent*	GetGridPtr()		const { return m_GridPtr;  }
+	Level*			GetLevelPtr()		const { return m_LevelPtr; }
+	MoveDirection	GetDirection()		const { return m_Direction; }
 
 	//-------------------------------------------------
 	// Constants					
@@ -53,11 +46,15 @@ private:
 	bool CanMoveHorizontal(const SDL_Rect& boundingBox);
 	bool CanMoveVertical(const SDL_Rect& boundingBox);
 
+	bool IsHorizontal(MoveDirection dir) const;
+	bool IsVertical(MoveDirection dir) const;
+
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
-	MoveAxis					m_CurrentAxis;
 	GridComponent*				m_GridPtr;
 	Level*						m_LevelPtr; 
 	PlayerStates::PlayerState*	m_State;
+
+	MoveDirection m_Direction;
 };

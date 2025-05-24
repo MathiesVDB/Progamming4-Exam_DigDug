@@ -1,4 +1,5 @@
 #pragma once
+#include "Helpers.h"
 
 class SpriteComponent;
 class Player;
@@ -59,6 +60,8 @@ namespace PlayerStates
 
     private:
         void DigCurrentTile(Player& player) const;
+
+		MoveDirection m_PreviousDirection{ MoveDirection::Right };
     };
     
     class DeathState : public PlayerState
