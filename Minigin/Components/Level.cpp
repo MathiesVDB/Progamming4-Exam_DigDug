@@ -27,7 +27,7 @@ Level::Level(dae::GameObject* owner, const std::string& sceneName)
 
 void Level::LoadLevel(const std::string& fileName)
 {
-    auto gridComponent = GetOwner()->GetComponent<GridComponent>();
+    m_GridComponent = GetOwner()->GetComponent<GridComponent>();
 
     std::string filePath = "../Data/Levels/" + fileName;
     std::ifstream file(filePath);
@@ -76,11 +76,11 @@ void Level::LoadLevel(const std::string& fileName)
 
             float x = static_cast<float>(col) * GridComponent::CELL_SIZE;
             float y = static_cast<float>(row) * GridComponent::CELL_SIZE;
-            int index = gridComponent->GetCellIndex({ x, y });
+            int index = m_GridComponent->GetCellIndex({ x, y });
             if (index < 0 || index >= GridComponent::ROWS * GridComponent::COLUMNS) continue;
 
-            Point2f spawnPos = gridComponent->GetGrid()[index].spawnPosition;
-            if (tile == '#') gridComponent->GetGrid()[index].hasBeenDug = true;
+            Point2f spawnPos = m_GridComponent->GetGrid()[index].spawnPosition;
+            if (tile == '#') m_GridComponent->GetGrid()[index].hasBeenDug = true;
 
             switch (tile)
             {
@@ -88,8 +88,13 @@ void Level::LoadLevel(const std::string& fileName)
             case '2': SpawnDirtOrangeLight(spawnPos); break;
             case '3': SpawnDirtOrangeDark(spawnPos);  break;
             case '4': SpawnDirtRed(spawnPos);         break;
-            case 'f': SpawnFlower(spawnPos);         break;
-            case '#': SpawnEmpty(spawnPos);           break;
+            case 'f': SpawnFlower(spawnPos);          break;
+            case '#':
+            {
+                auto empty = SpawnEmpty(spawnPos);
+                m_Scene.Add(empty);
+                break;
+            }
             default:
                 std::cerr << "Unknown tile: " << tile << std::endl;
                 break;
@@ -141,7 +146,7 @@ void Level::LoadLevel(const std::string& fileName)
 
         if (index < 0 || index >= GridComponent::ROWS * GridComponent::COLUMNS) continue;
 
-        Point2f spawnPos = gridComponent->GetGrid()[index].spawnPosition;
+        Point2f spawnPos = m_GridComponent->GetGrid()[index].spawnPosition;
 
         switch (tileType)
         {
@@ -155,7 +160,7 @@ void Level::LoadLevel(const std::string& fileName)
     }
 }
 
-void Level::SpawnPlayer(const Point2f& spawnPos) const
+void Level::SpawnPlayer(const Point2f& spawnPos)
 {
     auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
 
@@ -165,6 +170,7 @@ void Level::SpawnPlayer(const Point2f& spawnPos) const
     Player1->AddComponent<HealthComponent>(3);
 	Player1->AddComponent<ColliderComponent>(FRIENDLY_ENTITY);
     Player1->AddComponent<Player>(GetOwner()->GetComponent<GridComponent>());
+	Player1->GetComponent<Player>()->SetLevelPtr(this);
 
     int player1Lives = Player1->GetComponent<HealthComponent>()->GetLives();
 
@@ -244,6 +250,8 @@ void Level::SpawnDirtYellow(const Point2f& spawnPos) const
 	DirtYellowGameObject->AddComponent<ColliderComponent>(GROUND);
 	DirtYellowGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 
+	m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
+
     DirtYellowGameObject->SetRenderLayer(RenderLayer::Ground);
 	m_Scene.Add(DirtYellowGameObject);
 }
@@ -254,6 +262,8 @@ void Level::SpawnDirtOrangeLight(const Point2f& spawnPos) const
 	DirtOrangeLightGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/OrangeLight.png");
 	DirtOrangeLightGameObject->AddComponent<ColliderComponent>(GROUND);
 	DirtOrangeLightGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+
+    m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
     DirtOrangeLightGameObject->SetRenderLayer(RenderLayer::Ground);
 	m_Scene.Add(DirtOrangeLightGameObject);
@@ -266,6 +276,8 @@ void Level::SpawnDirtOrangeDark(const Point2f& spawnPos) const
 	DirtOrangeDarkGameObject->AddComponent<ColliderComponent>(GROUND);
 	DirtOrangeDarkGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 
+    m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
+
     DirtOrangeDarkGameObject->SetRenderLayer(RenderLayer::Ground);
 	m_Scene.Add(DirtOrangeDarkGameObject);
 }
@@ -277,11 +289,13 @@ void Level::SpawnDirtRed(const Point2f& spawnPos) const
 	DirtRedGameObject->AddComponent<ColliderComponent>(GROUND);
 	DirtRedGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 
+    m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
+
     DirtRedGameObject->SetRenderLayer(RenderLayer::Ground);
 	m_Scene.Add(DirtRedGameObject);
 }
 
-void Level::SpawnEmpty(const Point2f& spawnPos) const
+std::unique_ptr<dae::GameObject> Level::SpawnEmpty(const Point2f& spawnPos) const
 {
 	auto EmptyGameObject = std::make_unique<dae::GameObject>();
 	EmptyGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/DiggedArea.png");
@@ -289,7 +303,7 @@ void Level::SpawnEmpty(const Point2f& spawnPos) const
     EmptyGameObject->AddComponent<ColliderComponent>(GROUND);
 
     EmptyGameObject->SetRenderLayer(RenderLayer::Ground);
-	m_Scene.Add(EmptyGameObject);
+	return EmptyGameObject;
 }
 
 void Level::SpawnFlower(const Point2f& spawnPos) const

@@ -21,11 +21,16 @@ public:
 	//-------------------------------------------------
 	void LoadLevel(const std::string& fileName); // Will look for file in ../Data/Levels/
 
+	//Public because used in player
+	std::unique_ptr<dae::GameObject> SpawnEmpty(const Point2f& spawnPos) const;
+
+	dae::Scene& GetScene() const { return m_Scene; }
+
 private:
 	//-------------------------------------------------
 	// Private member functions								
 	//-------------------------------------------------
-	void SpawnPlayer(const Point2f& spawnPos) const;
+	void SpawnPlayer(const Point2f& spawnPos);
 	void SpawnPooka(const Point2f& spawnPos) const;
 	void SpawnFygar(const Point2f& spawnPos) const;
 	void SpawnRock(const Point2f& spawnPos) const;
@@ -33,11 +38,11 @@ private:
 	void SpawnDirtOrangeLight(const Point2f& spawnPos) const;
 	void SpawnDirtOrangeDark(const Point2f& spawnPos) const;
 	void SpawnDirtRed(const Point2f& spawnPos) const;
-	void SpawnEmpty(const Point2f& spawnPos) const;
 	void SpawnFlower(const Point2f& spawnPos) const;
 
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
 	dae::Scene& m_Scene;
+	GridComponent* m_GridComponent{ nullptr };
 };

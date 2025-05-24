@@ -7,6 +7,7 @@
 #include "RealCollisionSystem.h"
 #include "Helpers.h"
 #include "PlayerState.h"
+class Level;
 //-----------------------------------------------------
 // Player Class									 
 //-----------------------------------------------------
@@ -35,8 +36,10 @@ public:
 	void SnapToCellCenter();
 
 	void SetState(PlayerStates::PlayerState* state);
+	void SetLevelPtr(Level* level) { m_LevelPtr = level; }
 
-	GridComponent* GetGridPtr() const { return m_GridPtr; }
+	GridComponent*	GetGridPtr()  const { return m_GridPtr;  }
+	Level*			GetLevelPtr() const { return m_LevelPtr; }
 
 
 	//-------------------------------------------------
@@ -55,5 +58,6 @@ private:
 	//-------------------------------------------------
 	MoveAxis					m_CurrentAxis;
 	GridComponent*				m_GridPtr;
+	Level*						m_LevelPtr; 
 	PlayerStates::PlayerState*	m_State;
 };

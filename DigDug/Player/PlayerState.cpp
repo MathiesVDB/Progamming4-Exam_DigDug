@@ -2,7 +2,9 @@
 
 #include "GameObject.h"
 #include "GridComponent.h"
+#include "Level.h"
 #include "Player.h"
+#include "Renderer.h"
 #include "SpriteComponent.h"
 
 namespace PlayerStates
@@ -41,10 +43,12 @@ namespace PlayerStates
 	
 	PlayerStates::PlayerState* MovingState::Update(Player& player, float)
 	{
-		if (player.GetOwner()->GetVelocity() == glm::vec3{ 0, 0, 0 })
-		{
-			return &PlayerStates::PlayerState::idling;
-		}
+		if (player.GetOwner()->GetVelocity() == glm::vec3{ 0, 0, 0 }) return &PlayerStates::PlayerState::idling;
+
+		Point2f position{ player.GetOwner()->GetWorldPosition().x, player.GetOwner()->GetWorldPosition().y };
+		int index{ player.GetGridPtr()->GetCellIndex(position) };
+
+		if (!player.GetGridPtr()->GetGrid()[index].hasBeenDug) return &PlayerStates::PlayerState::digging;
 
 		auto sprite = player.GetOwner()->GetComponent<SpriteComponent>();
 
@@ -76,7 +80,7 @@ namespace PlayerStates
 	void MovingState::OnExit(Player&)
 	{
 	}
-	
+
 	//-----------------------------------------------------
 	// DiggingState Class
 	//-----------------------------------------------------
@@ -87,7 +91,13 @@ namespace PlayerStates
 	
 	PlayerStates::PlayerState* DiggingState::Update(Player& player, float )
 	{
-		//if (player.GetGridPtr()->GetGrid()[player.GetGridPtr()->GetCellIndex(player.)])
+		if (player.GetOwner()->GetVelocity() == glm::vec3{ 0, 0, 0 }) return &PlayerStates::PlayerState::idling;
+
+		Point2f position { player.GetOwner()->GetLocalPosition().x, player.GetOwner()->GetLocalPosition().y };
+		std::cout << "Position: " << position.x << ", " << position.y << std::endl;
+		int index{ player.GetGridPtr()->GetCellIndex(position) };
+
+		if (player.GetGridPtr()->GetGrid()[index].hasBeenDug) return &PlayerStates::PlayerState::moving;
 
 		auto sprite = player.GetOwner()->GetComponent<SpriteComponent>();
 
@@ -108,7 +118,33 @@ namespace PlayerStates
 			sprite->SetSpriteBounds(6, 7, true);
 		}
 
+		DigCurrentTile(player);
+
 		return nullptr;
+	}
+
+
+	void DiggingState::DigCurrentTile(Player& player) const
+	{
+		Point2f playerPos{ player.GetOwner()->GetWorldPosition().x, player.GetOwner()->GetWorldPosition().y };
+		int index{ player.GetGridPtr()->GetCellIndex(playerPos) };
+
+		// Already started digging this tile?
+		if (!player.GetGridPtr()->GetGrid()[index].coverTile)
+		{
+			auto emptyTile = player.GetLevelPtr()->SpawnEmpty(playerPos);
+			player.GetGridPtr()->GetGrid()[index].coverTile = emptyTile.get();
+			player.GetLevelPtr()->GetScene().Add(emptyTile);
+		}
+
+		//auto coverTile{ player.GetGridPtr()->GetGrid()[index].coverTile };
+
+		// Shift the tile with the player over the undug tile
+
+		// Set tile as has been dug if empty tile is completely over the undug tile
+
+		// Destroy undug tile if empty tile covers it completely
+
 	}
 	
 	void DiggingState::OnEnter(Player& player)

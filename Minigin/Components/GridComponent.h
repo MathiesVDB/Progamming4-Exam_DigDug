@@ -1,6 +1,6 @@
 ﻿#pragma once
+#include <memory>
 #include <vector>
-#include <iostream>
 #include "Helpers.h"
 #include "Component.h"
 
@@ -12,6 +12,7 @@ public:
 		bool hasBeenDug{ false };
 		Point2f spawnPosition{};
 		Point2f centerPoint{};
+		dae::GameObject* coverTile{ nullptr };
 	};
 
 	GridComponent(dae::GameObject* owner);

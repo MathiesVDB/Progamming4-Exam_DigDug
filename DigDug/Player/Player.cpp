@@ -10,7 +10,7 @@
 Player::Player(dae::GameObject* owner, GridComponent* grid)
 	:	Component(owner),
 		m_CurrentAxis{MoveAxis::None},
-		m_GridPtr{grid}
+		m_GridPtr{ grid }
 {
     m_State = &PlayerStates::PlayerState::idling;
 

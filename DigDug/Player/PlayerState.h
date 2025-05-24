@@ -56,6 +56,9 @@ namespace PlayerStates
     
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;
+
+    private:
+        void DigCurrentTile(Player& player) const;
     };
     
     class DeathState : public PlayerState
