@@ -62,6 +62,7 @@ namespace PlayerStates
         void DigCurrentTile(Player& player) const;
 
 		MoveDirection m_PreviousDirection{ MoveDirection::Right };
+        Point2f m_Position{};
     };
     
     class DeathState : public PlayerState

@@ -33,7 +33,8 @@ public:
 
 	GridComponent*	GetGridPtr()		const { return m_GridPtr;  }
 	Level*			GetLevelPtr()		const { return m_LevelPtr; }
-	MoveDirection	GetDirection()		const { return m_Direction; }
+	MoveDirection	GetDirection()		const { return m_Direction;}
+	ColliderComponent* GetCollider()	const { return m_Collider; }
 
 	//-------------------------------------------------
 	// Constants					
@@ -55,6 +56,6 @@ private:
 	GridComponent*				m_GridPtr;
 	Level*						m_LevelPtr; 
 	PlayerStates::PlayerState*	m_State;
-
+	ColliderComponent*			m_Collider;
 	MoveDirection m_Direction;
 };

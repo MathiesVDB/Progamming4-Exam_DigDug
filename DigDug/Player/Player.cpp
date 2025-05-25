@@ -12,6 +12,8 @@ Player::Player(dae::GameObject* owner, GridComponent* grid)
 		m_Direction{MoveDirection::Right},
 		m_GridPtr{ grid }
 {
+	m_Collider = GetOwner()->GetComponent<ColliderComponent>();
+
     m_State = &PlayerStates::PlayerState::idling;
 
     SnapToCellCenter();

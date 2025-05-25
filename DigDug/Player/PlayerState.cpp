@@ -45,7 +45,17 @@ namespace PlayerStates
 	{
 		if (player.GetOwner()->GetVelocity() == glm::vec3{ 0, 0, 0 }) return &PlayerStates::PlayerState::idling;
 
-		Point2f position{ player.GetOwner()->GetWorldPosition().x, player.GetOwner()->GetWorldPosition().y };
+		Point2f position{};
+		if (player.GetDirection() == MoveDirection::Left || player.GetDirection() == MoveDirection::Up)
+		{
+			position = { static_cast<float>(player.GetCollider()->GetBoundingBox().x),
+							static_cast<float>(player.GetCollider()->GetBoundingBox().y) };
+		}
+		else
+		{
+			position = { static_cast<float>(player.GetCollider()->GetBoundingBox().x) + static_cast<float>(player.GetCollider()->GetBoundingBox().w),
+							static_cast<float>(player.GetCollider()->GetBoundingBox().y) + static_cast<float>(player.GetCollider()->GetBoundingBox().h) };
+		}
 		int index{ player.GetGridPtr()->GetCellIndex(position) };
 
 		if (!player.GetGridPtr()->GetGrid()[index].hasBeenDug) return &PlayerStates::PlayerState::digging;
@@ -87,14 +97,25 @@ namespace PlayerStates
 	
 	void DiggingState::Render(const Player& ) const
 	{
+
 	}
 	
 	PlayerStates::PlayerState* DiggingState::Update(Player& player, float )
 	{
 		if (player.GetOwner()->GetVelocity() == glm::vec3{ 0, 0, 0 }) return &PlayerStates::PlayerState::idling;
 
-		Point2f position { player.GetOwner()->GetLocalPosition().x, player.GetOwner()->GetLocalPosition().y };
-		int index{ player.GetGridPtr()->GetCellIndex(position) };
+		// Bug when player goes down or right, because position point will enter cell last and mess with digging. THis
+		if (player.GetDirection() == MoveDirection::Left || player.GetDirection() == MoveDirection::Up)
+		{
+			m_Position = { static_cast<float>(player.GetCollider()->GetBoundingBox().x),
+							static_cast<float>(player.GetCollider()->GetBoundingBox().y)};
+		}
+		else
+		{
+			m_Position = { 	static_cast<float>(player.GetCollider()->GetBoundingBox().x) + static_cast<float>(player.GetCollider()->GetBoundingBox().w),
+								static_cast<float>(player.GetCollider()->GetBoundingBox().y) + static_cast<float>(player.GetCollider()->GetBoundingBox().h)};
+		}
+		int index{ player.GetGridPtr()->GetCellIndex(m_Position) };
 
 		if (player.GetGridPtr()->GetGrid()[index].hasBeenDug) return &PlayerStates::PlayerState::moving;
 
@@ -125,8 +146,15 @@ namespace PlayerStates
 
 	void DiggingState::DigCurrentTile(Player& player) const
 	{
-		Point2f playerPos{ player.GetOwner()->GetWorldPosition().x, player.GetOwner()->GetWorldPosition().y };
-		int index{ player.GetGridPtr()->GetCellIndex(playerPos) };
+		int index{ player.GetGridPtr()->GetCellIndex(m_Position) };
+
+		Point2f playerPos{ m_Position };
+		// Spawnpoint always needs to be on player position
+		if (player.GetDirection() == MoveDirection::Right || player.GetDirection() == MoveDirection::Down)
+		{
+			playerPos.x -= player.GetCollider()->GetBoundingBox().w;
+			playerPos.y -= player.GetCollider()->GetBoundingBox().h;
+		}
 
 		// Already started digging this tile?
 		if (!player.GetGridPtr()->GetGrid()[index].coverTile)
@@ -152,12 +180,6 @@ namespace PlayerStates
 		float margin = 3.f;
 
 		if (distanceSquared <= margin * margin) player.GetGridPtr()->GetGrid()[index].hasBeenDug = true;
-		// Shift the tile with the player over the undug tile
-
-		// Set tile as has been dug if empty tile is completely over the undug tile
-
-		// Destroy undug tile if empty tile covers it completely
-
 	}
 	
 	void DiggingState::OnEnter(Player& player)
