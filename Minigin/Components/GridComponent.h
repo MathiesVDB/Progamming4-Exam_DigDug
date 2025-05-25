@@ -12,7 +12,10 @@ public:
 		bool hasBeenDug{ false };
 		Point2f spawnPosition{};
 		Point2f centerPoint{};
+
+		//Digging
 		dae::GameObject* coverTile{ nullptr };
+		MoveDirection digDirection{ MoveDirection::Right };
 	};
 
 	GridComponent(dae::GameObject* owner);

@@ -1,10 +1,8 @@
 #include "PlayerState.h"
-
 #include "GameObject.h"
 #include "GridComponent.h"
 #include "Level.h"
 #include "Player.h"
-#include "Renderer.h"
 #include "SpriteComponent.h"
 
 namespace PlayerStates
@@ -144,7 +142,7 @@ namespace PlayerStates
 	}
 
 
-	void DiggingState::DigCurrentTile(Player& player) const
+	void DiggingState::DigCurrentTile(Player& player)
 	{
 		int index{ player.GetGridPtr()->GetCellIndex(m_Position) };
 
@@ -161,15 +159,33 @@ namespace PlayerStates
 		{
 			auto emptyTile = player.GetLevelPtr()->SpawnEmpty(playerPos);
 			player.GetGridPtr()->GetGrid()[index].coverTile = emptyTile.get();
+			player.GetGridPtr()->GetGrid()[index].digDirection = player.GetDirection();
 			player.GetLevelPtr()->GetScene().Add(emptyTile);
 		}
 
 		auto coverTile{ player.GetGridPtr()->GetGrid()[index].coverTile };
 
-		if (player.GetDirection() != m_PreviousDirection) return;
+		if (player.GetDirection() != player.GetGridPtr()->GetGrid()[index].digDirection) return;
+
+		Point2f currentTilePos{ coverTile->GetComponent<dae::Transform>()->GetPosition().x, coverTile->GetComponent<dae::Transform>()->GetPosition().y };
+
+		MoveDirection digDir = player.GetGridPtr()->GetGrid()[index].digDirection;
+
+		if (!IsTileMoveAllowed(digDir, currentTilePos, playerPos)) return;
 
 		coverTile->GetComponent<dae::Transform>()->SetPosition(playerPos.x, playerPos.y, 0.0f);
 
+		player.GetGridPtr()->GetGrid()[index].hasBeenDug = CheckHasBeenDug(player, coverTile, index);
+
+		if (player.GetGridPtr()->GetGrid()[index].hasBeenDug)
+		{
+			Point2f spawnPosition{ player.GetGridPtr()->GetGrid()[index].spawnPosition.x, player.GetGridPtr()->GetGrid()[index].spawnPosition.y };
+			coverTile->GetComponent<dae::Transform>()->SetPosition(spawnPosition.x, spawnPosition.y, 0.0f);
+		}
+	}
+
+	bool DiggingState::CheckHasBeenDug(Player& player, dae::GameObject* coverTile, int index)
+	{
 		Point2f tileLocation{ coverTile->GetComponent<dae::Transform>()->GetPosition().x, coverTile->GetComponent<dae::Transform>()->GetPosition().y };
 		Point2f spawnPosition{ player.GetGridPtr()->GetGrid()[index].spawnPosition.x, player.GetGridPtr()->GetGrid()[index].spawnPosition.y };
 
@@ -179,9 +195,35 @@ namespace PlayerStates
 		float distanceSquared = deltaX * deltaX + deltaY * deltaY;
 		float margin = 3.f;
 
-		if (distanceSquared <= margin * margin) player.GetGridPtr()->GetGrid()[index].hasBeenDug = true;
+		if (distanceSquared <= margin * margin) return true;
+
+		return false;
 	}
-	
+
+	bool DiggingState::IsTileMoveAllowed(MoveDirection direction, const Point2f& currentTilePos, const Point2f& playerPos)
+	{
+		bool isMovingAllowed{ true };
+
+		if (direction == MoveDirection::Left)
+		{
+			isMovingAllowed = playerPos.x < currentTilePos.x;
+		}
+		else if (direction == MoveDirection::Right)
+		{
+			isMovingAllowed = playerPos.x > currentTilePos.x;
+		}
+		else if (direction == MoveDirection::Up)
+		{
+			isMovingAllowed = playerPos.y < currentTilePos.y;
+		}
+		else if (direction == MoveDirection::Down)
+		{
+			isMovingAllowed = playerPos.y > currentTilePos.y;
+		}
+
+		return isMovingAllowed;
+	}
+
 	void DiggingState::OnEnter(Player& player)
 	{
 		player.GetOwner()->GetComponent<SpriteComponent>()->SetNewTexture("Sprites/Player/DiggingSprite.png", 1, 16, 0, 1);

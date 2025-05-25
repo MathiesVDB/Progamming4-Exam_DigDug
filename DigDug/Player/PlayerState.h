@@ -1,5 +1,11 @@
 #pragma once
+
 #include "Helpers.h"
+
+namespace dae
+{
+	class GameObject;
+}
 
 class SpriteComponent;
 class Player;
@@ -59,7 +65,10 @@ namespace PlayerStates
         void OnExit(Player& player) override;
 
     private:
-        void DigCurrentTile(Player& player) const;
+        void DigCurrentTile(Player& player);
+
+        bool CheckHasBeenDug(Player& player, dae::GameObject* coverTile, int index);
+        bool IsTileMoveAllowed(MoveDirection direction, const Point2f& currentTilePos, const Point2f& playerPos);
 
 		MoveDirection m_PreviousDirection{ MoveDirection::Right };
         Point2f m_Position{};
