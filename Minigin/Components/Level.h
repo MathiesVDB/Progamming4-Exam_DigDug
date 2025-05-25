@@ -5,7 +5,6 @@
 //-----------------------------------------------------
 #include "GridComponent.h"
 #include "Component.h"
-#include <iostream>
 #include "Scene.h"
 
 //-----------------------------------------------------
@@ -23,6 +22,7 @@ public:
 
 	//Public because used in player
 	std::unique_ptr<dae::GameObject> SpawnEmpty(const Point2f& spawnPos) const;
+	std::unique_ptr<dae::GameObject> SpawnRope(const Point2f& spawnPos) const; 
 
 	dae::Scene& GetScene() const { return m_Scene; }
 

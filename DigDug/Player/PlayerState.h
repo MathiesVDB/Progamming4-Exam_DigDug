@@ -33,6 +33,9 @@ namespace PlayerStates
     
         virtual void OnEnter(Player&) {}
         virtual void OnExit(Player&) {}
+
+    protected:
+		SpriteComponent* m_Sprite{ nullptr };
     };
     
     class IdleState : public PlayerState
@@ -92,5 +95,8 @@ namespace PlayerStates
     
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;
+
+    private:
+        void SetPlayerThrow(Player& player) const;
     };
 }

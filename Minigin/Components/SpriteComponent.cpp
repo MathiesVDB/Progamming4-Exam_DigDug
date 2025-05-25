@@ -98,6 +98,16 @@ void SpriteComponent::SetNewTexture(const std::string& fileName, int rows, int c
 	SetSpriteBounds(firstframe, lastframe, true);
 }
 
+bool SpriteComponent::HasReachedLastframe() const
+{
+	return m_CurrentFrame == m_MaxFrame;
+}
+
+bool SpriteComponent::IsAlreadyWithinBounds(int newStartFrame, int newMaxFrame) const
+{
+	return m_CurrentFrame >= newStartFrame && m_CurrentFrame <= newMaxFrame;
+}
+
 int SpriteComponent::GetCurrentFrame() const
 {
 	return m_CurrentFrame;

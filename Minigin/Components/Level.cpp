@@ -237,7 +237,9 @@ void Level::SpawnRock(const Point2f& spawnPos) const
 	RockGameObject->AddComponent<SpriteComponent>("Sprites/Misc/EnvironmentSprite.png", 1, 7, 0.25f, 0, 0);
 	RockGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
 	RockGameObject->AddComponent<ColliderComponent>(ROCK);
-    RockGameObject->AddComponent<Rock>();
+    RockGameObject->AddComponent<Rock>(GetOwner()->GetComponent<GridComponent>());
+
+    m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasRock = true;
 
     RockGameObject->SetRenderLayer(RenderLayer::Entity); //May not technically be an entity but should render between ground and player
 	m_Scene.Add(RockGameObject);
@@ -304,6 +306,15 @@ std::unique_ptr<dae::GameObject> Level::SpawnEmpty(const Point2f& spawnPos) cons
 
     EmptyGameObject->SetRenderLayer(RenderLayer::Ground);
 	return EmptyGameObject;
+}
+
+std::unique_ptr<dae::GameObject> Level::SpawnRope(const Point2f& spawnPos) const
+{
+	auto RopeGameObject = std::make_unique<dae::GameObject>();
+	RopeGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+
+	RopeGameObject->SetRenderLayer(RenderLayer::Ground);
+	return RopeGameObject;
 }
 
 void Level::SpawnFlower(const Point2f& spawnPos) const

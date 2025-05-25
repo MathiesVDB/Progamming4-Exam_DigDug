@@ -5,7 +5,6 @@
 //-----------------------------------------------------
 #include <SDL_rect.h>
 #include "Component.h"
-#include <iostream>
 
 //-----------------------------------------------------
 // ColliderComponent Class									 
@@ -15,7 +14,8 @@ enum Tag
 	GROUND,
 	FRIENDLY_ENTITY,
 	ENEMY_ENTITY,
-	ROCK
+	ROCK,
+	ROPE
 };
 
 class ColliderComponent final : public dae::Component
@@ -31,8 +31,6 @@ public:
 
 	SDL_Rect GetBoundingBox() const { return m_BoundingBox; }
 	Tag GetTag() const { return m_Tag; }
-
-	bool m_WasHit;
 
 private:
 	//-------------------------------------------------

@@ -162,6 +162,8 @@
     <ClCompile Include="Player\PlayerState.cpp" />
     <ClCompile Include="Player\Player.cpp" />
     <ClCompile Include="Enemies\PookaState.cpp" />
+    <ClCompile Include="Enemies\RockState.cpp" />
+    <ClCompile Include="Player\RopeComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enemies\Rock.h" />
@@ -176,6 +178,8 @@
     <ClInclude Include="Player\Player.h" />
     <ClInclude Include="Enemies\PookaState.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Enemies\RockState.h" />
+    <ClInclude Include="Player\RopeComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DigDug.rc" />

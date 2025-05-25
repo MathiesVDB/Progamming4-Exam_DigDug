@@ -25,6 +25,8 @@ public:
 	void SetSpriteLocation(); //Does not need argument, because it uses the position of the GameObject
 	void SetNewTexture(const std::string& fileName, int rows, int columns, int firstframe, int lastframe);
 
+	bool HasReachedLastframe() const; // Returns true if the current frame is the last frame in the animation
+	bool IsAlreadyWithinBounds(int newStartFrame, int newMaxFrame) const; // Returns true if the current frame is within the bounds of the animation, for use outside of component
 	int GetCurrentFrame() const;
 	glm::vec2 GetSpriteSize() const;
 

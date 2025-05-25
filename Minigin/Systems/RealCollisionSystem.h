@@ -3,14 +3,15 @@
 //-----------------------------------------------------
 // Include Files
 //-----------------------------------------------------
+#include <iostream>
 #include <vector>
 #include "ColliderComponent.h"
 #include "Observer.h"
 
 struct CollisionEvent
 {
-	dae::GameObject* sender;  // Collider
-	dae::GameObject* receiver; // Collided
+	dae::GameObject* collider; 
+	dae::GameObject* collided; 
 };
 
 class CollisionSystem : public dae::Subject

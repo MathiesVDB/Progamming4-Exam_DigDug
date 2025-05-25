@@ -48,9 +48,6 @@ void RealCollisionSystem::CheckCollisions()
             ColliderComponent* colliderA = m_Colliders[iterator];
             ColliderComponent* colliderB = m_Colliders[counter];
 
-			colliderA->m_WasHit = false;
-			colliderB->m_WasHit = false;
-
 			Tag tagA = colliderA->GetTag();
 			Tag tagB = colliderB->GetTag();
 
@@ -63,8 +60,6 @@ void RealCollisionSystem::CheckCollisions()
 
             if (IsOverlapping(colliderA->GetBoundingBox(), colliderB->GetBoundingBox())) 
             {
-				colliderA->m_WasHit = true;
-
 				m_LastCollisionEvent = { colliderA->GetOwner(), colliderB->GetOwner() };
 				Notify(colliderA->GetOwner(), dae::EventRegistry::GetInstance().GetEventID("CollisionEvent"));
 				Notify(colliderB->GetOwner(), dae::EventRegistry::GetInstance().GetEventID("CollisionEvent"));

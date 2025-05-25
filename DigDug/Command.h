@@ -28,6 +28,7 @@ public:
 	void Execute() override
 	{
 		if (!m_Player) return;
+		if (m_Player->IsDead()) return;
 		if (!m_Player->CanSwitchMovement(m_Direction)) return;
 
 		switch (m_Direction)
@@ -57,11 +58,16 @@ class DamageCommand final : public Command
 {
 public:
 	explicit DamageCommand(dae::GameObject* owner)
-		: m_Owner(owner) {
+		: m_Owner(owner)
+	{
+		if (owner->HasComponent<Player>()) m_Player = owner->GetComponent<Player>();
+		else std::cout << "'Player' component required to attack!\n";
 	}
 
 	void Execute() override
 	{
+		m_Player->SetState(&PlayerStates::PlayerState::attacking);
+
 		if (auto health = m_Owner->GetComponent<HealthComponent>())
 		{
 			health->TakeDamage(1);
@@ -70,5 +76,6 @@ public:
 
 private:
 	dae::GameObject* m_Owner;
+	Player* m_Player{ nullptr };
 };
 

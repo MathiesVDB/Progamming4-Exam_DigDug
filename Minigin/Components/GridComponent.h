@@ -16,6 +16,9 @@ public:
 		//Digging
 		dae::GameObject* coverTile{ nullptr };
 		MoveDirection digDirection{ MoveDirection::Right };
+
+		//Rocks
+		bool hasRock{ false };
 	};
 
 	GridComponent(dae::GameObject* owner);

@@ -19,12 +19,29 @@ namespace PlayerStates
 	{
 		if (player.GetOwner()->GetVelocity() != glm::vec3{ 0, 0, 0 }) return &PlayerStates::PlayerState::moving;
 
+		switch (player.GetDirection())
+		{
+		case MoveDirection::Left:
+			player.GetOwner()->GetComponent<SpriteComponent>()->SetSpriteBounds(4, 4, true);
+			break;
+		case MoveDirection::Right:
+			player.GetOwner()->GetComponent<SpriteComponent>()->SetSpriteBounds(0, 0, true);
+			break;
+		case MoveDirection::Up:
+			player.GetOwner()->GetComponent<SpriteComponent>()->SetSpriteBounds(2, 2, true);
+			break;
+		case MoveDirection::Down:
+			player.GetOwner()->GetComponent<SpriteComponent>()->SetSpriteBounds(6, 6, true);
+			break;
+		}
+
 		return nullptr;
 	}
 	
 	void IdleState::OnEnter(Player& player)
 	{
-		player.GetOwner()->GetComponent<SpriteComponent>()->SetNewTexture("Sprites/Player/WalkingSprite.png", 1, 8, 0, 0);
+		m_Sprite = player.GetOwner()->GetComponent<SpriteComponent>();
+		m_Sprite->SetNewTexture("Sprites/Player/WalkingSprite.png", 1, 8, 0, 0);
 	}
 	
 	void IdleState::OnExit(Player& )
@@ -58,23 +75,21 @@ namespace PlayerStates
 
 		if (!player.GetGridPtr()->GetGrid()[index].hasBeenDug) return &PlayerStates::PlayerState::digging;
 
-		auto sprite = player.GetOwner()->GetComponent<SpriteComponent>();
-
 		if (player.GetOwner()->GetVelocity().x < 0)
 		{
-			sprite->SetSpriteBounds(4, 5, true);
+			m_Sprite->SetSpriteBounds(4, 5, true);
 		}
 		else if (player.GetOwner()->GetVelocity().x > 0)
 		{
-			sprite->SetSpriteBounds(0, 1, true);
+			m_Sprite->SetSpriteBounds(0, 1, true);
 		}
 		else if (player.GetOwner()->GetVelocity().y < 0)
 		{
-			sprite->SetSpriteBounds(2, 3, true);
+			m_Sprite->SetSpriteBounds(2, 3, true);
 		}
 		else if (player.GetOwner()->GetVelocity().y > 0)
 		{
-			sprite->SetSpriteBounds(6, 7, true);
+			m_Sprite->SetSpriteBounds(6, 7, true);
 		}
 
 		return nullptr;
@@ -82,7 +97,8 @@ namespace PlayerStates
 	
 	void MovingState::OnEnter(Player& player)
 	{
-		player.GetOwner()->GetComponent<SpriteComponent>()->SetNewTexture("Sprites/Player/WalkingSprite.png", 1, 8, 0, 1);
+		m_Sprite = player.GetOwner()->GetComponent<SpriteComponent>();
+		m_Sprite->SetNewTexture("Sprites/Player/WalkingSprite.png", 1, 8, 0, 1);
 	}
 	
 	void MovingState::OnExit(Player&)
@@ -117,23 +133,21 @@ namespace PlayerStates
 
 		if (player.GetGridPtr()->GetGrid()[index].hasBeenDug) return &PlayerStates::PlayerState::moving;
 
-		auto sprite = player.GetOwner()->GetComponent<SpriteComponent>();
-
 		if (player.GetOwner()->GetVelocity().x < 0)
 		{
-			sprite->SetSpriteBounds(4, 5, true);
+			m_Sprite->SetSpriteBounds(4, 5, true);
 		}
 		else if (player.GetOwner()->GetVelocity().x > 0)
 		{
-			sprite->SetSpriteBounds(0, 1, true);
+			m_Sprite->SetSpriteBounds(0, 1, true);
 		}
 		else if (player.GetOwner()->GetVelocity().y < 0)
 		{
-			sprite->SetSpriteBounds(2, 3, true);
+			m_Sprite->SetSpriteBounds(2, 3, true);
 		}
 		else if (player.GetOwner()->GetVelocity().y > 0)
 		{
-			sprite->SetSpriteBounds(6, 7, true);
+			m_Sprite->SetSpriteBounds(6, 7, true);
 		}
 
 		DigCurrentTile(player);
@@ -226,7 +240,8 @@ namespace PlayerStates
 
 	void DiggingState::OnEnter(Player& player)
 	{
-		player.GetOwner()->GetComponent<SpriteComponent>()->SetNewTexture("Sprites/Player/DiggingSprite.png", 1, 16, 0, 1);
+		m_Sprite = player.GetOwner()->GetComponent<SpriteComponent>();
+		m_Sprite->SetNewTexture("Sprites/Player/DiggingSprite.png", 1, 16, 0, 1);
 
 		m_PreviousDirection = player.GetDirection();
 	}
@@ -243,13 +258,40 @@ namespace PlayerStates
 	{
 	}
 	
-	PlayerStates::PlayerState* DeathState::Update(Player& , float )
+	PlayerStates::PlayerState* DeathState::Update(Player& player, float )
 	{
+		if (m_Sprite->HasReachedLastframe())
+		{
+			
+		}
+
+		switch (player.GetDirection())
+		{
+		case MoveDirection::Left:
+			if (player.WasCrushed() && !m_Sprite->IsAlreadyWithinBounds(4, 5)) m_Sprite->SetSpriteBounds(4,   5, true);
+			else if (!m_Sprite->IsAlreadyWithinBounds(16, 19))  				m_Sprite->SetSpriteBounds(16, 19, true);
+			break;
+		case MoveDirection::Right:
+			if (player.WasCrushed() && !m_Sprite->IsAlreadyWithinBounds(0, 1)) m_Sprite->SetSpriteBounds(0, 1, true);
+			else if (!m_Sprite->IsAlreadyWithinBounds(8, 11))  				m_Sprite->SetSpriteBounds(8, 11, true);
+			break;
+		case MoveDirection::Up:
+			if (player.WasCrushed() && !m_Sprite->IsAlreadyWithinBounds(2, 3)) m_Sprite->SetSpriteBounds(2, 3, true);
+			else if (!m_Sprite->IsAlreadyWithinBounds(12, 15))  				m_Sprite->SetSpriteBounds(12, 15, true);
+			break;
+		case MoveDirection::Down:
+			if (player.WasCrushed() && !m_Sprite->IsAlreadyWithinBounds(6, 7)) m_Sprite->SetSpriteBounds(6, 7, true);
+			else if (!m_Sprite->IsAlreadyWithinBounds(20, 23))  				m_Sprite->SetSpriteBounds(20, 23, true);
+			break;
+		}
+
 		return nullptr;
 	}
 	
-	void DeathState::OnEnter(Player& )
+	void DeathState::OnEnter(Player& player)
 	{
+		m_Sprite = player.GetOwner()->GetComponent<SpriteComponent>();
+		m_Sprite->SetNewTexture("Sprites/Player/DeathSprite.png", 3, 8, 0, 23);
 	}
 	
 	void DeathState::OnExit(Player& )
@@ -266,11 +308,44 @@ namespace PlayerStates
 	
 	PlayerStates::PlayerState* AttackState::Update(Player& , float )
 	{
+		//Set throw sprite in direction
+
+		// Get Weapon
+
+		// If weapon does not hit enemy go back to idle
+
+		// If weapon hits go to pumpsprite
+
+		// if second pump takes too long go to idle
+
+		// if second pump is on time, increase enemy inflate
+
 		return nullptr;
 	}
-	
-	void AttackState::OnEnter(Player& )
+
+	void AttackState::SetPlayerThrow(Player& player) const
 	{
+		switch (player.GetDirection())
+		{
+		case MoveDirection::Left:
+			m_Sprite->SetSpriteBounds(2, 2, true);
+			break;
+		case MoveDirection::Right:
+			m_Sprite->SetSpriteBounds(0, 0, true);
+			break;
+		case MoveDirection::Up:
+			m_Sprite->SetSpriteBounds(1, 1, true);
+			break;
+		case MoveDirection::Down:
+			m_Sprite->SetSpriteBounds(3, 3, true);
+			break;
+		}
+	}
+	
+	void AttackState::OnEnter(Player& player)
+	{
+		m_Sprite = player.GetOwner()->GetComponent<SpriteComponent>();
+		SetPlayerThrow(player);
 	}
 	
 	void AttackState::OnExit(Player& )

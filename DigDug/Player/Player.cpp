@@ -60,9 +60,23 @@ void Player::SnapToCellCenter()
     GetOwner()->GetComponent<dae::Transform>()->SetPosition(newX, newY, 0.0f);
 }
 
-void Player::HandleCollision(const CollisionEvent& )
+void Player::HandleCollision(const CollisionEvent& collision)
 {
-	
+    if (m_State == &PlayerStates::PlayerState::dying) return;
+
+    const auto& colliderTag{ collision.collider->GetComponent<ColliderComponent>()->GetTag() };
+    const auto& collidedTag{ collision.collided->GetComponent<ColliderComponent>()->GetTag() };
+
+	if (colliderTag == Tag::ENEMY_ENTITY || collidedTag == Tag::ENEMY_ENTITY)
+	{
+        m_WasCrushed = false;
+        SetState(&PlayerStates::PlayerState::dying);
+	}
+	else if (colliderTag == Tag::ROCK || collidedTag == Tag::ROCK)
+	{
+		m_WasCrushed = true;
+		SetState(&PlayerStates::PlayerState::dying);
+	}
 }
 
 bool Player::CanSwitchMovement(MoveDirection direction)

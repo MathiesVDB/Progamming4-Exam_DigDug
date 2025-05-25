@@ -31,10 +31,12 @@ public:
 	void SetState(PlayerStates::PlayerState* state);
 	void SetLevelPtr(Level* level) { m_LevelPtr = level; }
 
-	GridComponent*	GetGridPtr()		const { return m_GridPtr;  }
-	Level*			GetLevelPtr()		const { return m_LevelPtr; }
-	MoveDirection	GetDirection()		const { return m_Direction;}
-	ColliderComponent* GetCollider()	const { return m_Collider; }
+	GridComponent*		GetGridPtr()	const { return m_GridPtr;  }
+	Level*				GetLevelPtr()	const { return m_LevelPtr; }
+	MoveDirection		GetDirection()	const { return m_Direction;}
+	ColliderComponent*	GetCollider()	const { return m_Collider; }
+	bool				WasCrushed()	const { return m_WasCrushed; }
+	bool				IsDead()		const { return m_State == &PlayerStates::PlayerState::dying; }
 
 	//-------------------------------------------------
 	// Constants					
@@ -53,9 +55,11 @@ private:
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
+	bool m_WasCrushed{ false };
+
 	GridComponent*				m_GridPtr;
 	Level*						m_LevelPtr; 
 	PlayerStates::PlayerState*	m_State;
 	ColliderComponent*			m_Collider;
-	MoveDirection m_Direction;
+	MoveDirection				m_Direction;
 };
