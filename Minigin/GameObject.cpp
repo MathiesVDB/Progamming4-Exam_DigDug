@@ -18,10 +18,17 @@ namespace dae
             component->Update(deltaTime);
         }
 
-		glm::vec3 newPos = m_LocalPosition + m_Velocity * deltaTime;
+		glm::vec2 newPos = m_LocalPosition + m_Velocity * deltaTime;
         SetLocalPosition(newPos);
 
 		m_Velocity = glm::vec3(0, 0, 0);
+
+		//Safe deletion of components
+        for (const auto& typeId : m_ComponentsToDelete)
+        {
+            m_Components.erase(typeId);
+        }
+        m_ComponentsToDelete.clear();
     }
 
     void GameObject::Render() const
@@ -73,18 +80,18 @@ namespace dae
         return std::find(m_Children.begin(), m_Children.end(), potentialChild) != m_Children.end();
     }
 
-    const glm::vec3& GameObject::GetLocalPosition() const
+    const glm::vec2& GameObject::GetLocalPosition() const
 	{
 		return m_LocalPosition;
     }
 
-    void GameObject::SetLocalPosition(const glm::vec3& pos)
+    void GameObject::SetLocalPosition(const glm::vec2& pos)
     {
 		m_LocalPosition = pos;
 		SetPositionDirty();
     }
 
-    const glm::vec3& GameObject::GetWorldPosition()
+    const glm::vec2& GameObject::GetWorldPosition()
     {
 		if (m_IsPositionDirty)
 		{
@@ -93,17 +100,17 @@ namespace dae
 		return m_WorldPosition;
     }
 
-    const glm::vec3& GameObject::GetVelocity() const
+    const glm::vec2& GameObject::GetVelocity() const
     {
 		return m_Velocity;
     }
 
-    void GameObject::SetVelocity(const glm::vec3& velocity)
+    void GameObject::SetVelocity(const glm::vec2& velocity)
     {
 		m_Velocity = velocity;
     }
 
-    void GameObject::AddVelocity(const glm::vec3& velocity)
+    void GameObject::AddVelocity(const glm::vec2& velocity)
     {
 		m_Velocity += velocity;
     }

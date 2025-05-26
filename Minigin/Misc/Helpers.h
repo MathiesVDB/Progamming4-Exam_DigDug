@@ -1,15 +1,5 @@
 #pragma once
-
-struct Point2f
-{
-	float x;
-	float y;
-
-	bool operator==(const Point2f& other) const
-	{
-		return x == other.x && y == other.y;
-	}
-};
+#include <vec3.hpp>
 
 enum class MoveDirection
 {

@@ -9,7 +9,7 @@ namespace dae
 		friend Scene& SceneManager::CreateScene(const std::string& name, bool setActive);
 	public:
 		void Add(std::unique_ptr<dae::GameObject>& object);
-		void Remove(dae::GameObject* object);
+		void MarkForDeletion(dae::GameObject* object);
 		void RemoveAll();
 
 		void Update(float deltaTime);
@@ -26,23 +26,21 @@ namespace dae
 		bool IsActive() const			{ return m_IsActive; }
 		void SetActive(bool isActive)	{ m_IsActive = isActive; }
 
-		dae::GameObject* GetPlayer(unsigned int index) const
-		{
-			if (index < m_Players.size())
-			{
-				return m_Players[index].get();
-			}
-			return nullptr;
-		}
+		dae::GameObject* GetPlayer(unsigned int index) const; // Get specific player by index
+		dae::GameObject* GetEntity(const glm::vec2& position) const; // Get specific entity by position
+		dae::GameObject* GetGround(const glm::vec2& position) const; // Get specific ground tile by position
 
 	private: 
 		explicit Scene(const std::string& name, bool setActive);
+
+		void Remove(dae::GameObject* object); //Make sure markfordeletion is the only public option
 
 		//Member variables
 		std::string m_name;
 		std::vector <std::unique_ptr<dae::GameObject>> m_Ground{};
 		std::vector <std::unique_ptr<dae::GameObject>> m_Entities{};
 		std::vector <std::unique_ptr<dae::GameObject>> m_Players{};
+		std::vector<dae::GameObject*> m_PendingDeleteObjects;
 		bool m_IsActive{ false };
 
 		static unsigned int m_idCounter; 

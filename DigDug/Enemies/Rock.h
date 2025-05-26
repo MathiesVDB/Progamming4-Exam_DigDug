@@ -33,6 +33,7 @@ public:
 	int GetStartCellIndex()		const { return m_StartCellIndex; }
 	int GetCellIndexBelow()		const { return m_CellIndexBelow; }
 	bool IsFalling()			const { return m_State == &RockStates::RockState::falling; }
+	bool IsBreaking()			const { return m_State == &RockStates::RockState::breaking; }
 
 private:
 	//-------------------------------------------------

@@ -1,14 +1,49 @@
 #include "Scene.h"
 #include "GameObject.h"
-
 #include <algorithm>
 #include <ranges>
-
 #include "ServiceLocator.h"
 
 using namespace dae;
 
 unsigned int Scene::m_idCounter = 0;
+
+dae::GameObject* Scene::GetPlayer(unsigned int index) const
+{
+	if (index < m_Players.size())
+	{
+		return m_Players[index].get();
+	}
+	return nullptr;
+}
+
+dae::GameObject* Scene::GetEntity(const glm::vec2& position) const
+{
+	auto it = std::ranges::find_if(m_Entities, [&position](const std::unique_ptr<dae::GameObject>& obj)
+		{
+			return obj->GetWorldPosition().x == position.x && obj->GetWorldPosition().y == position.y;
+		});
+
+	if (it != m_Entities.end())
+	{
+		return it->get();
+	}
+	return nullptr;
+}
+
+dae::GameObject* Scene::GetGround(const glm::vec2& position) const
+{
+	auto it = std::ranges::find_if(m_Ground, [&position](const std::unique_ptr<dae::GameObject>& obj)
+		{
+			return obj->GetWorldPosition().x == position.x && obj->GetWorldPosition().y == position.y;
+		});
+
+	if (it != m_Ground.end())
+	{
+		return it->get();
+	}
+	return nullptr;
+}
 
 Scene::Scene(const std::string& name, bool setActive)
 	:	m_name(name),
@@ -35,6 +70,14 @@ void Scene::Add(std::unique_ptr<dae::GameObject>& object)
 	default: //No layer = middleground (always over ground but under player)
 		m_Entities.emplace_back(std::move(object));
 		break;
+	}
+}
+
+void Scene::MarkForDeletion(dae::GameObject* object)
+{
+	if (object && std::find(m_PendingDeleteObjects.begin(), m_PendingDeleteObjects.end(), object) == m_PendingDeleteObjects.end())
+	{
+		m_PendingDeleteObjects.emplace_back(object);
 	}
 }
 
@@ -65,7 +108,6 @@ void Scene::Remove(dae::GameObject* object)
 	}
 }
 
-
 void Scene::RemoveAll()
 {
 	m_Ground.clear();
@@ -81,6 +123,13 @@ void Scene::Update(float deltaTime)
 
 	// Collision check
 	ServiceLocator::GetCollisionSystem().CheckCollisions();
+
+	// Remove objects marked for deletion
+	for (auto* object : m_PendingDeleteObjects)
+	{
+		Remove(object);
+	}
+	m_PendingDeleteObjects.clear();
 }
 
 void Scene::Render() const

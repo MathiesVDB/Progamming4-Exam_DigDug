@@ -1,5 +1,12 @@
 #pragma once
+#include "Helpers.h"
 
+namespace dae
+{
+	class GameObject;
+}
+
+class ColliderComponent;
 class SpriteComponent;
 struct CollisionEvent;
 class Rock;
@@ -48,6 +55,10 @@ namespace RockStates
 
         void OnEnter(Rock& rock) override;
         void OnExit(Rock& rock) override;
+
+    private:
+		ColliderComponent*  m_PlayerCollider{ nullptr };
+        dae::GameObject*    m_Player{nullptr};
     };
 
     class FallState : public RockState

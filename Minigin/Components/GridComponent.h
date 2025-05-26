@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <memory>
+#include <vec2.hpp>
 #include <vector>
 #include "Helpers.h"
 #include "Component.h"
@@ -10,8 +11,8 @@ public:
 	struct Cell
 	{
 		bool hasBeenDug{ false };
-		Point2f spawnPosition{};
-		Point2f centerPoint{};
+		glm::vec2 spawnPosition{};
+		glm::vec2 centerPoint{};
 
 		//Digging
 		dae::GameObject* coverTile{ nullptr };
@@ -30,7 +31,7 @@ public:
 	void DrawGrid() const;
 	std::vector<Cell>& GetGrid() { return m_Grid; }
 
-	int GetCellIndex(const Point2f& pos);
+	int GetCellIndex(const glm::vec2& pos);
 
 	//Constants
 	static constexpr int ROWS		{ 14 };

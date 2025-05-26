@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vec2.hpp>
+
 #include "Helpers.h"
 
 namespace dae
@@ -71,10 +73,10 @@ namespace PlayerStates
         void DigCurrentTile(Player& player);
 
         bool CheckHasBeenDug(Player& player, dae::GameObject* coverTile, int index);
-        bool IsTileMoveAllowed(MoveDirection direction, const Point2f& currentTilePos, const Point2f& playerPos);
+        bool IsTileMoveAllowed(MoveDirection direction, const glm::vec2& currentTilePos, const glm::vec2& playerPos);
 
 		MoveDirection m_PreviousDirection{ MoveDirection::Right };
-        Point2f m_Position{};
+        glm::vec2 m_Position{};
     };
     
     class DeathState : public PlayerState

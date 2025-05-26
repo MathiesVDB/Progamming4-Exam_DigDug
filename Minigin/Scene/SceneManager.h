@@ -13,10 +13,9 @@ namespace dae
 		Scene& CreateScene(const std::string& name, bool setActive = false);
 
 		void Update(float deltaTime);
-		void FixedUpdate(const float fixedTimeStep);
 		void Render();
 
-		Scene& GetActiveScene() const;
+		Scene& GetActiveScene();
 		Scene& GetScene(const std::string& name) const;
 		void SetActiveScene(const Scene& newActiveScene) const;
 

@@ -2,6 +2,8 @@
 #include "Rock.h"
 #include "SpriteComponent.h"
 #include "GameObject.h"
+#include "Scene.h"
+#include "SceneManager.h"
 
 using namespace RockStates;
 
@@ -20,7 +22,7 @@ RockStates::RockState* IdleState::Update(Rock& rock, float )
 
 	if (cellBelow.hasBeenDug)
 	{
-		return &RockStates::RockState::falling;
+		return &RockStates::RockState::tilting;
 	}
 
 	return nullptr;
@@ -46,8 +48,21 @@ RockStates::RockState* TiltState::HandleCollision(Rock&, const CollisionEvent&)
 	return nullptr;
 }
 
-RockStates::RockState* TiltState::Update(Rock& , float )
+RockStates::RockState* TiltState::Update(Rock& rock, float )
 {
+	auto playerPosition = glm::vec2{ m_Player->GetWorldPosition() };
+	//Make sure player is completely away from under the rock before falling
+	int playerTopLeftCellIndex{ rock.GetGridPtr()->GetCellIndex(playerPosition) };
+
+	glm::vec2 playerBottomRightPos{
+		playerPosition.x + static_cast<float>(m_PlayerCollider->GetBoundingBox().w),
+		playerPosition.y + static_cast<float>(m_PlayerCollider->GetBoundingBox().h)
+	};
+
+	int playerBottomRightCellIndex{ rock.GetGridPtr()->GetCellIndex(playerBottomRightPos) };
+
+	if (rock.GetCellIndexBelow() != playerTopLeftCellIndex && rock.GetCellIndexBelow() != playerBottomRightCellIndex) return &RockStates::RockState::falling;
+
 	return nullptr;
 }
 
@@ -55,6 +70,9 @@ void TiltState::OnEnter(Rock& rock)
 {
 	m_Sprite = rock.GetOwner()->GetComponent<SpriteComponent>();
 	m_Sprite->SetSpriteBounds(0, 1, true);
+
+	m_Player = dae::SceneManager::GetInstance().GetActiveScene().GetPlayer(0);
+	m_PlayerCollider = m_Player->GetComponent<ColliderComponent>();
 }
 
 void TiltState::OnExit(Rock&)
@@ -74,8 +92,8 @@ RockStates::RockState* FallState::HandleCollision(Rock& rock, const CollisionEve
 
 	int index{};
 
-	if		(colliderTag == Tag::GROUND) index = grid->GetCellIndex({ collision.collider->GetLocalPosition().x, collision.collider->GetLocalPosition().y });
-	else if (collidedTag == Tag::GROUND) index = grid->GetCellIndex({ collision.collided->GetLocalPosition().x, collision.collided->GetLocalPosition().y });
+	if		(colliderTag == Tag::GROUND) index = grid->GetCellIndex(glm::vec2{ collision.collider->GetLocalPosition() });
+	else if (collidedTag == Tag::GROUND) index = grid->GetCellIndex(glm::vec2{ collision.collided->GetLocalPosition() });
 	else return nullptr;
 
 	if (index == rock.GetStartCellIndex() || grid->GetGrid()[index].hasBeenDug) return nullptr;
@@ -87,7 +105,7 @@ RockStates::RockState* FallState::Update(Rock& rock, float deltaTime)
 {
 	auto rockVelocity = GRAVITY * deltaTime;
 
-	rock.GetOwner()->AddVelocity({ 0, rockVelocity, 0 });
+	rock.GetOwner()->AddVelocity({ 0, rockVelocity });
 
 	return nullptr;
 }
@@ -112,10 +130,9 @@ RockStates::RockState* BreakState::HandleCollision(Rock&, const CollisionEvent&)
 	return nullptr;
 }
 
-RockStates::RockState* BreakState::Update(Rock& , float)
+RockStates::RockState* BreakState::Update(Rock& rock, float)
 {
-	// If break animation is done, remove rock
-	// if(m_Sprite->HasReachedMaxFrame()) SceneManager::GetInstance().GetCurrentScene()->Remove(rock.GetOwner());
+	if(m_Sprite->HasReachedLastframe()) dae::SceneManager::GetInstance().GetActiveScene().MarkForDeletion(rock.GetOwner());
 
 	return nullptr;
 }

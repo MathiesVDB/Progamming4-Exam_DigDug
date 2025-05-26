@@ -2,6 +2,9 @@
 // Include Files
 //---------------------------
 #include "GridComponent.h"
+
+#include <vec2.hpp>
+
 #include "Renderer.h"
 
 //---------------------------
@@ -33,7 +36,7 @@ void GridComponent::CreateGrid()
 		for (int row = 0; row < ROWS; ++row)
 		{
 			int index = col * ROWS + row;
-			m_Grid[index].spawnPosition = Point2f{
+			m_Grid[index].spawnPosition = glm::vec2{
 				static_cast<float>(row * CELL_SIZE),
 				static_cast<float>(col * CELL_SIZE)
 			};
@@ -67,7 +70,7 @@ void GridComponent::DrawGrid() const
 	}
 }
 
-int GridComponent::GetCellIndex(const Point2f& pos) 
+int GridComponent::GetCellIndex(const glm::vec2& pos)
 {
 	int row = static_cast<int>(pos.x) / CELL_SIZE;
 	int col = static_cast<int>(pos.y) / CELL_SIZE;

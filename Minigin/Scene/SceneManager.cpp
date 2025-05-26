@@ -6,19 +6,14 @@ void dae::SceneManager::Update(float deltaTime)
 	GetActiveScene().Update(deltaTime);
 }
 
-void dae::SceneManager::FixedUpdate(const float)
-{
-	
-}
-
 void dae::SceneManager::Render()
 {
 	GetActiveScene().Render();
 }
 
-dae::Scene& dae::SceneManager::GetActiveScene() const
+dae::Scene& dae::SceneManager::GetActiveScene()
 {
-	if (m_scenes.empty()) throw std::runtime_error("No active scene found.");
+	if (m_scenes.empty()) return CreateScene("DefaultScene", true);
 	for (const auto& scene : m_scenes)
 	{
 		if (scene->IsActive())
@@ -28,6 +23,7 @@ dae::Scene& dae::SceneManager::GetActiveScene() const
 	}
 	// If no active scene, set first scene in vector to active
 	m_scenes.front()->SetActive(true);
+	return *m_scenes.front();
 }
 
 dae::Scene& dae::SceneManager::GetScene(const std::string& name) const

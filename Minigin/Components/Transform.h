@@ -14,9 +14,9 @@ namespace dae
 
 		void Update(float deltaTime) override;
 
-		const glm::vec3& GetPosition() const;
-		void SetPosition(float x, float y, float z);
+		const glm::vec2& GetPosition() const;
+		void SetPosition(float x, float y);
 	private:
-		glm::vec3 m_Position{0, 0, 0};
+		glm::vec2 m_Position{0, 0};
 	};
 }

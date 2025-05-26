@@ -21,7 +21,7 @@
 //---------------------------
 Level::Level(dae::GameObject* owner, const std::string& sceneName)
 	:   Component(owner),
-		m_Scene(dae::SceneManager::GetInstance().CreateScene(sceneName))
+		m_Scene(dae::SceneManager::GetInstance().CreateScene(sceneName, true))
 {
 }
 
@@ -79,7 +79,7 @@ void Level::LoadLevel(const std::string& fileName)
             int index = m_GridComponent->GetCellIndex({ x, y });
             if (index < 0 || index >= GridComponent::ROWS * GridComponent::COLUMNS) continue;
 
-            Point2f spawnPos = m_GridComponent->GetGrid()[index].spawnPosition;
+            glm::vec2 spawnPos = m_GridComponent->GetGrid()[index].spawnPosition;
             if (tile == '#') m_GridComponent->GetGrid()[index].hasBeenDug = true;
 
             switch (tile)
@@ -146,7 +146,7 @@ void Level::LoadLevel(const std::string& fileName)
 
         if (index < 0 || index >= GridComponent::ROWS * GridComponent::COLUMNS) continue;
 
-        Point2f spawnPos = m_GridComponent->GetGrid()[index].spawnPosition;
+        glm::vec2 spawnPos = m_GridComponent->GetGrid()[index].spawnPosition;
 
         switch (tileType)
         {
@@ -160,13 +160,13 @@ void Level::LoadLevel(const std::string& fileName)
     }
 }
 
-void Level::SpawnPlayer(const Point2f& spawnPos)
+void Level::SpawnPlayer(const glm::vec2& spawnPos)
 {
     auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
 
     auto Player1 = std::make_unique<dae::GameObject>();
     Player1->AddComponent<SpriteComponent>("Sprites/Player/WalkingSprite.png", 1, 8, 0.25f, 0, 1);
-    Player1->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+    Player1->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
     Player1->AddComponent<HealthComponent>(3);
 	Player1->AddComponent<ColliderComponent>(FRIENDLY_ENTITY);
     Player1->AddComponent<Player>(GetOwner()->GetComponent<GridComponent>());
@@ -176,7 +176,7 @@ void Level::SpawnPlayer(const Point2f& spawnPos)
 
     auto lifeDisplay1GameObject = std::make_unique<dae::GameObject>();
     lifeDisplay1GameObject->AddComponent<dae::TextObject>("Lives: " + std::to_string(player1Lives), font);
-    lifeDisplay1GameObject->GetComponent<dae::Transform>()->SetPosition(10, 150, 0);
+    lifeDisplay1GameObject->GetComponent<dae::Transform>()->SetPosition(10, 150);
 
     auto healthDisplay = std::make_unique<HealthDisplay>(lifeDisplay1GameObject.get(), Player1.get());
     Player1->GetComponent<HealthComponent>()->AddObserver(std::move(healthDisplay));
@@ -207,11 +207,11 @@ void Level::SpawnPlayer(const Point2f& spawnPos)
     m_Scene.Add(lifeDisplay1GameObject);
 }
 
-void Level::SpawnPooka(const Point2f& spawnPos) const
+void Level::SpawnPooka(const glm::vec2& spawnPos) const
 {
 	auto PookaGameObject = std::make_unique<dae::GameObject>();
 	PookaGameObject->AddComponent<SpriteComponent>("Sprites/Pooka/PookaDefaultSprite.png", 2, 5, 0.25f, 0, 1);
-	PookaGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+	PookaGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 	PookaGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
 	PookaGameObject->AddComponent<Pooka>();
 
@@ -219,11 +219,11 @@ void Level::SpawnPooka(const Point2f& spawnPos) const
 	m_Scene.Add(PookaGameObject);
 }
 
-void Level::SpawnFygar(const Point2f& spawnPos) const
+void Level::SpawnFygar(const glm::vec2& spawnPos) const
 {
 	auto FygarGameObject = std::make_unique<dae::GameObject>();
 	FygarGameObject->AddComponent<SpriteComponent>("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0.25f, 0, 1);
-	FygarGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+	FygarGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 	FygarGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
     FygarGameObject->AddComponent<Fygar>();
 
@@ -231,11 +231,11 @@ void Level::SpawnFygar(const Point2f& spawnPos) const
 	m_Scene.Add(FygarGameObject);
 }
 
-void Level::SpawnRock(const Point2f& spawnPos) const
+void Level::SpawnRock(const glm::vec2& spawnPos) const
 {
 	auto RockGameObject = std::make_unique<dae::GameObject>();
 	RockGameObject->AddComponent<SpriteComponent>("Sprites/Misc/EnvironmentSprite.png", 1, 7, 0.25f, 0, 0);
-	RockGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x + 8, spawnPos.y, 0);
+	RockGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x + 8, spawnPos.y);
 	RockGameObject->AddComponent<ColliderComponent>(ROCK);
     RockGameObject->AddComponent<Rock>(GetOwner()->GetComponent<GridComponent>());
 
@@ -245,12 +245,12 @@ void Level::SpawnRock(const Point2f& spawnPos) const
 	m_Scene.Add(RockGameObject);
 }
 
-void Level::SpawnDirtYellow(const Point2f& spawnPos) const
+void Level::SpawnDirtYellow(const glm::vec2& spawnPos) const
 {
 	auto DirtYellowGameObject = std::make_unique<dae::GameObject>();
 	DirtYellowGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/Yellow.png");
 	DirtYellowGameObject->AddComponent<ColliderComponent>(GROUND);
-	DirtYellowGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+	DirtYellowGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 
 	m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
@@ -258,12 +258,12 @@ void Level::SpawnDirtYellow(const Point2f& spawnPos) const
 	m_Scene.Add(DirtYellowGameObject);
 }
 
-void Level::SpawnDirtOrangeLight(const Point2f& spawnPos) const
+void Level::SpawnDirtOrangeLight(const glm::vec2& spawnPos) const
 {
 	auto DirtOrangeLightGameObject = std::make_unique<dae::GameObject>();
 	DirtOrangeLightGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/OrangeLight.png");
 	DirtOrangeLightGameObject->AddComponent<ColliderComponent>(GROUND);
-	DirtOrangeLightGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+	DirtOrangeLightGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 
     m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
@@ -271,12 +271,12 @@ void Level::SpawnDirtOrangeLight(const Point2f& spawnPos) const
 	m_Scene.Add(DirtOrangeLightGameObject);
 }
 
-void Level::SpawnDirtOrangeDark(const Point2f& spawnPos) const
+void Level::SpawnDirtOrangeDark(const glm::vec2& spawnPos) const
 {
 	auto DirtOrangeDarkGameObject = std::make_unique<dae::GameObject>();
 	DirtOrangeDarkGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/OrangeDark.png");
 	DirtOrangeDarkGameObject->AddComponent<ColliderComponent>(GROUND);
-	DirtOrangeDarkGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+	DirtOrangeDarkGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 
     m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
@@ -284,12 +284,12 @@ void Level::SpawnDirtOrangeDark(const Point2f& spawnPos) const
 	m_Scene.Add(DirtOrangeDarkGameObject);
 }
 
-void Level::SpawnDirtRed(const Point2f& spawnPos) const
+void Level::SpawnDirtRed(const glm::vec2& spawnPos) const
 {
 	auto DirtRedGameObject = std::make_unique<dae::GameObject>();
 	DirtRedGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/Red.png");
 	DirtRedGameObject->AddComponent<ColliderComponent>(GROUND);
-	DirtRedGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+	DirtRedGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 
     m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
@@ -297,31 +297,31 @@ void Level::SpawnDirtRed(const Point2f& spawnPos) const
 	m_Scene.Add(DirtRedGameObject);
 }
 
-std::unique_ptr<dae::GameObject> Level::SpawnEmpty(const Point2f& spawnPos) const
+std::unique_ptr<dae::GameObject> Level::SpawnEmpty(const glm::vec2& spawnPos) const
 {
 	auto EmptyGameObject = std::make_unique<dae::GameObject>();
 	EmptyGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/DiggedArea.png");
-	EmptyGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+	EmptyGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
     EmptyGameObject->AddComponent<ColliderComponent>(GROUND);
 
     EmptyGameObject->SetRenderLayer(RenderLayer::Ground);
 	return EmptyGameObject;
 }
 
-std::unique_ptr<dae::GameObject> Level::SpawnRope(const Point2f& spawnPos) const
+std::unique_ptr<dae::GameObject> Level::SpawnRope(const glm::vec2& spawnPos) const
 {
 	auto RopeGameObject = std::make_unique<dae::GameObject>();
-	RopeGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+	RopeGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 
 	RopeGameObject->SetRenderLayer(RenderLayer::Ground);
 	return RopeGameObject;
 }
 
-void Level::SpawnFlower(const Point2f& spawnPos) const
+void Level::SpawnFlower(const glm::vec2& spawnPos) const
 {
 	auto FlowerGameObject = std::make_unique<dae::GameObject>();
 	FlowerGameObject->AddComponent<SpriteComponent>("Sprites/Misc/EnvironmentSprite.png", 1, 7, 0.25f, 5, 5);
-	FlowerGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+	FlowerGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 
     FlowerGameObject->SetRenderLayer(RenderLayer::Ground);
 	m_Scene.Add(FlowerGameObject);

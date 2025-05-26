@@ -47,7 +47,7 @@ void Player::SnapToCellCenter()
 
     auto boundingBox = GetOwner()->GetComponent<ColliderComponent>()->GetBoundingBox();
 
-    Point2f center = {
+    glm::vec2 center = {
         boundingBox.x + boundingBox.w / 2.0f,
         boundingBox.y + boundingBox.h / 2.0f
     };
@@ -58,7 +58,7 @@ void Player::SnapToCellCenter()
     float newX = cellCenter.x - boundingBox.w / 2.0f;
     float newY = cellCenter.y - boundingBox.h / 2.0f;
 
-    GetOwner()->GetComponent<dae::Transform>()->SetPosition(newX, newY, 0.0f);
+    GetOwner()->GetComponent<dae::Transform>()->SetPosition(newX, newY);
 }
 
 void Player::HandleCollision(const CollisionEvent& collision)
@@ -78,9 +78,9 @@ void Player::HandleCollision(const CollisionEvent& collision)
         auto rockObject = (colliderTag == Tag::ROCK) ? collision.collider : collision.collided;
         auto rock = rockObject->GetComponent<Rock>();
 
-        if (rock->IsFalling()) GetOwner()->SetLocalPosition({ rockObject->GetLocalPosition().x, rockObject->GetLocalPosition().y + 30, rockObject->GetLocalPosition().z });
-        else
-        {
+        if (rock->IsFalling()) GetOwner()->SetLocalPosition({ rockObject->GetLocalPosition().x, rockObject->GetLocalPosition().y + 30 });
+		else if (rock->IsBreaking())
+		{
             m_WasCrushed = true;
             SetState(&PlayerStates::PlayerState::dying);
         }
@@ -123,7 +123,7 @@ bool Player::IsHorizontal(MoveDirection dir) const
 
 bool Player::CanMoveHorizontal(const SDL_Rect& boundingBox)
 {
-    Point2f center = {
+    glm::vec2 center = {
         boundingBox.x + boundingBox.w / 2.0f,
         boundingBox.y + boundingBox.h / 2.0f
     };
@@ -144,14 +144,14 @@ bool Player::CanMoveHorizontal(const SDL_Rect& boundingBox)
 
     float correction = 1 * (distanceToCenter > 0 ? -1.f : 1.f); // move up/down
     auto currentPos = GetOwner()->GetComponent<dae::Transform>()->GetPosition();
-    GetOwner()->GetComponent<dae::Transform>()->SetPosition(currentPos.x, currentPos.y + correction, currentPos.z);
+    GetOwner()->GetComponent<dae::Transform>()->SetPosition(currentPos.x, currentPos.y + correction);
 
     return false;
 }
 
 bool Player::CanMoveVertical(const SDL_Rect& boundingBox)
 {
-    Point2f center = {
+    glm::vec2 center = {
         boundingBox.x + boundingBox.w / 2.0f,
         boundingBox.y + boundingBox.h / 2.0f
     };
@@ -172,7 +172,7 @@ bool Player::CanMoveVertical(const SDL_Rect& boundingBox)
 
     float correction = 2 * (distanceToCenter > 0 ? -1.f : 1.f); // move up/down
     auto currentPos = GetOwner()->GetComponent<dae::Transform>()->GetPosition();
-    GetOwner()->GetComponent<dae::Transform>()->SetPosition(currentPos.x + correction, currentPos.y, currentPos.z);
+    GetOwner()->GetComponent<dae::Transform>()->SetPosition(currentPos.x + correction, currentPos.y);
 
     return false;
 }

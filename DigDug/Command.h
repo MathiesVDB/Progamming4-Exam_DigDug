@@ -34,16 +34,16 @@ public:
 		switch (m_Direction)
 		{
 		case MoveDirection::Left:
-			m_Owner->SetVelocity({ -50.f, 0.f, 0.f });
+			m_Owner->SetVelocity({ -50.f, 0.f });
 			break;
 		case MoveDirection::Right:
-			m_Owner->SetVelocity({ +50.f, 0.f, 0.f });
+			m_Owner->SetVelocity({ +50.f, 0.f });
 			break;
 		case MoveDirection::Up:
-			m_Owner->SetVelocity({ 0.f, -50.f, 0.f });
+			m_Owner->SetVelocity({ 0.f, -50.f });
 			break;
 		case MoveDirection::Down:
-			m_Owner->SetVelocity({ 0.f, +50.f, 0.f });
+			m_Owner->SetVelocity({ 0.f, +50.f });
 			break;
 		}
 	}

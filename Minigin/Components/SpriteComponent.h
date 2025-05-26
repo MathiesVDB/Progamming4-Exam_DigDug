@@ -34,7 +34,7 @@ private:
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
-	Point2f m_Position;
+	glm::vec2 m_Position;
 	TextureComponent m_Texture;
 
 	int m_Rows;

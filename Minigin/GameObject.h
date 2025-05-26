@@ -36,15 +36,15 @@ namespace dae
         GameObject* GetParent() const { return m_Parent; }
 
 		//Position functions
-		const glm::vec3& GetLocalPosition() const;
-        void SetLocalPosition(const glm::vec3& pos);
+		const glm::vec2& GetLocalPosition() const;
+        void SetLocalPosition(const glm::vec2& pos);
 
-        const glm::vec3& GetWorldPosition();
+        const glm::vec2& GetWorldPosition();
 
 		//Velocity functions
-		const glm::vec3& GetVelocity() const;
-		void SetVelocity(const glm::vec3& velocity);
-		void AddVelocity(const glm::vec3& velocity);
+		const glm::vec2& GetVelocity() const;
+		void SetVelocity(const glm::vec2& velocity);
+		void AddVelocity(const glm::vec2& velocity);
 
         //Template functions
 		template <typename T, typename... Args>
@@ -75,14 +75,15 @@ namespace dae
 		//Private member variables
         //---------------------------------------------------------------------------------
         std::unordered_map<std::type_index, std::unique_ptr<Component>> m_Components;
-        glm::vec3 m_LocalPosition   { 0, 0, 0 };
-        glm::vec3 m_WorldPosition   { 0, 0, 0 };
-		glm::vec3 m_Velocity        { 0, 0, 0 };
+        glm::vec2 m_LocalPosition   { 0, 0 };
+        glm::vec2 m_WorldPosition   { 0, 0 };
+		glm::vec2 m_Velocity        { 0, 0 };
         RenderLayer m_RenderLayer{};
         bool m_IsPositionDirty{ true };
 
         GameObject* m_Parent{ nullptr };
         std::vector<GameObject*> m_Children;
+        std::vector<std::type_index> m_ComponentsToDelete;
 	};
 
     // add component
@@ -108,7 +109,13 @@ namespace dae
     void GameObject::RemoveComponent()
     {
         auto typeId = std::type_index(typeid(T));
-        m_Components.erase(typeId);
+        if (m_Components.find(typeId) != m_Components.end())
+        {
+            if (std::find(m_ComponentsToDelete.begin(), m_ComponentsToDelete.end(), typeId) == m_ComponentsToDelete.end())
+            {
+                m_ComponentsToDelete.emplace_back(typeId);
+            }
+        }
     }
 
     // get component

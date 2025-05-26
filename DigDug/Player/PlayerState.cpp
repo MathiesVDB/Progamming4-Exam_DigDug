@@ -17,7 +17,7 @@ namespace PlayerStates
 	
 	PlayerStates::PlayerState* IdleState::Update(Player& player, float )
 	{
-		if (player.GetOwner()->GetVelocity() != glm::vec3{ 0, 0, 0 }) return &PlayerStates::PlayerState::moving;
+		if (player.GetOwner()->GetVelocity() != glm::vec2{ 0, 0 }) return &PlayerStates::PlayerState::moving;
 
 		switch (player.GetDirection())
 		{
@@ -58,9 +58,9 @@ namespace PlayerStates
 	
 	PlayerStates::PlayerState* MovingState::Update(Player& player, float)
 	{
-		if (player.GetOwner()->GetVelocity() == glm::vec3{ 0, 0, 0 }) return &PlayerStates::PlayerState::idling;
+		if (player.GetOwner()->GetVelocity() == glm::vec2{ 0, 0 }) return &PlayerStates::PlayerState::idling;
 
-		Point2f position{};
+		glm::vec2 position{};
 		if (player.GetDirection() == MoveDirection::Left || player.GetDirection() == MoveDirection::Up)
 		{
 			position = { static_cast<float>(player.GetCollider()->GetBoundingBox().x),
@@ -116,7 +116,7 @@ namespace PlayerStates
 	
 	PlayerStates::PlayerState* DiggingState::Update(Player& player, float )
 	{
-		if (player.GetOwner()->GetVelocity() == glm::vec3{ 0, 0, 0 }) return &PlayerStates::PlayerState::idling;
+		if (player.GetOwner()->GetVelocity() == glm::vec2{ 0, 0}) return &PlayerStates::PlayerState::idling;
 
 		// Bug when player goes down or right, because position point will enter cell last and mess with digging. THis
 		if (player.GetDirection() == MoveDirection::Left || player.GetDirection() == MoveDirection::Up)
@@ -160,7 +160,7 @@ namespace PlayerStates
 	{
 		int index{ player.GetGridPtr()->GetCellIndex(m_Position) };
 
-		Point2f playerPos{ m_Position };
+		glm::vec2 playerPos{ m_Position };
 		// Spawnpoint always needs to be on player position
 		if (player.GetDirection() == MoveDirection::Right || player.GetDirection() == MoveDirection::Down)
 		{
@@ -181,27 +181,27 @@ namespace PlayerStates
 
 		if (player.GetDirection() != player.GetGridPtr()->GetGrid()[index].digDirection) return;
 
-		Point2f currentTilePos{ coverTile->GetComponent<dae::Transform>()->GetPosition().x, coverTile->GetComponent<dae::Transform>()->GetPosition().y };
+		glm::vec2 currentTilePos{ coverTile->GetComponent<dae::Transform>()->GetPosition().x, coverTile->GetComponent<dae::Transform>()->GetPosition().y };
 
 		MoveDirection digDir = player.GetGridPtr()->GetGrid()[index].digDirection;
 
 		if (!IsTileMoveAllowed(digDir, currentTilePos, playerPos)) return;
 
-		coverTile->GetComponent<dae::Transform>()->SetPosition(playerPos.x, playerPos.y, 0.0f);
+		coverTile->GetComponent<dae::Transform>()->SetPosition(playerPos.x, playerPos.y);
 
 		player.GetGridPtr()->GetGrid()[index].hasBeenDug = CheckHasBeenDug(player, coverTile, index);
 
 		if (player.GetGridPtr()->GetGrid()[index].hasBeenDug)
 		{
-			Point2f spawnPosition{ player.GetGridPtr()->GetGrid()[index].spawnPosition.x, player.GetGridPtr()->GetGrid()[index].spawnPosition.y };
-			coverTile->GetComponent<dae::Transform>()->SetPosition(spawnPosition.x, spawnPosition.y, 0.0f);
+			glm::vec2 spawnPosition{ player.GetGridPtr()->GetGrid()[index].spawnPosition.x, player.GetGridPtr()->GetGrid()[index].spawnPosition.y };
+			coverTile->GetComponent<dae::Transform>()->SetPosition(spawnPosition.x, spawnPosition.y);
 		}
 	}
 
 	bool DiggingState::CheckHasBeenDug(Player& player, dae::GameObject* coverTile, int index)
 	{
-		Point2f tileLocation{ coverTile->GetComponent<dae::Transform>()->GetPosition().x, coverTile->GetComponent<dae::Transform>()->GetPosition().y };
-		Point2f spawnPosition{ player.GetGridPtr()->GetGrid()[index].spawnPosition.x, player.GetGridPtr()->GetGrid()[index].spawnPosition.y };
+		glm::vec2 tileLocation{ coverTile->GetComponent<dae::Transform>()->GetPosition().x, coverTile->GetComponent<dae::Transform>()->GetPosition().y };
+		glm::vec2 spawnPosition{ player.GetGridPtr()->GetGrid()[index].spawnPosition.x, player.GetGridPtr()->GetGrid()[index].spawnPosition.y };
 
 		float deltaX = tileLocation.x - spawnPosition.x;
 		float deltaY = tileLocation.y - spawnPosition.y;
@@ -214,7 +214,7 @@ namespace PlayerStates
 		return false;
 	}
 
-	bool DiggingState::IsTileMoveAllowed(MoveDirection direction, const Point2f& currentTilePos, const Point2f& playerPos)
+	bool DiggingState::IsTileMoveAllowed(MoveDirection direction, const glm::vec2& currentTilePos, const glm::vec2& playerPos)
 	{
 		bool isMovingAllowed{ true };
 
