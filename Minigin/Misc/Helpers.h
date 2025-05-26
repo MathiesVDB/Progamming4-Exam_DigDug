@@ -15,3 +15,12 @@ enum class RenderLayer
 	Entity,
 	Player
 };
+
+enum class Inflated
+{
+	None,
+	Stage1,
+	Stage2,
+	Stage3,
+	Exploded
+};

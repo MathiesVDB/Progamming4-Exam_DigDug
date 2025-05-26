@@ -1,4 +1,8 @@
 ﻿#pragma once
+#include <vec2.hpp>
+
+#include "FygarState.h"
+#include "Helpers.h"
 #include "RealCollisionSystem.h"
 
 //-----------------------------------------------------
@@ -12,20 +16,43 @@
 class Fygar final : public dae::Component
 {
 public:
-	Fygar(dae::GameObject* owner);
+	Fygar(dae::GameObject* owner, GridComponent* grid);
 
 	//-------------------------------------------------
 	// Member functions						
 	//-------------------------------------------------
+	void Update(float deltaTime) override;
+
 	void HandleCollision(const CollisionEvent& collision);
 
+	void SetState(FygarStates::FygarState* state);
+
+	void IncreaseInflation();
+	void ResetInflation();
+
+	// Getters for state machine
+	GridComponent* GetGridPtr() const { return m_GridPtr; }
+
+	Inflated GetInflatedState() const { return m_InflatedState; }
+
+	const glm::vec2& GetTarget()		const { return m_CurrentTarget; }
+	const glm::vec2& GetSpawnPosition() const { return m_SpawnPosition; }
+
+	bool WasCrushed()	 const { return m_WasCrushed; }
+	bool IsLookingLeft() const { return m_IsLookingLeft; }
+	bool IsFleeing()	 const { return m_IsFleeing; }
+
 private:
-	//-------------------------------------------------
-	// Private member functions								
-	//-------------------------------------------------
+	GridComponent* m_GridPtr;
 
+	FygarStates::FygarState* m_State;
+	Inflated m_InflatedState{ Inflated::None };
 
-	//-------------------------------------------------
-	// Datamembers								
-	//-------------------------------------------------
+	glm::vec2 m_FleeingTarget{};
+	glm::vec2 m_CurrentTarget{};
+	glm::vec2 m_SpawnPosition{}; // Save for level reset
+
+	bool m_IsLookingLeft{ false };
+	bool m_WasCrushed	{ false };
+	bool m_IsFleeing	{ false };
 };

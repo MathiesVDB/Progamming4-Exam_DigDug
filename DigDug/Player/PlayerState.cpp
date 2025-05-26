@@ -73,8 +73,8 @@ namespace PlayerStates
 		}
 		int index{ player.GetGridPtr()->GetCellIndex(position) };
 
-		if (!player.GetGridPtr()->GetGrid()[index].hasBeenDug) return &PlayerStates::PlayerState::digging;
-
+		if (!player.GetGridPtr()->GetGrid()[index].hasBeenDug && !player.GetGridPtr()->GetGrid()[index].hasRock) return &PlayerStates::PlayerState::digging;
+		
 		if (player.GetOwner()->GetVelocity().x < 0)
 		{
 			m_Sprite->SetSpriteBounds(4, 5, true);
@@ -193,6 +193,12 @@ namespace PlayerStates
 
 		if (player.GetGridPtr()->GetGrid()[index].hasBeenDug)
 		{
+			auto originalTile = dae::SceneManager::GetInstance().GetActiveScene().GetGround(player.GetGridPtr()->GetGrid()[index].spawnPosition);
+			if (originalTile)
+			{
+				dae::SceneManager::GetInstance().GetActiveScene().MarkForDeletion(originalTile);
+			}
+
 			glm::vec2 spawnPosition{ player.GetGridPtr()->GetGrid()[index].spawnPosition.x, player.GetGridPtr()->GetGrid()[index].spawnPosition.y };
 			coverTile->GetComponent<dae::Transform>()->SetPosition(spawnPosition.x, spawnPosition.y);
 		}

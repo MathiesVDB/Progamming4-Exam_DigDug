@@ -54,6 +54,9 @@
     <ClCompile Include="Enemies\RockState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Enemies\FygarState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventHandlers\HealthComponent.h">
@@ -96,6 +99,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Enemies\RockState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemies\FygarState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

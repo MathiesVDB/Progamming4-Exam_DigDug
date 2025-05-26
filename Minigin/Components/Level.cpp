@@ -77,7 +77,7 @@ void Level::LoadLevel(const std::string& fileName)
             float x = static_cast<float>(col) * GridComponent::CELL_SIZE;
             float y = static_cast<float>(row) * GridComponent::CELL_SIZE;
             int index = m_GridComponent->GetCellIndex({ x, y });
-            if (index < 0 || index >= GridComponent::ROWS * GridComponent::COLUMNS) continue;
+            if (index < 0 || index >= GridComponent::COLUMNS * GridComponent::ROWS) continue;
 
             glm::vec2 spawnPos = m_GridComponent->GetGrid()[index].spawnPosition;
             if (tile == '#') m_GridComponent->GetGrid()[index].hasBeenDug = true;
@@ -144,7 +144,7 @@ void Level::LoadLevel(const std::string& fileName)
         std::string indexStr = entry.substr(comma + 1);
         int index = std::stoi(indexStr);
 
-        if (index < 0 || index >= GridComponent::ROWS * GridComponent::COLUMNS) continue;
+        if (index < 0 || index >= GridComponent::COLUMNS * GridComponent::ROWS) continue;
 
         glm::vec2 spawnPos = m_GridComponent->GetGrid()[index].spawnPosition;
 
@@ -169,7 +169,7 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
     Player1->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
     Player1->AddComponent<HealthComponent>(3);
 	Player1->AddComponent<ColliderComponent>(FRIENDLY_ENTITY);
-    Player1->AddComponent<Player>(GetOwner()->GetComponent<GridComponent>());
+    Player1->AddComponent<Player>(m_GridComponent);
 	Player1->GetComponent<Player>()->SetLevelPtr(this);
 
     int player1Lives = Player1->GetComponent<HealthComponent>()->GetLives();
@@ -195,9 +195,9 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
     inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Down, std::make_unique<DamageCommand>(Player1.get()));
 
 	// Controller commands
-    inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Up));
-	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Left));
-	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Down));
+    inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_UP   , KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Up));
+	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT , KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Left));
+	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN , KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Down));
 	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Right));
 
 	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<DamageCommand>(Player1.get()));
@@ -213,7 +213,7 @@ void Level::SpawnPooka(const glm::vec2& spawnPos) const
 	PookaGameObject->AddComponent<SpriteComponent>("Sprites/Pooka/PookaDefaultSprite.png", 2, 5, 0.25f, 0, 1);
 	PookaGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 	PookaGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
-	PookaGameObject->AddComponent<Pooka>();
+	PookaGameObject->AddComponent<Pooka>(m_GridComponent);
 
     PookaGameObject->SetRenderLayer(RenderLayer::Entity);
 	m_Scene.Add(PookaGameObject);
@@ -225,7 +225,7 @@ void Level::SpawnFygar(const glm::vec2& spawnPos) const
 	FygarGameObject->AddComponent<SpriteComponent>("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0.25f, 0, 1);
 	FygarGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 	FygarGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
-    FygarGameObject->AddComponent<Fygar>();
+    FygarGameObject->AddComponent<Fygar>(m_GridComponent);
 
     FygarGameObject->SetRenderLayer(RenderLayer::Entity);
 	m_Scene.Add(FygarGameObject);

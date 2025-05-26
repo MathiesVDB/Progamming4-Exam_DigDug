@@ -34,8 +34,8 @@ public:
 	int GetCellIndex(const glm::vec2& pos);
 
 	//Constants
-	static constexpr int ROWS		{ 14 };
-	static constexpr int COLUMNS	{ 18 };
+	static constexpr int COLUMNS	{ 14 };
+	static constexpr int ROWS		{ 18 };
 	static constexpr int CELL_SIZE	{ 40 };
 private:
 	std::vector<Cell> m_Grid;

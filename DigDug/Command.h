@@ -18,18 +18,24 @@ public:
 class MoveCommand final : public Command
 {
 public:
-	explicit MoveCommand(dae::GameObject* owner, MoveDirection direction)
-		: m_Owner(owner), m_Direction(direction), m_Player{nullptr}
+	explicit MoveCommand(dae::GameObject* owner, MoveDirection direction, bool isEnemy = false)
+		: m_Owner(owner), m_Direction(direction), m_Player{ nullptr }, m_IsEnemy(isEnemy)
 	{
-		if (owner->HasComponent<Player>()) m_Player = owner->GetComponent<Player>();
-		else std::cout << "'Player' component required to check gridmovement!\n";
+		if (!m_IsEnemy)
+		{
+			if (owner->HasComponent<Player>()) m_Player = owner->GetComponent<Player>();
+			else std::cout << "'Player' component required to check gridmovement!\n";
+		}
 	}
 
 	void Execute() override
 	{
-		if (!m_Player) return;
-		if (m_Player->IsDead()) return;
-		if (!m_Player->CanSwitchMovement(m_Direction)) return;
+		if (!m_IsEnemy)
+		{
+			if (!m_Player) return;
+			if (m_Player->IsDead()) return;
+			if (!m_Player->CanSwitchMovement(m_Direction)) return;
+		}
 
 		switch (m_Direction)
 		{
@@ -52,6 +58,8 @@ private:
 	dae::GameObject* m_Owner;
 	MoveDirection m_Direction;
 	Player* m_Player;
+
+	bool m_IsEnemy{ false };
 };
 
 class DamageCommand final : public Command
