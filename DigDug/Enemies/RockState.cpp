@@ -16,9 +16,11 @@ RockStates::RockState* IdleState::HandleCollision(Rock& , const CollisionEvent& 
 
 RockStates::RockState* IdleState::Update(Rock& rock, float )
 {
-	if (rock.GetCellBelow().hasBeenDug)
+	auto cellBelow{ rock.GetGridPtr()->GetGrid()[rock.GetCellIndexBelow()] };
+
+	if (cellBelow.hasBeenDug)
 	{
-		return &RockStates::RockState::tilting;
+		return &RockStates::RockState::falling;
 	}
 
 	return nullptr;
@@ -72,10 +74,11 @@ RockStates::RockState* FallState::HandleCollision(Rock& rock, const CollisionEve
 
 	int index{};
 
-	if (colliderTag == Tag::GROUND)		 index = grid->GetCellIndex({ collision.collider->GetLocalPosition().x, collision.collider->GetLocalPosition().y });
+	if		(colliderTag == Tag::GROUND) index = grid->GetCellIndex({ collision.collider->GetLocalPosition().x, collision.collider->GetLocalPosition().y });
 	else if (collidedTag == Tag::GROUND) index = grid->GetCellIndex({ collision.collided->GetLocalPosition().x, collision.collided->GetLocalPosition().y });
+	else return nullptr;
 
-	if (grid->GetGrid()[index].spawnPosition == rock.GetStartCell().spawnPosition) return nullptr;
+	if (index == rock.GetStartCellIndex() || grid->GetGrid()[index].hasBeenDug) return nullptr;
 
 	return &RockStates::RockState::breaking;
 }
@@ -84,7 +87,7 @@ RockStates::RockState* FallState::Update(Rock& rock, float deltaTime)
 {
 	auto rockVelocity = GRAVITY * deltaTime;
 
-	rock.GetOwner()->SetVelocity({ 0, rockVelocity, 0 });
+	rock.GetOwner()->AddVelocity({ 0, rockVelocity, 0 });
 
 	return nullptr;
 }

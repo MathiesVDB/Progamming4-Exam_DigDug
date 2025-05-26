@@ -3,10 +3,7 @@
 
 void dae::SceneManager::Update(float deltaTime)
 {
-	for(auto& scene : m_scenes)
-	{
-		scene->Update(deltaTime);
-	}
+	GetActiveScene().Update(deltaTime);
 }
 
 void dae::SceneManager::FixedUpdate(const float)
@@ -16,15 +13,53 @@ void dae::SceneManager::FixedUpdate(const float)
 
 void dae::SceneManager::Render()
 {
+	GetActiveScene().Render();
+}
+
+dae::Scene& dae::SceneManager::GetActiveScene() const
+{
+	if (m_scenes.empty()) throw std::runtime_error("No active scene found.");
 	for (const auto& scene : m_scenes)
 	{
-		scene->Render();
+		if (scene->IsActive())
+		{
+			return *scene;
+		}
+	}
+	// If no active scene, set first scene in vector to active
+	m_scenes.front()->SetActive(true);
+}
+
+dae::Scene& dae::SceneManager::GetScene(const std::string& name) const
+{
+	for (const auto& scene : m_scenes)
+	{
+		if (scene->GetName() == name)
+		{
+			return *scene;
+		}
+	}
+	throw std::runtime_error("Scene with name '" + name + "' not found.");
+}
+
+void dae::SceneManager::SetActiveScene(const Scene& newActiveScene) const
+{
+	for (const auto& scene : m_scenes)
+	{
+		if (scene->GetName() == newActiveScene.GetName())
+		{
+			scene->SetActive(true);
+		}
+		else
+		{
+			scene->SetActive(false);
+		}
 	}
 }
 
-dae::Scene& dae::SceneManager::CreateScene(const std::string& name)
+dae::Scene& dae::SceneManager::CreateScene(const std::string& name, bool setActive)
 {
-	const auto& scene = std::shared_ptr<Scene>(new Scene(name));
+	const auto& scene = std::shared_ptr<Scene>(new Scene(name, setActive));
 	m_scenes.push_back(scene);
 	return *scene;
 }

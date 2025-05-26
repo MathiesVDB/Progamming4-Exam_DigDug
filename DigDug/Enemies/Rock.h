@@ -29,16 +29,17 @@ public:
 
 	void SetState(RockStates::RockState* state);
 
-	GridComponent* GetGridPtr()			const { return m_GridPtr; }
-	GridComponent::Cell GetStartCell()	const { return m_StartCell; }
-	GridComponent::Cell GetCellBelow()	const { return m_CellBelow; }
+	GridComponent* GetGridPtr()	const { return m_GridPtr; }
+	int GetStartCellIndex()		const { return m_StartCellIndex; }
+	int GetCellIndexBelow()		const { return m_CellIndexBelow; }
+	bool IsFalling()			const { return m_State == &RockStates::RockState::falling; }
 
 private:
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
-	GridComponent::Cell m_StartCell;
-	GridComponent::Cell m_CellBelow;
+	int m_StartCellIndex;
+	int m_CellIndexBelow;
 
 	GridComponent* m_GridPtr;
 	RockStates::RockState* m_State{ &RockStates::RockState::idling };

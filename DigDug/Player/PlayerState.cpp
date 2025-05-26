@@ -258,31 +258,11 @@ namespace PlayerStates
 	{
 	}
 	
-	PlayerStates::PlayerState* DeathState::Update(Player& player, float )
+	PlayerStates::PlayerState* DeathState::Update(Player&, float )
 	{
 		if (m_Sprite->HasReachedLastframe())
 		{
-			
-		}
-
-		switch (player.GetDirection())
-		{
-		case MoveDirection::Left:
-			if (player.WasCrushed() && !m_Sprite->IsAlreadyWithinBounds(4, 5)) m_Sprite->SetSpriteBounds(4,   5, true);
-			else if (!m_Sprite->IsAlreadyWithinBounds(16, 19))  				m_Sprite->SetSpriteBounds(16, 19, true);
-			break;
-		case MoveDirection::Right:
-			if (player.WasCrushed() && !m_Sprite->IsAlreadyWithinBounds(0, 1)) m_Sprite->SetSpriteBounds(0, 1, true);
-			else if (!m_Sprite->IsAlreadyWithinBounds(8, 11))  				m_Sprite->SetSpriteBounds(8, 11, true);
-			break;
-		case MoveDirection::Up:
-			if (player.WasCrushed() && !m_Sprite->IsAlreadyWithinBounds(2, 3)) m_Sprite->SetSpriteBounds(2, 3, true);
-			else if (!m_Sprite->IsAlreadyWithinBounds(12, 15))  				m_Sprite->SetSpriteBounds(12, 15, true);
-			break;
-		case MoveDirection::Down:
-			if (player.WasCrushed() && !m_Sprite->IsAlreadyWithinBounds(6, 7)) m_Sprite->SetSpriteBounds(6, 7, true);
-			else if (!m_Sprite->IsAlreadyWithinBounds(20, 23))  				m_Sprite->SetSpriteBounds(20, 23, true);
-			break;
+			m_Sprite->SetSpriteBounds(m_Sprite->GetCurrentFrame(), m_Sprite->GetCurrentFrame(), true);
 		}
 
 		return nullptr;
@@ -292,6 +272,26 @@ namespace PlayerStates
 	{
 		m_Sprite = player.GetOwner()->GetComponent<SpriteComponent>();
 		m_Sprite->SetNewTexture("Sprites/Player/DeathSprite.png", 3, 8, 0, 23);
+
+		switch (player.GetDirection())
+		{
+		case MoveDirection::Left:
+			if (player.WasCrushed()) m_Sprite->SetSpriteBounds(4, 5, true);
+			else 					 m_Sprite->SetSpriteBounds(16, 19, true);
+			break;
+		case MoveDirection::Right:
+			if (player.WasCrushed()) m_Sprite->SetSpriteBounds(0, 1, true);
+			else 					 m_Sprite->SetSpriteBounds(8, 11, true);
+			break;
+		case MoveDirection::Up:
+			if (player.WasCrushed()) m_Sprite->SetSpriteBounds(2, 3, true);
+			else					 m_Sprite->SetSpriteBounds(12, 15, true);
+			break;
+		case MoveDirection::Down:
+			if (player.WasCrushed()) m_Sprite->SetSpriteBounds(6, 7, true);
+			else  					 m_Sprite->SetSpriteBounds(20, 23, true);
+			break;
+		}
 	}
 	
 	void DeathState::OnExit(Player& )

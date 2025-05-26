@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "GameObject.h"
 #include "GridComponent.h"
+#include "Rock.h"
 //---------------------------
 // Constructor & Destructor
 //---------------------------
@@ -72,11 +73,18 @@ void Player::HandleCollision(const CollisionEvent& collision)
         m_WasCrushed = false;
         SetState(&PlayerStates::PlayerState::dying);
 	}
-	else if (colliderTag == Tag::ROCK || collidedTag == Tag::ROCK)
-	{
-		m_WasCrushed = true;
-		SetState(&PlayerStates::PlayerState::dying);
-	}
+    else if (colliderTag == Tag::ROCK || collidedTag == Tag::ROCK)
+    {
+        auto rockObject = (colliderTag == Tag::ROCK) ? collision.collider : collision.collided;
+        auto rock = rockObject->GetComponent<Rock>();
+
+        if (rock->IsFalling()) GetOwner()->SetLocalPosition({ rockObject->GetLocalPosition().x, rockObject->GetLocalPosition().y + 30, rockObject->GetLocalPosition().z });
+        else
+        {
+            m_WasCrushed = true;
+            SetState(&PlayerStates::PlayerState::dying);
+        }
+    }
 }
 
 bool Player::CanSwitchMovement(MoveDirection direction)

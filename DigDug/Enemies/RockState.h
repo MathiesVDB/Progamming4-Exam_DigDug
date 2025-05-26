@@ -53,13 +53,13 @@ namespace RockStates
     class FallState : public RockState
     {
     public:
-        RockStates::RockState* HandleCollision(Rock&, const CollisionEvent& collision) override;
+        RockStates::RockState* HandleCollision(Rock& rock, const CollisionEvent& collision) override;
         RockStates::RockState* Update(Rock& rock, float deltaTime) override;
 
         void OnEnter(Rock& rock) override;
         void OnExit(Rock& rock) override;
 
-		constexpr static float GRAVITY{ 200.f };
+		constexpr static float GRAVITY{ 10000.f };
     };
 
     class BreakState : public RockState

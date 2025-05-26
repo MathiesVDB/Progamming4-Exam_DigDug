@@ -235,7 +235,7 @@ void Level::SpawnRock(const Point2f& spawnPos) const
 {
 	auto RockGameObject = std::make_unique<dae::GameObject>();
 	RockGameObject->AddComponent<SpriteComponent>("Sprites/Misc/EnvironmentSprite.png", 1, 7, 0.25f, 0, 0);
-	RockGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y, 0);
+	RockGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x + 8, spawnPos.y, 0);
 	RockGameObject->AddComponent<ColliderComponent>(ROCK);
     RockGameObject->AddComponent<Rock>(GetOwner()->GetComponent<GridComponent>());
 

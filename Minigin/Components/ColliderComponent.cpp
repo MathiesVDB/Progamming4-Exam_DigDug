@@ -51,10 +51,7 @@ void ColliderComponent::Render() const
 #if  _DEBUG
 	SDL_Renderer* sdlRenderer = dae::Renderer::GetInstance().GetSDLRenderer();
 
-	if (m_WasHit)
-		SDL_SetRenderDrawColor(sdlRenderer, 255, 0, 0, 255);
-	else
-		SDL_SetRenderDrawColor(sdlRenderer, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(sdlRenderer, 255, 255, 255, 255);
 
 	SDL_RenderDrawRect(sdlRenderer, &m_BoundingBox);
 #endif
