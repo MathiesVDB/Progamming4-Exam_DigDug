@@ -25,7 +25,7 @@ public:
 
 	void HandleCollision(const CollisionEvent& collision);
 
-	void SetState(PookaStates::PookaState* state);
+	void SetState(std::unique_ptr<PookaStates::PookaState> newState);
 
 	void IncreaseInflation();
 	void ResetInflation();
@@ -41,11 +41,12 @@ public:
 	bool WasCrushed()	 const	{ return m_WasCrushed; }
 	bool IsLookingLeft() const	{ return m_IsLookingLeft; }
 	bool IsFleeing()	 const	{ return m_IsFleeing; }
+	bool IsDead()		 const  { return dynamic_cast<PookaStates::DeathState*>(m_State.get()) != nullptr; }
 
 private:
 	GridComponent* m_GridPtr;
 
-	PookaStates::PookaState* m_State;
+	std::unique_ptr<PookaStates::PookaState> m_State;
 	Inflated m_InflatedState{ Inflated::None };
 
 	glm::vec2 m_FleeingTarget{};

@@ -30,6 +30,7 @@ public:
 
 	void Execute() override
 	{
+		//Enemy will always move straight to a target so checks don't need to happen 
 		if (!m_IsEnemy)
 		{
 			if (!m_Player) return;

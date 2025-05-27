@@ -1,10 +1,9 @@
 #include "PookaState.h"
 #include <iostream>
-
-#include "Command.h"
 #include "GameObject.h"
 #include "GridComponent.h"
 #include "Pooka.h"
+#include "Renderer.h"
 #include "SceneManager.h"
 #include "Scene.h"
 #include "SpriteComponent.h"
@@ -14,17 +13,43 @@ using namespace PookaStates;
 // MovingState Class
 //-----------------------------------------------------
 
-PookaStates::PookaState* MovingState::Update(Pooka& pooka, float deltaTime)
+void MovingState::Render(const Pooka&) const
 {
+	SDL_Renderer* sdlRenderer = dae::Renderer::GetInstance().GetSDLRenderer();
+	SDL_SetRenderDrawColor(sdlRenderer, 255, 0, 0, 255);
+
+	SDL_Rect cellRect{
+		static_cast<int>(m_CurrentTarget.x),
+		static_cast<int>(m_CurrentTarget.y),
+		10,
+		10 };
+
+	SDL_RenderFillRect(sdlRenderer, &cellRect);
+}
+
+std::unique_ptr<PookaState> MovingState::Update(Pooka& pooka, float deltaTime)
+{
+	m_AccumulatedTime += deltaTime;
+
 	if (m_HasReachedTarget)
 	{
 		m_HasReachedTarget = false;
 		m_CurrentTarget = FindBestNextTile(pooka);
+
+		int index{ pooka.GetGridPtr()->GetCellIndex(m_CurrentTarget) };
+		if (!pooka.GetGridPtr()->GetGrid()[index].hasBeenDug) return std::make_unique<GhostState>();
+
+		// Adjust for pooka size
+		m_CurrentTarget.x -= m_Collider->GetBoundingBox().w / 2.f;
+		m_CurrentTarget.y -= m_Collider->GetBoundingBox().h / 2.f;
 	}
 
 	SetDirection(pooka);
 
 	MoveTowardsGoal(pooka, deltaTime);
+
+	if (pooka.IsLookingLeft() && !m_Sprite->IsAlreadyWithinBounds(5, 6))		m_Sprite->SetSpriteBounds(5, 6, true);
+	else if (!pooka.IsLookingLeft() && !m_Sprite->IsAlreadyWithinBounds(0, 1))m_Sprite->SetSpriteBounds(0, 1, true);
 
     return nullptr;
 }
@@ -52,6 +77,25 @@ glm::vec2 MovingState::FindBestNextTile(Pooka& pooka)
 {
 	auto cells = GetPossibleCells(pooka);
 
+	// Check if all available cells are unDug
+	bool allUndug = std::all_of(cells.begin(), cells.end(), [](const GridComponent::Cell& cell) {
+		return !cell.hasBeenDug;
+		});
+
+	// Reverse direction if no dug cells exist
+	if (allUndug)
+	{
+		switch (m_Direction)
+		{
+		case MoveDirection::Left:  m_Direction = MoveDirection::Right; break;
+		case MoveDirection::Right: m_Direction = MoveDirection::Left;  break;
+		case MoveDirection::Up:    m_Direction = MoveDirection::Down;  break;
+		case MoveDirection::Down:  m_Direction = MoveDirection::Up;    break;
+		}
+
+		cells = GetPossibleCells(pooka);
+	}
+
 	glm::vec2 bestDugTile{};
 	float bestDugDist = std::numeric_limits<float>::max();
 
@@ -60,8 +104,8 @@ glm::vec2 MovingState::FindBestNextTile(Pooka& pooka)
 
 	for (const auto& cell : cells)
 	{
-		float dist = glm::distance(pooka.GetOwner()->GetWorldPosition(), cell.centerPoint);
-
+		float dist = glm::distance(pooka.GetTarget(), cell.centerPoint);
+		
 		if (cell.hasBeenDug)
 		{
 			if (dist < SNAP_DISTANCE)
@@ -83,99 +127,116 @@ glm::vec2 MovingState::FindBestNextTile(Pooka& pooka)
 		}
 	}
 
-	if (bestUndugDist + 60.f < bestDugDist)
+	if (bestUndugDist + 40.f < bestDugDist && m_AccumulatedTime >= GHOST_TIMER)
+	{
 		return bestUndugTile;
-
+	}
 	return bestDugTile;
 }
 
 std::vector<GridComponent::Cell> MovingState::GetPossibleCells(Pooka& pooka)
 {
 	auto currentIndex{ pooka.GetGridPtr()->GetCellIndex(pooka.GetOwner()->GetWorldPosition())};
+	int possibleIndex{};
 	std::vector<GridComponent::Cell> possibleCells;
-	possibleCells.emplace_back(pooka.GetGridPtr()->GetGrid()[currentIndex - pooka.GetGridPtr()->COLUMNS]); // Up
-	possibleCells.emplace_back(pooka.GetGridPtr()->GetGrid()[currentIndex + pooka.GetGridPtr()->COLUMNS]); // Down
-	possibleCells.emplace_back(pooka.GetGridPtr()->GetGrid()[currentIndex - 1]); // Left
-	possibleCells.emplace_back(pooka.GetGridPtr()->GetGrid()[currentIndex + 1]); // Right
 
-	switch (m_Direction)
-	{
-	case MoveDirection::Left:
-		possibleCells.erase(possibleCells.begin() + 3); // erase Right
-		break;
-	case MoveDirection::Right:
-		possibleCells.erase(possibleCells.begin() + 2); // erase Left
-		break;
-	case MoveDirection::Up:
-		possibleCells.erase(possibleCells.begin() + 1); // erase Down
-		break;
-	case MoveDirection::Down:
-		possibleCells.erase(possibleCells.begin() + 0); // erase Up
-		break;
-	}
+	auto tryAddCell = [&](int possibleIndex, MoveDirection forbiddenDir)
+		{
+			if (possibleIndex > -1 && m_Direction != forbiddenDir)
+				possibleCells.emplace_back(pooka.GetGridPtr()->GetGrid()[possibleIndex]);
+		};
+
+	possibleIndex = currentIndex - pooka.GetGridPtr()->COLUMNS; // Up
+	tryAddCell(possibleIndex, MoveDirection::Down);
+
+	possibleIndex = currentIndex + pooka.GetGridPtr()->COLUMNS; // Down
+	tryAddCell(possibleIndex, MoveDirection::Up);
+
+	possibleIndex = currentIndex - 1; // Left
+	tryAddCell(possibleIndex, MoveDirection::Right);
+
+	possibleIndex = currentIndex + 1; // Right
+	tryAddCell(possibleIndex, MoveDirection::Left);
 
 	return possibleCells;
 }
 
-void MovingState::MoveTowardsGoal(const Pooka& , float )
+void MovingState::MoveTowardsGoal(const Pooka& pooka, float )
 {
 	switch (m_Direction)
 	{
 	case MoveDirection::Left:
-		m_MoveLeftPtr->Execute();
+		m_MoveLeftUPtr->Execute();
 		break;
 	case MoveDirection::Right:
-		m_MoveRightPtr->Execute();
+		m_MoveRightUPtr->Execute();
 		break;
 	case MoveDirection::Up:
-		m_MoveUpPtr->Execute();
+		m_MoveUpUPtr->Execute();
 		break;
 	case MoveDirection::Down:
-		m_MoveDownPtr->Execute();
+		m_MoveDownUPtr->Execute();
 		break;
+	}
+
+	if (glm::distance(pooka.GetOwner()->GetWorldPosition(), m_CurrentTarget) <= SNAP_DISTANCE)
+	{
+		pooka.GetOwner()->SetLocalPosition(m_CurrentTarget);
+		m_HasReachedTarget = true;
 	}
 }
 
 void MovingState::OnEnter(Pooka& pooka)
 {
-	m_MoveLeftPtr	= new MoveCommand(pooka.GetOwner(), MoveDirection::Left	, true);
-	m_MoveRightPtr	= new MoveCommand(pooka.GetOwner(), MoveDirection::Right, true);
-	m_MoveUpPtr		= new MoveCommand(pooka.GetOwner(), MoveDirection::Up	, true);
-	m_MoveDownPtr	= new MoveCommand(pooka.GetOwner(), MoveDirection::Down	, true);
+	//Setup movement commands
+	m_MoveLeftUPtr	= std::make_unique<MoveCommand>(pooka.GetOwner(), MoveDirection::Left , true);
+	m_MoveRightUPtr	= std::make_unique<MoveCommand>(pooka.GetOwner(), MoveDirection::Right, true);
+	m_MoveUpUPtr	= std::make_unique<MoveCommand>(pooka.GetOwner(), MoveDirection::Up	  , true);
+	m_MoveDownUPtr	= std::make_unique<MoveCommand>(pooka.GetOwner(), MoveDirection::Down , true);
 
-	m_HasReachedTarget = false;
+	// Reset private member variables
+	m_HasReachedTarget = true;
+	m_AccumulatedTime = 0;
 
+	// Get components here so it doesn't happen every frame
     m_Sprite = pooka.GetOwner()->GetComponent<SpriteComponent>();
+	m_Collider = pooka.GetOwner()->GetComponent<ColliderComponent>();
 
+	//Set position to center
+	int index{ pooka.GetGridPtr()->GetCellIndex(pooka.GetOwner()->GetLocalPosition()) };
+	auto cellCenter{ pooka.GetGridPtr()->GetGrid()[index].centerPoint };
+
+	glm::vec2 snapPosition{
+		cellCenter.x - m_Collider->GetBoundingBox().w / 2.f,
+		cellCenter.y - m_Collider->GetBoundingBox().h / 2.f,
+	};
+
+	pooka.GetOwner()->SetLocalPosition(snapPosition);
+
+	//Setup animation
     if (pooka.IsLookingLeft())  m_Sprite->SetNewTexture("Sprites/Pooka/PookaDefaultSprite.png", 2, 5, 5, 6);
     else                        m_Sprite->SetNewTexture("Sprites/Pooka/PookaDefaultSprite.png", 2, 5, 0, 1);
 }
 
 void MovingState::OnExit(Pooka&)
 {
-	// Manual new and delete, because smart pointer would not be deleted on OnExit call
-	delete m_MoveLeftPtr;
-	delete m_MoveRightPtr;
-	delete m_MoveUpPtr;
-	delete m_MoveDownPtr;
-
-	m_MoveLeftPtr	= nullptr;
-	m_MoveRightPtr	= nullptr;
-	m_MoveUpPtr		= nullptr;
-	m_MoveDownPtr	= nullptr;
 }
 
 //-----------------------------------------------------
 // Inflated Class
 //-----------------------------------------------------
 
-PookaStates::PookaState* InflatedState::Update(Pooka& pooka, float deltaTime)
+void InflatedState::Render(const Pooka& ) const
+{
+}
+
+std::unique_ptr<PookaState> InflatedState::Update(Pooka& pooka, float deltaTime)
 {
     if (pooka.GetInflatedState() == m_PreviousState)
     {
         m_ResetTimer += deltaTime;
 
-		if (m_ResetTimer >= RESET_THRESHOLD) return &PookaStates::PookaState::moving;
+		if (m_ResetTimer >= RESET_THRESHOLD) return std::make_unique<MovingState>();
 		return nullptr;
     }
 
@@ -221,7 +282,11 @@ void InflatedState::OnExit(Pooka& pooka)
 // DeathState Class
 //-----------------------------------------------------
 
-PookaStates::PookaState* DeathState::Update(Pooka& pooka, float deltaTime)
+void DeathState::Render(const Pooka& ) const
+{
+}
+
+std::unique_ptr<PookaState> DeathState::Update(Pooka& pooka, float deltaTime)
 {
 	// Give time to show the death animation before removing it from the scene
 	m_DeathTimer += deltaTime;
@@ -254,34 +319,52 @@ void DeathState::OnExit(Pooka&)
 // GhostState Class
 //-----------------------------------------------------
 
-PookaStates::PookaState* GhostState::Update(Pooka& pooka, float deltaTime)
+void GhostState::Render(const Pooka& ) const
 {
-	std::cout << "Ghosting" << std::endl;
+	
+}
 
+std::unique_ptr<PookaState> GhostState::Update(Pooka& pooka, float deltaTime)
+{
 	glm::vec2 pookaCenter{ m_PookaCollider->GetBoundingBox().x + m_PookaCollider->GetBoundingBox().w / 2.0f,
 						   m_PookaCollider->GetBoundingBox().y + m_PookaCollider->GetBoundingBox().h / 2.0f };
 
 	int index{ pooka.GetGridPtr()->GetCellIndex(pookaCenter) };
 	if (pooka.GetGridPtr()->GetGrid()[index].hasBeenDug && index != m_StartIndex)
 	{
-		pooka.GetOwner()->SetLocalPosition(pooka.GetGridPtr()->GetGrid()[index].spawnPosition);
-		return &PookaStates::PookaState::moving;
+		m_IsRematerialising = true;
+	}
+
+	if (glm::distance(pooka.GetGridPtr()->GetGrid()[index].centerPoint, pookaCenter) <= SNAP_DISTANCE && m_IsRematerialising)
+	{
+		return std::make_unique<MovingState>();
 	}
 
 	auto targetPos{ pooka.GetTarget() };
 	auto pookaPos { pooka.GetOwner()->GetWorldPosition() };
 
+	if (m_IsRematerialising)
+	{
+		glm::vec2 newTarget{ pooka.GetGridPtr()->GetGrid()[index].centerPoint };
+
+		targetPos = {
+			newTarget.x - m_PookaCollider->GetBoundingBox().w / 2.f,
+			newTarget.x - m_PookaCollider->GetBoundingBox().w / 2.f };
+	}
+
 	glm::vec2 direction = targetPos - pookaPos;
 
 	glm::vec2 normalizedDir = glm::normalize(direction);
 
-	pooka.GetOwner()->SetVelocity(normalizedDir * MOVEMENT_SPEED * deltaTime);
+	pooka.GetOwner()->SetVelocity(normalizedDir * (MOVEMENT_SPEED * 5) * deltaTime);
 
     return nullptr;
 }
 
 void GhostState::OnEnter(Pooka& pooka)
 {
+	m_IsRematerialising = false;
+
 	m_Sprite = pooka.GetOwner()->GetComponent<SpriteComponent>();
     m_Sprite->SetNewTexture("Sprites/Pooka/PookaDefaultSprite.png", 2, 5, 3, 4);
 
@@ -293,12 +376,3 @@ void GhostState::OnEnter(Pooka& pooka)
 void GhostState::OnExit(Pooka&)
 {
 }
-
-//-----------------------------------------------------
-// Statics
-//-----------------------------------------------------
-
-MovingState     PookaState::moving;
-InflatedState   PookaState::inflating;
-DeathState      PookaState::dying;
-GhostState      PookaState::ghosting;

@@ -1,11 +1,10 @@
 #pragma once
 #include <vec2.hpp>
 #include <vector>
-
 #include "GridComponent.h"
 #include "Helpers.h"
+#include "Command.h"
 
-class MoveCommand;
 class GridComponent;
 struct Cell;
 class ColliderComponent;
@@ -14,63 +13,64 @@ class Pooka;
 
 namespace PookaStates
 {
-    class MovingState;
-    class InflatedState;
-    class DeathState;
-    class GhostState;
-    
     class PookaState 
     {
     public:
-        static MovingState      moving;
-        static InflatedState    inflating;
-        static DeathState       dying;
-        static GhostState       ghosting;
-    
         virtual ~PookaState() {}
-        virtual PookaStates::PookaState* Update(Pooka&, float) { return nullptr; }
+        virtual void Render(const Pooka&) const {}
+        virtual std::unique_ptr<PookaState> Update(Pooka&, float) { return nullptr; }
     
         virtual void OnEnter(Pooka& ) {}
     	virtual void OnExit(Pooka& ) {}
 
-        const float MOVEMENT_SPEED{ 1000.f };
-        const int   SNAP_DISTANCE {    1   };
+        const float MOVEMENT_SPEED{ 300.f };
+        const int   SNAP_DISTANCE {   1   };
 
     protected:
         SpriteComponent* m_Sprite{ nullptr };
+        ColliderComponent* m_Collider{ nullptr };
 		glm::vec2 m_Target{};
     };
     
     class MovingState : public PookaState
     {
     public:
-        PookaStates::PookaState* Update(Pooka& pooka, float deltaTime) override;
+		void Render(const Pooka&) const override;
+        std::unique_ptr<PookaState> Update(Pooka& pooka, float deltaTime) override;
     
     	void OnEnter(Pooka& pooka) override;
     	void OnExit(Pooka& pooka) override;
 
+        const float GHOST_TIMER{ 5.f };
+
     private:
         // Private member functions
         glm::vec2 FindBestNextTile(Pooka& pooka);
-        void SetDirection(Pooka& pooka);
         std::vector<GridComponent::Cell> GetPossibleCells(Pooka& pooka);
+
+        void SetDirection(Pooka& pooka);
         void MoveTowardsGoal(const Pooka& pooka, float deltaTime);
+
         // Private member variables
 		MoveDirection m_Direction{ MoveDirection::Right };
 		glm::vec2 m_CurrentTarget{};
+
+        float m_AccumulatedTime{};
+
         bool m_HasReachedTarget{};
 
         //Commands
-        MoveCommand* m_MoveLeftPtr  { nullptr };
-        MoveCommand* m_MoveRightPtr { nullptr };
-        MoveCommand* m_MoveUpPtr    { nullptr };
-        MoveCommand* m_MoveDownPtr  { nullptr };
+        std::unique_ptr<MoveCommand> m_MoveLeftUPtr;
+        std::unique_ptr<MoveCommand> m_MoveRightUPtr;
+        std::unique_ptr<MoveCommand> m_MoveUpUPtr;
+        std::unique_ptr<MoveCommand> m_MoveDownUPtr;
     };
 
     class InflatedState : public PookaState
     {
     public:
-        PookaStates::PookaState* Update(Pooka& pooka, float deltaTime) override;
+        void Render(const Pooka&) const override;
+        std::unique_ptr<PookaState> Update(Pooka& pooka, float deltaTime) override;
     
         void OnEnter(Pooka& pooka) override;
         void OnExit(Pooka& pooka) override;
@@ -86,7 +86,8 @@ namespace PookaStates
     class DeathState : public PookaState
     {
     public:
-        PookaStates::PookaState* Update(Pooka& pooka, float deltaTime) override;
+        void Render(const Pooka&) const override;
+        std::unique_ptr<PookaState> Update(Pooka& pooka, float deltaTime) override;
     
         void OnEnter(Pooka& pooka) override;
         void OnExit(Pooka& pooka) override;
@@ -101,13 +102,17 @@ namespace PookaStates
     class GhostState : public PookaState
     {
     public:
-        PookaStates::PookaState* Update(Pooka& pooka, float deltaTime) override;
+        void Render(const Pooka&) const override;
+        std::unique_ptr<PookaState> Update(Pooka& pooka, float deltaTime) override;
     
         void OnEnter(Pooka& pooka) override;
         void OnExit(Pooka& pooka) override;
 
     private:
         ColliderComponent* m_PookaCollider{};
+
         int m_StartIndex{};
+
+        bool m_IsRematerialising{ false };
     };    
 }

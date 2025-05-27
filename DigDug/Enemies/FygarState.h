@@ -48,7 +48,6 @@ namespace FygarStates
 
     private:
         // Private member functions
-        glm::vec2 GetNextStepToward(const glm::vec2& currentPos, const glm::vec2& targetPos, GridComponent* grid);
 
         // Private member variables
         bool m_HasReachedTarget{};

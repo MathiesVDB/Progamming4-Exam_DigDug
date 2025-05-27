@@ -302,7 +302,7 @@ std::unique_ptr<dae::GameObject> Level::SpawnEmpty(const glm::vec2& spawnPos) co
 	auto EmptyGameObject = std::make_unique<dae::GameObject>();
 	EmptyGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/DiggedArea.png");
 	EmptyGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
-    EmptyGameObject->AddComponent<ColliderComponent>(GROUND);
+    EmptyGameObject->AddComponent<ColliderComponent>(FRIENDLY_ENTITY);
 
     EmptyGameObject->SetRenderLayer(RenderLayer::Ground);
 	return EmptyGameObject;

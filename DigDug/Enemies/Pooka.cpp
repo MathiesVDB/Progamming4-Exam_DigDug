@@ -1,7 +1,7 @@
 ﻿#include "Pooka.h"
-
 #include "SpriteComponent.h"
 #include "GameObject.h"
+#include "Renderer.h"
 #include "Rock.h"
 #include "Scene.h"
 #include "SceneManager.h"
@@ -9,11 +9,11 @@
 Pooka::Pooka(dae::GameObject* owner, GridComponent* grid)
 	:	Component(owner),
 		m_GridPtr{ grid },
-		m_State{ &PookaStates::PookaState::moving }
+		m_State{ std::make_unique<PookaStates::MovingState>() }
 {
 	m_FleeingTarget = m_GridPtr->GetGrid()[14].centerPoint;
 	m_SpawnPosition = GetOwner()->GetWorldPosition();
-	SetState(&PookaStates::PookaState::moving);
+	SetState(std::make_unique<PookaStates::MovingState>());
 }
 
 void Pooka::Update(float deltaTime)
@@ -22,16 +22,16 @@ void Pooka::Update(float deltaTime)
 	else			 m_CurrentTarget = dae::SceneManager::GetInstance().GetActiveScene().GetPlayer(0)->GetWorldPosition();
 
 	m_IsLookingLeft = m_CurrentTarget.x < GetOwner()->GetWorldPosition().x;
-
-	auto newState = m_State->Update(*this, deltaTime);
-
-	if (newState == nullptr) return;
-	SetState(newState);
+	
+	if (auto newState = m_State->Update(*this, deltaTime))
+	{
+		SetState(std::move(newState));
+	}
 }
 
 void Pooka::Render() const
 {
-	
+	m_State->Render(*this);
 }
 
 void Pooka::HandleCollision(const CollisionEvent& collision)
@@ -48,15 +48,15 @@ void Pooka::HandleCollision(const CollisionEvent& collision)
 		else if (rock->IsBreaking())
 		{
 			m_WasCrushed = true;
-			SetState(&PookaStates::PookaState::dying);
+			SetState(std::make_unique<PookaStates::DeathState>());
 		}
 	}
 }
 
-void Pooka::SetState(PookaStates::PookaState* state)
+void Pooka::SetState(std::unique_ptr<PookaStates::PookaState> newState)
 {
 	m_State->OnExit(*this);
-	m_State = state;
+	m_State = std::move(newState);
 	m_State->OnEnter(*this);
 }
 

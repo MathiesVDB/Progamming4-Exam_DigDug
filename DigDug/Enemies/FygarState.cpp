@@ -11,40 +11,8 @@ using namespace FygarStates;
 // MovingState Class
 //-----------------------------------------------------
 
-FygarStates::FygarState* MovingState::Update(Fygar& fygar, float deltaTime)
+FygarStates::FygarState* MovingState::Update(Fygar& , float )
 {
-    auto pookaPos{ fygar.GetOwner()->GetWorldPosition() };
-    auto targetPos{ fygar.GetTarget() };
-    auto grid{ fygar.GetGridPtr() };
-
-    int currentIndex = grid->GetCellIndex(pookaPos);
-    int targetIndex = grid->GetCellIndex(targetPos);
-
-    if ((currentIndex == targetIndex && fygar.IsFleeing()) || m_HasReachedTarget)
-    {
-        m_HasReachedTarget = true;
-
-        fygar.GetOwner()->SetVelocity(glm::vec2{ -1, 0 } *MOVEMENT_SPEED * deltaTime);
-
-        return nullptr;
-    }
-
-    glm::vec2 nextStep = GetNextStepToward(pookaPos, targetPos, grid);
-
-    int nextIndex = grid->GetCellIndex(nextStep);
-    if (!grid->GetGrid()[nextIndex].hasBeenDug)
-    {
-        return &FygarStates::FygarState::ghosting;
-    }
-
-    glm::vec2 dir = glm::normalize(nextStep - pookaPos);
-    fygar.GetOwner()->SetVelocity(dir * MOVEMENT_SPEED * deltaTime);
-
-    if (!m_Sprite) m_Sprite = fygar.GetOwner()->GetComponent<SpriteComponent>();
-
-    if (dir.x < 0 && !m_Sprite->IsAlreadyWithinBounds(5, 6))  m_Sprite->SetSpriteBounds(5, 6, true);
-    else if (!m_Sprite->IsAlreadyWithinBounds(0, 1))          m_Sprite->SetSpriteBounds(0, 1, true);
-
     return nullptr;
 }
 
@@ -58,36 +26,6 @@ void MovingState::OnEnter(Fygar& pooka)
 
 void MovingState::OnExit(Fygar&)
 {
-}
-
-glm::vec2 MovingState::GetNextStepToward(const glm::vec2& currentPos, const glm::vec2& targetPos, GridComponent* grid)
-{
-    glm::vec2 directions[] = {
-    { -grid->CELL_SIZE  , 0                 }, // Left
-    {  grid->CELL_SIZE  , 0                 }, // Right
-    { 0                 , -grid->CELL_SIZE  }, // Up
-    { 0                 ,  grid->CELL_SIZE  } // Down
-    };
-
-    glm::vec2 bestStep = currentPos;
-    float bestDist = std::numeric_limits<float>::max();
-
-    for (const auto& direction : directions)
-    {
-        glm::vec2 option = currentPos + direction;
-        int index = grid->GetCellIndex(option);
-        if (grid->GetGrid()[index].hasBeenDug)
-        {
-            float dist = glm::length(option - targetPos);
-            if (dist < bestDist)
-            {
-                bestDist = dist;
-                bestStep = option;
-            }
-        }
-    }
-
-    return bestStep;
 }
 
 //-----------------------------------------------------
@@ -179,26 +117,26 @@ void DeathState::OnExit(Fygar&)
 // GhostState Class
 //-----------------------------------------------------
 
-FygarStates::FygarState* GhostState::Update(Fygar& fygar, float deltaTime)
+FygarStates::FygarState* GhostState::Update(Fygar& , float )
 {
-    glm::vec2 pookaCenter{ m_PookaCollider->GetBoundingBox().x + m_PookaCollider->GetBoundingBox().w / 2.0f,
-                           m_PookaCollider->GetBoundingBox().y + m_PookaCollider->GetBoundingBox().h / 2.0f };
+    //glm::vec2 pookaCenter{ m_PookaCollider->GetBoundingBox().x + m_PookaCollider->GetBoundingBox().w / 2.0f,
+    //                       m_PookaCollider->GetBoundingBox().y + m_PookaCollider->GetBoundingBox().h / 2.0f };
 
-    int index{ fygar.GetGridPtr()->GetCellIndex(pookaCenter) };
-    if (fygar.GetGridPtr()->GetGrid()[index].hasBeenDug)
-    {
-        fygar.GetOwner()->SetLocalPosition(fygar.GetGridPtr()->GetGrid()[index].spawnPosition);
-        return &FygarStates::FygarState::moving;
-    }
+    //int index{ fygar.GetGridPtr()->GetCellIndex(pookaCenter) };
+    //if (fygar.GetGridPtr()->GetGrid()[index].hasBeenDug)
+    //{
+    //    fygar.GetOwner()->SetLocalPosition(fygar.GetGridPtr()->GetGrid()[index].spawnPosition);
+    //    return &FygarStates::FygarState::moving;
+    //}
 
-    auto targetPos{ fygar.GetTarget() };
-    auto pookaPos{ fygar.GetOwner()->GetWorldPosition() };
+    //auto targetPos{ fygar.GetTarget() };
+    //auto pookaPos{ fygar.GetOwner()->GetWorldPosition() };
 
-    glm::vec2 direction = targetPos - pookaPos;
+    //glm::vec2 direction = targetPos - pookaPos;
 
-    glm::vec2 normalizedDir = glm::normalize(direction);
+    //glm::vec2 normalizedDir = glm::normalize(direction);
 
-    fygar.GetOwner()->SetVelocity(normalizedDir * MOVEMENT_SPEED * deltaTime);
+    //fygar.GetOwner()->SetVelocity(normalizedDir * MOVEMENT_SPEED * deltaTime);
 
     return nullptr;
 }
