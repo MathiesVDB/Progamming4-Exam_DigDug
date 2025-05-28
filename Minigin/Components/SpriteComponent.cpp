@@ -10,7 +10,7 @@
 //---------------------------
 // Constructor & Destructor
 //---------------------------
-SpriteComponent::SpriteComponent(dae::GameObject* owner, const std::string& fileName, int rows, int columns, float frameDelay, int firstframe, int lastframe)
+SpriteComponent::SpriteComponent(dae::GameObject* owner, const std::string& fileName, int rows, int columns, float frameDelay, int firstframe, int lastframe, bool areFramesAccumulating)
 	:	Component(owner),
 		m_Texture(owner, fileName),
 		m_Rows		{ rows },
@@ -19,10 +19,14 @@ SpriteComponent::SpriteComponent(dae::GameObject* owner, const std::string& file
 		m_StartFrame{ firstframe },
 		m_MaxFrame	{ lastframe },
 		m_Position	{},
-		m_CurrentFrame{ firstframe }
+		m_CurrentFrame{ firstframe },
+		m_AreFramesAccumulating{ areFramesAccumulating }
 {
 	m_FrameWidth = m_Texture.GetWidth() / m_Columns;
 	m_FrameHeight = m_Texture.GetHeight() / m_Rows;
+
+	if (m_AreFramesAccumulating) m_AccumulatedFrameIndex = m_CurrentFrame - m_StartFrame;
+	else m_AccumulatedFrameIndex = 1;
 }
 
 //---------------------------
@@ -30,6 +34,11 @@ SpriteComponent::SpriteComponent(dae::GameObject* owner, const std::string& file
 //---------------------------
 void SpriteComponent::Update(float deltaTime)
 {
+	if (m_AreFramesAccumulating)
+	{
+		m_AccumulatedFrameIndex = m_CurrentFrame - m_StartFrame;
+	}
+
 	if (GetOwner())
 	{
 		SetSpriteLocation();
@@ -55,22 +64,40 @@ void SpriteComponent::Update(float deltaTime)
 
 void SpriteComponent::Render() const
 {
+	int accumulatedWidth = m_FrameWidth;
+	int sourceX{};
+
+	if (m_AreFramesAccumulating)
+	{
+		int totalFrames = m_AccumulatedFrameIndex;
+		sourceX = m_FrameWidth * (totalFrames * (totalFrames + 1)) / 2;
+		accumulatedWidth = m_FrameWidth * (m_AccumulatedFrameIndex + 1);
+	}
+	else
+	{
+		const int colIndex{ m_CurrentFrame % m_Columns };
+		sourceX = colIndex * m_FrameWidth;
+	}
+
 	const int rowIndex{ m_CurrentFrame / m_Columns };
-	const int colIndex{ m_CurrentFrame % m_Columns };
+
 	SDL_Rect sourceRect = {
-		colIndex * m_FrameWidth,
+		sourceX,
 		rowIndex * m_FrameHeight,
-		m_FrameWidth,
+		accumulatedWidth,
 		m_FrameHeight
 	};
 
 	m_Texture.Render(m_Position.x, m_Position.y, sourceRect);
+
 }
 
 void SpriteComponent::SetSpriteBounds(const int newFirstFrame, const int newLastFrame, const bool setCurrentFrame)
 {
-	m_StartFrame = newFirstFrame;
-	m_MaxFrame = newLastFrame;
+	m_StartFrame	= newFirstFrame;
+	m_MaxFrame		= newLastFrame;
+
+	if (m_AreFramesAccumulating) m_AccumulatedFrameIndex = m_CurrentFrame - m_StartFrame;
 
 	if (setCurrentFrame && (m_CurrentFrame < m_StartFrame || m_CurrentFrame > m_MaxFrame))
 	{
@@ -82,7 +109,6 @@ void SpriteComponent::SetSpriteLocation()
 {
 	m_Position.x = GetOwner()->GetWorldPosition().x;
 	m_Position.y = GetOwner()->GetWorldPosition().y;
-
 }
 
 void SpriteComponent::SetNewTexture(const std::string& fileName, int rows, int columns, int firstframe, int lastframe)
@@ -115,6 +141,12 @@ int SpriteComponent::GetCurrentFrame() const
 
 glm::vec2 SpriteComponent::GetSpriteSize() const
 {
-	return { static_cast<float>(m_FrameWidth), static_cast<float>(m_FrameHeight) };
+	int accumulatedWidth{ m_FrameWidth };
+	if (m_AreFramesAccumulating)
+	{
+		accumulatedWidth = m_FrameWidth * (m_AccumulatedFrameIndex + 1);
+	}
+
+	return { accumulatedWidth, static_cast<float>(m_FrameHeight) };
 }
 

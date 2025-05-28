@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include <vec2.hpp>
-
 #include "FygarState.h"
 #include "Helpers.h"
 #include "RealCollisionSystem.h"
@@ -25,7 +24,7 @@ public:
 
 	void HandleCollision(const CollisionEvent& collision);
 
-	void SetState(FygarStates::FygarState* state);
+	void SetState(std::unique_ptr<FygarStates::FygarState> newState);
 
 	void IncreaseInflation();
 	void ResetInflation();
@@ -41,11 +40,12 @@ public:
 	bool WasCrushed()	 const { return m_WasCrushed; }
 	bool IsLookingLeft() const { return m_IsLookingLeft; }
 	bool IsFleeing()	 const { return m_IsFleeing; }
+	bool IsDeadly()		 const;
 
 private:
 	GridComponent* m_GridPtr;
 
-	FygarStates::FygarState* m_State;
+	std::unique_ptr<FygarStates::FygarState> m_State;
 	Inflated m_InflatedState{ Inflated::None };
 
 	glm::vec2 m_FleeingTarget{};

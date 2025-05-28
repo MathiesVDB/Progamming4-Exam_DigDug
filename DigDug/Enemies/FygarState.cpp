@@ -11,17 +11,197 @@ using namespace FygarStates;
 // MovingState Class
 //-----------------------------------------------------
 
-FygarStates::FygarState* MovingState::Update(Fygar& , float )
+std::unique_ptr<FygarState> MovingState::Update(Fygar& fygar, float deltaTime)
 {
-    return nullptr;
+	if (m_AccumulatedTime >= GHOST_TIMER) return std::make_unique<AttackState>();
+
+	m_AccumulatedTime += deltaTime;
+
+	if (m_HasReachedTarget)
+	{
+		m_HasReachedTarget = false;
+		m_CurrentTarget = FindBestNextTile(fygar);
+
+		int index{ fygar.GetGridPtr()->GetCellIndex(m_CurrentTarget) };
+		if (!fygar.GetGridPtr()->GetGrid()[index].hasBeenDug) return std::make_unique<GhostState>();
+
+		// Adjust for fygar size
+		m_CurrentTarget.x -= m_Collider->GetBoundingBox().w / 2.f;
+		m_CurrentTarget.y -= m_Collider->GetBoundingBox().h / 2.f;
+	}
+
+	SetDirection(fygar);
+
+	MoveTowardsGoal(fygar, deltaTime);
+
+	if		 (fygar.IsLookingLeft() && !m_Sprite->IsAlreadyWithinBounds(8, 9)) m_Sprite->SetSpriteBounds(8, 9, true);
+	else if (!fygar.IsLookingLeft() && !m_Sprite->IsAlreadyWithinBounds(0, 1)) m_Sprite->SetSpriteBounds(0, 1, true);
+
+	return nullptr;
 }
 
-void MovingState::OnEnter(Fygar& pooka)
+void MovingState::SetDirection(Fygar& fygar)
 {
-    m_Sprite = pooka.GetOwner()->GetComponent<SpriteComponent>();
+	glm::vec2 pookaPos{ fygar.GetOwner()->GetWorldPosition() };
+	glm::vec2 targetPos{ m_CurrentTarget };
 
-    if (pooka.IsLookingLeft())  m_Sprite->SetNewTexture("Sprites/Pooka/PookaDefaultSprite.png", 2, 8, 8, 9);
-    else                        m_Sprite->SetNewTexture("Sprites/Pooka/PookaDefaultSprite.png", 2, 8, 0, 1);
+	glm::vec2 direction = targetPos - pookaPos;
+
+	if (glm::abs(direction.x) > glm::abs(direction.y))
+	{
+		if (direction.x < 0) m_Direction = MoveDirection::Left;
+		else m_Direction = MoveDirection::Right;
+
+		return;
+	}
+
+	if (direction.y < 0) m_Direction = MoveDirection::Up;
+	else m_Direction = MoveDirection::Down;
+}
+
+glm::vec2 MovingState::FindBestNextTile(Fygar& fygar)
+{
+	auto cells = GetPossibleCells(fygar);
+
+	// Check if all available cells are unDug
+	bool allUndug = std::all_of(cells.begin(), cells.end(), [](const GridComponent::Cell& cell) {
+		return !cell.hasBeenDug;
+		});
+
+	// Reverse direction if no dug cells exist
+	if (allUndug)
+	{
+		switch (m_Direction)
+		{
+		case MoveDirection::Left:  m_Direction = MoveDirection::Right; break;
+		case MoveDirection::Right: m_Direction = MoveDirection::Left;  break;
+		case MoveDirection::Up:    m_Direction = MoveDirection::Down;  break;
+		case MoveDirection::Down:  m_Direction = MoveDirection::Up;    break;
+		}
+
+		cells = GetPossibleCells(fygar);
+	}
+
+	glm::vec2 bestDugTile{};
+	float bestDugDist = std::numeric_limits<float>::max();
+
+	glm::vec2 bestUndugTile{};
+	float bestUndugDist = std::numeric_limits<float>::max();
+
+	for (const auto& cell : cells)
+	{
+		float dist = glm::distance(fygar.GetTarget(), cell.centerPoint);
+
+		if (cell.hasBeenDug)
+		{
+			if (dist < SNAP_DISTANCE)
+				return cell.centerPoint;
+
+			if (dist < bestDugDist)
+			{
+				bestDugDist = dist;
+				bestDugTile = cell.centerPoint;
+			}
+		}
+		else
+		{
+			if (dist < bestUndugDist)
+			{
+				bestUndugDist = dist;
+				bestUndugTile = cell.centerPoint;
+			}
+		}
+	}
+
+	if (bestUndugDist + 40.f < bestDugDist && m_AccumulatedTime >= GHOST_TIMER)
+	{
+		return bestUndugTile;
+	}
+	return bestDugTile;
+}
+
+std::vector<GridComponent::Cell> MovingState::GetPossibleCells(Fygar& fygar)
+{
+	auto currentIndex{ fygar.GetGridPtr()->GetCellIndex(fygar.GetOwner()->GetWorldPosition()) };
+	int possibleIndex{};
+	std::vector<GridComponent::Cell> possibleCells;
+
+	auto tryAddCell = [&](int possibleIndex, MoveDirection forbiddenDir)
+		{
+			if (possibleIndex > -1 && m_Direction != forbiddenDir)
+				possibleCells.emplace_back(fygar.GetGridPtr()->GetGrid()[possibleIndex]);
+		};
+
+	possibleIndex = currentIndex - fygar.GetGridPtr()->COLUMNS; // Up
+	tryAddCell(possibleIndex, MoveDirection::Down);
+
+	possibleIndex = currentIndex + fygar.GetGridPtr()->COLUMNS; // Down
+	tryAddCell(possibleIndex, MoveDirection::Up);
+
+	possibleIndex = currentIndex - 1; // Left
+	tryAddCell(possibleIndex, MoveDirection::Right);
+
+	possibleIndex = currentIndex + 1; // Right
+	tryAddCell(possibleIndex, MoveDirection::Left);
+
+	return possibleCells;
+}
+
+void MovingState::MoveTowardsGoal(const Fygar& fygar, float)
+{
+	switch (m_Direction)
+	{
+	case MoveDirection::Left:
+		m_MoveLeftUPtr->Execute();
+		break;
+	case MoveDirection::Right:
+		m_MoveRightUPtr->Execute();
+		break;
+	case MoveDirection::Up:
+		m_MoveUpUPtr->Execute();
+		break;
+	case MoveDirection::Down:
+		m_MoveDownUPtr->Execute();
+		break;
+	}
+
+	if (glm::distance(fygar.GetOwner()->GetWorldPosition(), m_CurrentTarget) <= SNAP_DISTANCE)
+	{
+		fygar.GetOwner()->SetLocalPosition(m_CurrentTarget);
+		m_HasReachedTarget = true;
+	}
+}
+
+void MovingState::OnEnter(Fygar& fygar)
+{
+	//Setup movement commands
+	m_MoveLeftUPtr	= std::make_unique<MoveCommand>(fygar.GetOwner(), MoveDirection::Left	, MOVEMENT_SPEED, true);
+	m_MoveRightUPtr = std::make_unique<MoveCommand>(fygar.GetOwner(), MoveDirection::Right	, MOVEMENT_SPEED, true);
+	m_MoveUpUPtr	= std::make_unique<MoveCommand>(fygar.GetOwner(), MoveDirection::Up		, MOVEMENT_SPEED, true);
+	m_MoveDownUPtr	= std::make_unique<MoveCommand>(fygar.GetOwner(), MoveDirection::Down	, MOVEMENT_SPEED, true);
+
+	// Reset private member variables
+	m_HasReachedTarget = true;
+	m_AccumulatedTime = 0;
+
+	// Get components here so it doesn't happen every frame
+	m_Sprite	= fygar.GetOwner()->GetComponent<SpriteComponent>();
+	m_Collider	= fygar.GetOwner()->GetComponent<ColliderComponent>();
+
+	//Set position to center
+	int index{ fygar.GetGridPtr()->GetCellIndex(fygar.GetOwner()->GetLocalPosition()) };
+	auto cellCenter{ fygar.GetGridPtr()->GetGrid()[index].centerPoint };
+
+	glm::vec2 snapPosition{
+		cellCenter.x - m_Collider->GetBoundingBox().w / 2.f,
+		cellCenter.y - m_Collider->GetBoundingBox().h / 2.f,
+	};
+
+	fygar.GetOwner()->SetLocalPosition(snapPosition);
+
+	//Setup animation
+	if (fygar.IsLookingLeft())  m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 8, 9);
+	else                        m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0, 1);
 }
 
 void MovingState::OnExit(Fygar&)
@@ -32,13 +212,13 @@ void MovingState::OnExit(Fygar&)
 // Inflated Class
 //-----------------------------------------------------
 
-FygarStates::FygarState* InflatedState::Update(Fygar& fygar, float deltaTime)
+std::unique_ptr<FygarState> InflatedState::Update(Fygar& fygar, float deltaTime)
 {
     if (fygar.GetInflatedState() == m_PreviousState)
     {
         m_ResetTimer += deltaTime;
 
-        if (m_ResetTimer >= RESET_THRESHOLD) return &FygarStates::FygarState::moving;
+        if (m_ResetTimer >= RESET_THRESHOLD) return std::make_unique<MovingState>();
         return nullptr;
     }
 
@@ -71,6 +251,7 @@ void InflatedState::OnEnter(Fygar& fygar)
 {
     m_ResetTimer = 0.f;
     m_Sprite = fygar.GetOwner()->GetComponent<SpriteComponent>();
+
     if (fygar.IsLookingLeft())  m_Sprite->SetNewTexture("Sprites/Fygar/FygarInflateLeftSprite.png" , 1, 4, 0, 0);
     else                        m_Sprite->SetNewTexture("Sprites/Fygar/FygarInflateRightSprite.png", 1, 4, 0, 0);
 }
@@ -84,7 +265,7 @@ void InflatedState::OnExit(Fygar& pooka)
 // DeathState Class
 //-----------------------------------------------------
 
-FygarStates::FygarState* DeathState::Update(Fygar& fygar, float deltaTime)
+std::unique_ptr<FygarState> DeathState::Update(Fygar& fygar, float deltaTime)
 {
     // Give time to show the death animation before removing it from the scene
     m_DeathTimer += deltaTime;
@@ -117,36 +298,54 @@ void DeathState::OnExit(Fygar&)
 // GhostState Class
 //-----------------------------------------------------
 
-FygarStates::FygarState* GhostState::Update(Fygar& , float )
+std::unique_ptr<FygarState> GhostState::Update(Fygar& fygar, float )
 {
-    //glm::vec2 pookaCenter{ m_PookaCollider->GetBoundingBox().x + m_PookaCollider->GetBoundingBox().w / 2.0f,
-    //                       m_PookaCollider->GetBoundingBox().y + m_PookaCollider->GetBoundingBox().h / 2.0f };
+    glm::vec2 pookaCenter{ m_FygarCollider->GetBoundingBox().x + m_FygarCollider->GetBoundingBox().w / 2.0f,
+                           m_FygarCollider->GetBoundingBox().y + m_FygarCollider->GetBoundingBox().h / 2.0f };
 
-    //int index{ fygar.GetGridPtr()->GetCellIndex(pookaCenter) };
-    //if (fygar.GetGridPtr()->GetGrid()[index].hasBeenDug)
-    //{
-    //    fygar.GetOwner()->SetLocalPosition(fygar.GetGridPtr()->GetGrid()[index].spawnPosition);
-    //    return &FygarStates::FygarState::moving;
-    //}
+    int index{ fygar.GetGridPtr()->GetCellIndex(pookaCenter) };
+    index = std::max(index, 0);
+    if (fygar.GetGridPtr()->GetGrid()[index].hasBeenDug && index != m_StartIndex)
+    {
+        m_IsRematerialising = true;
+    }
 
-    //auto targetPos{ fygar.GetTarget() };
-    //auto pookaPos{ fygar.GetOwner()->GetWorldPosition() };
+    if (glm::distance(fygar.GetGridPtr()->GetGrid()[index].centerPoint, pookaCenter) <= SNAP_DISTANCE && m_IsRematerialising)
+    {
+        return std::make_unique<MovingState>();
+    }
 
-    //glm::vec2 direction = targetPos - pookaPos;
+    auto targetPos{ fygar.GetTarget() };
+    auto pookaPos{ fygar.GetOwner()->GetWorldPosition() };
 
-    //glm::vec2 normalizedDir = glm::normalize(direction);
+    if (m_IsRematerialising)
+    {
+        glm::vec2 newTarget{ fygar.GetGridPtr()->GetGrid()[index].centerPoint };
 
-    //fygar.GetOwner()->SetVelocity(normalizedDir * MOVEMENT_SPEED * deltaTime);
+        targetPos = {
+            newTarget.x - m_FygarCollider->GetBoundingBox().w / 2.f,
+            newTarget.y - m_FygarCollider->GetBoundingBox().h / 2.f };
+    }
+
+    glm::vec2 direction = targetPos - pookaPos;
+
+    glm::vec2 normalizedDir = glm::normalize(direction);
+
+    fygar.GetOwner()->SetVelocity(normalizedDir * MOVEMENT_SPEED);
 
     return nullptr;
 }
 
 void GhostState::OnEnter(Fygar& fygar)
 {
+    m_IsRematerialising = false;
+
     m_Sprite = fygar.GetOwner()->GetComponent<SpriteComponent>();
     m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 6, 7);
 
-    m_PookaCollider = fygar.GetOwner()->GetComponent<ColliderComponent>();
+    m_FygarCollider = fygar.GetOwner()->GetComponent<ColliderComponent>();
+
+    m_StartIndex = fygar.GetGridPtr()->GetCellIndex(fygar.GetOwner()->GetWorldPosition());
 }
 
 void GhostState::OnExit(Fygar&)
@@ -157,26 +356,43 @@ void GhostState::OnExit(Fygar&)
 // AttackState Class
 //-----------------------------------------------------
 
-FygarStates::FygarState* AttackState::Update(Fygar&, float)
+std::unique_ptr<FygarState> AttackState::Update(Fygar& fygar, float deltaTime)
 {
+	m_AccumulatedTime += deltaTime;
+
+	if (m_AccumulatedTime >= ATTACK_TIME) fygar.SetState(std::make_unique<MovingState>());
+
     return nullptr;
 }
 
 void AttackState::OnEnter(Fygar& fygar)
 {
+	m_Collider = fygar.GetOwner()->GetComponent<ColliderComponent>();
+	auto fygarPos = fygar.GetOwner()->GetWorldPosition();
+
+	auto FygarAttackGameObject = std::make_unique<dae::GameObject>();
+	m_AttackObject = FygarAttackGameObject.get();
+
+	if (fygar.IsLookingLeft())	FygarAttackGameObject->AddComponent<SpriteComponent>("Sprites/Fygar/FireSprite.png", 2, 6, ATTACK_TIME / 3, 6, 11, true);
+	else						FygarAttackGameObject->AddComponent<SpriteComponent>("Sprites/Fygar/FireSprite.png", 2, 6, ATTACK_TIME / 3, 0,  2, true);
+
+	FygarAttackGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
+
+	if (fygar.IsLookingLeft())	FygarAttackGameObject->GetComponent<dae::Transform>()->SetPosition(fygarPos.x - m_Collider->GetBoundingBox().w, fygarPos.y);
+	else						FygarAttackGameObject->GetComponent<dae::Transform>()->SetPosition(fygarPos.x + m_Collider->GetBoundingBox().w, fygarPos.y);
+
+	FygarAttackGameObject->SetRenderLayer(RenderLayer::Entity);
+
+	dae::SceneManager::GetInstance().GetActiveScene().Add(FygarAttackGameObject);
+
     fygar.GetOwner()->GetComponent<SpriteComponent>()->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0, 0);
 }
 
 void AttackState::OnExit(Fygar&)
 {
+	if (m_AttackObject)
+	{
+		dae::SceneManager::GetInstance().GetActiveScene().MarkForDeletion(m_AttackObject);
+		m_AttackObject = nullptr;
+	}
 }
-
-//-----------------------------------------------------
-// Statics
-//-----------------------------------------------------
-
-MovingState     FygarState::moving;
-InflatedState   FygarState::inflating;
-DeathState      FygarState::dying;
-GhostState      FygarState::ghosting;
-AttackState     FygarState::attacking;

@@ -4,6 +4,7 @@
 #include "Fygar.h"
 #include "GridComponent.h"
 #include "GameObject.h"
+#include "PookaState.h"
 #include "Rock.h"
 #include "SceneManager.h"
 #include "Scene.h"
@@ -13,11 +14,12 @@
 //---------------------------
 Fygar::Fygar(dae::GameObject* owner, GridComponent* grid)
 	:	Component(owner),
-		m_GridPtr{ grid }
+		m_GridPtr{ grid },
+		m_State{std::make_unique<FygarStates::MovingState>()}
 {
 	m_FleeingTarget = m_GridPtr->GetGrid()[14].centerPoint;
 	m_SpawnPosition = GetOwner()->GetWorldPosition();
-	m_State = &FygarStates::FygarState::moving;
+	SetState(std::make_unique<FygarStates::MovingState>());
 }
 
 void Fygar::Update(float deltaTime)
@@ -27,10 +29,10 @@ void Fygar::Update(float deltaTime)
 
 	m_IsLookingLeft = m_CurrentTarget.x < GetOwner()->GetWorldPosition().x;
 
-	auto newState = m_State->Update(*this, deltaTime);
-
-	if (newState == nullptr) return;
-	SetState(newState);
+	if (auto newState = m_State->Update(*this, deltaTime))
+	{
+		SetState(std::move(newState));
+	}
 }
 
 void Fygar::HandleCollision(const CollisionEvent& collision)
@@ -47,15 +49,15 @@ void Fygar::HandleCollision(const CollisionEvent& collision)
 		else if (rock->IsBreaking())
 		{
 			m_WasCrushed = true;
-			SetState(&FygarStates::FygarState::dying);
+			SetState(std::make_unique<FygarStates::DeathState>());
 		}
 	}
 }
 
-void Fygar::SetState(FygarStates::FygarState* state)
+void Fygar::SetState(std::unique_ptr<FygarStates::FygarState> newState)
 {
 	m_State->OnExit(*this);
-	m_State = state;
+	m_State = std::move(newState);
 	m_State->OnEnter(*this);
 }
 
@@ -85,4 +87,12 @@ void Fygar::IncreaseInflation()
 void Fygar::ResetInflation()
 {
 	m_InflatedState = Inflated::None;
+}
+
+bool Fygar::IsDeadly() const
+{
+	bool isMoving	{ dynamic_cast<FygarStates::MovingState*>(m_State.get()) != nullptr };
+	bool isAttacking{ dynamic_cast<FygarStates::AttackState*>(m_State.get()) != nullptr };
+
+	return isMoving || isAttacking;
 }

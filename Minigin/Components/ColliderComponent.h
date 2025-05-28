@@ -12,6 +12,7 @@
 enum Tag
 {
 	GROUND,
+	EMPTY_GROUND,
 	FRIENDLY_ENTITY,
 	ENEMY_ENTITY,
 	ROCK,
@@ -38,6 +39,7 @@ private:
 	//-------------------------------------------------
 	SDL_Rect m_BoundingBox;
 	Tag m_Tag;
+
 	int m_Width;
 	int m_Height;
 };

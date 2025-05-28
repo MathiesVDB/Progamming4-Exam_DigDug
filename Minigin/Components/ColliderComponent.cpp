@@ -44,6 +44,17 @@ void ColliderComponent::Update(float )
 {
 	m_BoundingBox.x = static_cast<int>(GetOwner()->GetWorldPosition().x);
 	m_BoundingBox.y = static_cast<int>(GetOwner()->GetWorldPosition().y);
+
+	if (GetOwner()->HasComponent<TextureComponent>())
+	{
+		m_BoundingBox.w	= GetOwner()->GetComponent<TextureComponent>()->GetWidth();
+		m_BoundingBox.h	= GetOwner()->GetComponent<TextureComponent>()->GetHeight();
+	}
+	else if (GetOwner()->HasComponent<SpriteComponent>())
+	{
+		m_BoundingBox.w	= static_cast<int>(GetOwner()->GetComponent<SpriteComponent>()->GetSpriteSize().x);
+		m_BoundingBox.h	= static_cast<int>(GetOwner()->GetComponent<SpriteComponent>()->GetSpriteSize().y);
+	}
 }
 
 void ColliderComponent::Render() const

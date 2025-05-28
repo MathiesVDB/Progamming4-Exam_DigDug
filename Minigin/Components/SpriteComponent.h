@@ -13,7 +13,7 @@
 class SpriteComponent final : public dae::Component
 {
 public:
-	SpriteComponent(dae::GameObject* owner, const std::string& fileName, int rows, int columns, float frameDelay, int firstframe, int lastframe); //Don't forget to set the position of the sprite after
+	SpriteComponent(dae::GameObject* owner, const std::string& fileName, int rows, int columns, float frameDelay, int firstframe, int lastframe, bool areFramesAccumulating = false); //Don't forget to set the position of the sprite after
 
 	//-------------------------------------------------
 	// Member functions						
@@ -37,6 +37,8 @@ private:
 	glm::vec2 m_Position;
 	TextureComponent m_Texture;
 
+	bool m_AreFramesAccumulating{ false };
+
 	int m_Rows;
 	int m_Columns;
 	int m_FrameWidth{ -1 };
@@ -44,6 +46,7 @@ private:
 	int m_CurrentFrame{};
 	int m_MaxFrame{};
 	int m_StartFrame{};
+	int m_AccumulatedFrameIndex{};
 
 	float m_FrameDelay;
 	float m_AccumulatedTime{};

@@ -270,6 +270,7 @@ void InflatedState::OnEnter(Pooka& pooka)
 {
 	m_ResetTimer = 0.f;
 	m_Sprite = pooka.GetOwner()->GetComponent<SpriteComponent>();
+
     if (pooka.IsLookingLeft())  m_Sprite->SetNewTexture("Sprites/Pooka/PookaInflateLeftSprite.png" , 1, 4, 0, 0);
     else                        m_Sprite->SetNewTexture("Sprites/Pooka/PookaInflateRightSprite.png", 1, 4, 0, 0);
 }
@@ -352,8 +353,6 @@ std::unique_ptr<PookaState> GhostState::Update(Pooka& pooka, float )
 		targetPos = {
 			newTarget.x - m_PookaCollider->GetBoundingBox().w / 2.f,
 			newTarget.y - m_PookaCollider->GetBoundingBox().h / 2.f };
-
-		std::cout << "Ghost target: " << targetPos.x << ", " << targetPos.y << "\n";
 	}
 
 	glm::vec2 direction = targetPos - pookaPos;
