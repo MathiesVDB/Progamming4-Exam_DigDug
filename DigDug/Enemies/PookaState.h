@@ -23,8 +23,8 @@ namespace PookaStates
         virtual void OnEnter(Pooka& ) {}
     	virtual void OnExit(Pooka& ) {}
 
-        const float MOVEMENT_SPEED{ 300.f };
-        const int   SNAP_DISTANCE {   1   };
+        const float MOVEMENT_SPEED{ 30.f };
+        const int   SNAP_DISTANCE {  1   };
 
     protected:
         SpriteComponent* m_Sprite{ nullptr };

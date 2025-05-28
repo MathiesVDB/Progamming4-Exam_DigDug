@@ -18,8 +18,8 @@ public:
 class MoveCommand final : public Command
 {
 public:
-	explicit MoveCommand(dae::GameObject* owner, MoveDirection direction, bool isEnemy = false)
-		: m_Owner(owner), m_Direction(direction), m_Player{ nullptr }, m_IsEnemy(isEnemy)
+	explicit MoveCommand(dae::GameObject* owner, MoveDirection direction, float movementSpeed, bool isEnemy = false)
+		: m_Owner(owner), m_Direction(direction), m_Player{ nullptr }, m_IsEnemy{ isEnemy }, m_MovementSpeed{ movementSpeed }
 	{
 		if (!m_IsEnemy)
 		{
@@ -41,16 +41,16 @@ public:
 		switch (m_Direction)
 		{
 		case MoveDirection::Left:
-			m_Owner->SetVelocity({ -50.f, 0.f });
+			m_Owner->SetVelocity({ -m_MovementSpeed, 0.f });
 			break;
 		case MoveDirection::Right:
-			m_Owner->SetVelocity({ +50.f, 0.f });
+			m_Owner->SetVelocity({ +m_MovementSpeed, 0.f });
 			break;
 		case MoveDirection::Up:
-			m_Owner->SetVelocity({ 0.f, -50.f });
+			m_Owner->SetVelocity({ 0.f, -m_MovementSpeed });
 			break;
 		case MoveDirection::Down:
-			m_Owner->SetVelocity({ 0.f, +50.f });
+			m_Owner->SetVelocity({ 0.f, +m_MovementSpeed });
 			break;
 		}
 	}
@@ -59,6 +59,8 @@ private:
 	dae::GameObject* m_Owner;
 	MoveDirection m_Direction;
 	Player* m_Player;
+
+	float m_MovementSpeed{};
 
 	bool m_IsEnemy{ false };
 };

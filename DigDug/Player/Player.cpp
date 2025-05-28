@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "GameObject.h"
 #include "GridComponent.h"
+#include "Pooka.h"
 #include "Rock.h"
 //---------------------------
 // Constructor & Destructor
@@ -70,6 +71,13 @@ void Player::HandleCollision(const CollisionEvent& collision)
 
 	if (colliderTag == Tag::ENEMY_ENTITY || collidedTag == Tag::ENEMY_ENTITY)
 	{
+        bool isPlayerDead{};
+
+        if      (collision.collider->HasComponent<Pooka>()) isPlayerDead = collision.collider->GetComponent<Pooka>()->IsDeadly();
+        else if (collision.collided->HasComponent<Pooka>()) isPlayerDead = collision.collided->GetComponent<Pooka>()->IsDeadly();
+
+        if (!isPlayerDead) return;
+
         m_WasCrushed = false;
         SetState(&PlayerStates::PlayerState::dying);
 	}

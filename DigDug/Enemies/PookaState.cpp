@@ -1,4 +1,5 @@
 #include "PookaState.h"
+#include <algorithm>
 #include <iostream>
 #include "GameObject.h"
 #include "GridComponent.h"
@@ -189,10 +190,10 @@ void MovingState::MoveTowardsGoal(const Pooka& pooka, float )
 void MovingState::OnEnter(Pooka& pooka)
 {
 	//Setup movement commands
-	m_MoveLeftUPtr	= std::make_unique<MoveCommand>(pooka.GetOwner(), MoveDirection::Left , true);
-	m_MoveRightUPtr	= std::make_unique<MoveCommand>(pooka.GetOwner(), MoveDirection::Right, true);
-	m_MoveUpUPtr	= std::make_unique<MoveCommand>(pooka.GetOwner(), MoveDirection::Up	  , true);
-	m_MoveDownUPtr	= std::make_unique<MoveCommand>(pooka.GetOwner(), MoveDirection::Down , true);
+	m_MoveLeftUPtr	= std::make_unique<MoveCommand>(pooka.GetOwner(), MoveDirection::Left , MOVEMENT_SPEED, true);
+	m_MoveRightUPtr	= std::make_unique<MoveCommand>(pooka.GetOwner(), MoveDirection::Right, MOVEMENT_SPEED, true);
+	m_MoveUpUPtr	= std::make_unique<MoveCommand>(pooka.GetOwner(), MoveDirection::Up	  , MOVEMENT_SPEED, true);
+	m_MoveDownUPtr	= std::make_unique<MoveCommand>(pooka.GetOwner(), MoveDirection::Down , MOVEMENT_SPEED, true);
 
 	// Reset private member variables
 	m_HasReachedTarget = true;
@@ -324,12 +325,13 @@ void GhostState::Render(const Pooka& ) const
 	
 }
 
-std::unique_ptr<PookaState> GhostState::Update(Pooka& pooka, float deltaTime)
+std::unique_ptr<PookaState> GhostState::Update(Pooka& pooka, float )
 {
 	glm::vec2 pookaCenter{ m_PookaCollider->GetBoundingBox().x + m_PookaCollider->GetBoundingBox().w / 2.0f,
 						   m_PookaCollider->GetBoundingBox().y + m_PookaCollider->GetBoundingBox().h / 2.0f };
 
 	int index{ pooka.GetGridPtr()->GetCellIndex(pookaCenter) };
+	index = std::max(index, 0);
 	if (pooka.GetGridPtr()->GetGrid()[index].hasBeenDug && index != m_StartIndex)
 	{
 		m_IsRematerialising = true;
@@ -349,14 +351,16 @@ std::unique_ptr<PookaState> GhostState::Update(Pooka& pooka, float deltaTime)
 
 		targetPos = {
 			newTarget.x - m_PookaCollider->GetBoundingBox().w / 2.f,
-			newTarget.x - m_PookaCollider->GetBoundingBox().w / 2.f };
+			newTarget.y - m_PookaCollider->GetBoundingBox().h / 2.f };
+
+		std::cout << "Ghost target: " << targetPos.x << ", " << targetPos.y << "\n";
 	}
 
 	glm::vec2 direction = targetPos - pookaPos;
 
 	glm::vec2 normalizedDir = glm::normalize(direction);
 
-	pooka.GetOwner()->SetVelocity(normalizedDir * (MOVEMENT_SPEED * 5) * deltaTime);
+	pooka.GetOwner()->SetVelocity(normalizedDir * MOVEMENT_SPEED);
 
     return nullptr;
 }

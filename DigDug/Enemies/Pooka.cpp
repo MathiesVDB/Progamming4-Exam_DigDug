@@ -36,6 +36,8 @@ void Pooka::Render() const
 
 void Pooka::HandleCollision(const CollisionEvent& collision)
 {
+	if (dynamic_cast<PookaStates::GhostState*>(m_State.get()) != nullptr) return;
+
 	const auto& colliderTag{ collision.collider->GetComponent<ColliderComponent>()->GetTag() };
 	const auto& collidedTag{ collision.collided->GetComponent<ColliderComponent>()->GetTag() };
 

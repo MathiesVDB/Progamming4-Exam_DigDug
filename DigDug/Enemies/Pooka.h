@@ -41,7 +41,7 @@ public:
 	bool WasCrushed()	 const	{ return m_WasCrushed; }
 	bool IsLookingLeft() const	{ return m_IsLookingLeft; }
 	bool IsFleeing()	 const	{ return m_IsFleeing; }
-	bool IsDead()		 const  { return dynamic_cast<PookaStates::DeathState*>(m_State.get()) != nullptr; }
+	bool IsDeadly()		 const  { return dynamic_cast<PookaStates::MovingState*>(m_State.get()) != nullptr; }
 
 private:
 	GridComponent* m_GridPtr;
