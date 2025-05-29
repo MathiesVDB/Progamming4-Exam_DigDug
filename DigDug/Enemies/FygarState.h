@@ -21,8 +21,8 @@ namespace FygarStates
         virtual void OnEnter(Fygar&) {}
         virtual void OnExit(Fygar&) {}
 
-        const float MOVEMENT_SPEED{ 30.f };
-        const int   SNAP_DISTANCE{ 1 };
+        static constexpr float MOVEMENT_SPEED   { 30.f };
+        static constexpr int   SNAP_DISTANCE    {  1 };
 
     protected:
         SpriteComponent* m_Sprite{ nullptr };
@@ -121,8 +121,10 @@ namespace FygarStates
         const float ATTACK_TIME{ 2.f };
 
     private:
-        std::unique_ptr<SpriteComponent> m_AttackSprite;
+        void CreateFireGameObject(Fygar& fygar);
+
         dae::GameObject* m_AttackObject{ nullptr };
+        SpriteComponent* m_AttackSprite{ nullptr };
 
         float m_AccumulatedTime{};
     };

@@ -7,10 +7,9 @@
 #include "RealCollisionSystem.h"
 #include "Helpers.h"
 #include "PlayerState.h"
+
+class RopeComponent;
 class Level;
-//-----------------------------------------------------
-// Player Class									 
-//-----------------------------------------------------
 class GridComponent;
 class Player final : public dae::Component
 {
@@ -23,6 +22,8 @@ public:
 	void Update(float deltaTime) override;
 	void Render() const override;
 
+	void Attack();
+
 	void HandleCollision(const CollisionEvent& collision);
 	bool CanSwitchMovement(MoveDirection direction);
 
@@ -31,12 +32,14 @@ public:
 	void SetState(PlayerStates::PlayerState* state);
 	void SetLevelPtr(Level* level) { m_LevelPtr = level; }
 
-	GridComponent*		GetGridPtr()	const { return m_GridPtr;  }
-	Level*				GetLevelPtr()	const { return m_LevelPtr; }
-	MoveDirection		GetDirection()	const { return m_Direction;}
-	ColliderComponent*	GetCollider()	const { return m_Collider; }
-	bool				WasCrushed()	const { return m_WasCrushed; }
-	bool				IsDead()		const { return m_State == &PlayerStates::PlayerState::dying; }
+	GridComponent*			GetGridPtr()	const { return m_GridPtr;  }
+	RopeComponent*	GetRopePtr()	const { return m_Rope; }
+	Level*					GetLevelPtr()	const { return m_LevelPtr; }
+	MoveDirection			GetDirection()	const { return m_Direction;}
+	ColliderComponent*		GetCollider()	const { return m_Collider; }
+
+	bool					WasCrushed()	const { return m_WasCrushed; }
+	bool					IsDead()		const { return m_State == &PlayerStates::PlayerState::dying; }
 
 	//-------------------------------------------------
 	// Constants					
@@ -58,6 +61,7 @@ private:
 	bool m_WasCrushed{ false };
 
 	GridComponent*				m_GridPtr;
+	RopeComponent*		m_Rope;
 	Level*						m_LevelPtr; 
 	PlayerStates::PlayerState*	m_State;
 	ColliderComponent*			m_Collider;

@@ -2,6 +2,8 @@
 // Include Files
 //---------------------------
 #include "Player.h"
+#include "RopeComponent.h"
+#include "Fygar.h"
 #include "GameObject.h"
 #include "GridComponent.h"
 #include "Pooka.h"
@@ -15,6 +17,7 @@ Player::Player(dae::GameObject* owner, GridComponent* grid)
 		m_GridPtr{ grid }
 {
 	m_Collider = GetOwner()->GetComponent<ColliderComponent>();
+    m_Rope = GetOwner()->GetComponent<RopeComponent>();
 
     m_State = &PlayerStates::PlayerState::idling;
 
@@ -32,6 +35,17 @@ void Player::Update(float deltaTime)
 void Player::Render() const
 {
     m_State->Render(*this);
+}
+
+void Player::Attack()
+{
+    if (m_State != &PlayerStates::PlayerState::attacking)
+    {
+        SetState(&PlayerStates::PlayerState::attacking);
+        return;
+    }
+
+    m_Rope->ToggleAttacking();
 }
 
 void Player::SetState(PlayerStates::PlayerState* state)
@@ -71,10 +85,12 @@ void Player::HandleCollision(const CollisionEvent& collision)
 
 	if (colliderTag == Tag::ENEMY_ENTITY || collidedTag == Tag::ENEMY_ENTITY)
 	{
-        bool isPlayerDead{};
+        bool isPlayerDead{ true };
 
         if      (collision.collider->HasComponent<Pooka>()) isPlayerDead = collision.collider->GetComponent<Pooka>()->IsDeadly();
         else if (collision.collided->HasComponent<Pooka>()) isPlayerDead = collision.collided->GetComponent<Pooka>()->IsDeadly();
+        else if (collision.collider->HasComponent<Fygar>()) isPlayerDead = collision.collider->GetComponent<Fygar>()->IsDeadly();
+        else if (collision.collided->HasComponent<Fygar>()) isPlayerDead = collision.collided->GetComponent<Fygar>()->IsDeadly();
 
         if (!isPlayerDead) return;
 

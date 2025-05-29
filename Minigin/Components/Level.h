@@ -7,6 +7,7 @@
 #include "Component.h"
 #include "Scene.h"
 
+class RopeComponent;
 //-----------------------------------------------------
 // Level Class									 
 //-----------------------------------------------------
@@ -31,14 +32,14 @@ private:
 	// Private member functions								
 	//-------------------------------------------------
 	void SpawnPlayer(const glm::vec2& spawnPos);
-	void SpawnPooka(const glm::vec2& spawnPos) const;
-	void SpawnFygar(const glm::vec2& spawnPos) const;
-	void SpawnRock(const glm::vec2& spawnPos) const;
-	void SpawnDirtYellow(const glm::vec2& spawnPos) const;
+	void SpawnPooka(const glm::vec2& spawnPos)			 const;
+	void SpawnFygar(const glm::vec2& spawnPos)			 const;
+	void SpawnRock(const glm::vec2& spawnPos)			 const;
+	void SpawnDirtYellow(const glm::vec2& spawnPos)		 const;
 	void SpawnDirtOrangeLight(const glm::vec2& spawnPos) const;
-	void SpawnDirtOrangeDark(const glm::vec2& spawnPos) const;
-	void SpawnDirtRed(const glm::vec2& spawnPos) const;
-	void SpawnFlower(const glm::vec2& spawnPos) const;
+	void SpawnDirtOrangeDark(const glm::vec2& spawnPos)	 const;
+	void SpawnDirtRed(const glm::vec2& spawnPos)		 const;
+	void SpawnFlower(const glm::vec2& spawnPos)			 const;
 
 	//-------------------------------------------------
 	// Datamembers								

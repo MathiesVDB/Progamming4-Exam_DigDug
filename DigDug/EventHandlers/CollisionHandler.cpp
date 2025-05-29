@@ -5,12 +5,16 @@
 #include "Pooka.h"
 #include "Fygar.h"
 #include "Rock.h"
+#include "RopeComponent.h"
 
 void CollisionHandler::Notify(const dae::GameObject* gameObject, dae::EventID event)
 {
 	if (event != dae::EventRegistry::GetInstance().GetEventID("CollisionEvent")) return;
 
 	auto& collision = ServiceLocator::GetCollisionSystem().GetLastCollisionEvent();
+
+	if (gameObject->HasComponent<RopeComponent>())
+		gameObject->GetComponent<RopeComponent>()->HandleCollision(collision);
 
 	if (gameObject->HasComponent<Player>())
 		gameObject->GetComponent<Player>()->HandleCollision(collision);

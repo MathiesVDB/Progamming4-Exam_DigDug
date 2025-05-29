@@ -3,6 +3,7 @@
 #include "GridComponent.h"
 #include "Level.h"
 #include "Player.h"
+#include "RopeComponent.h"
 #include "SpriteComponent.h"
 
 namespace PlayerStates
@@ -312,25 +313,22 @@ namespace PlayerStates
 	{
 	}
 	
-	PlayerStates::PlayerState* AttackState::Update(Player& , float )
+	PlayerStates::PlayerState* AttackState::Update(Player& player, float deltaTime)
 	{
+		if (!player.GetRopePtr()->GetRopeStatus()) return &PlayerStates::PlayerState::moving;
+
 		//Set throw sprite in direction
+		SetPlayerThrow(player);
 
-		// Get Weapon
-
-		// If weapon does not hit enemy go back to idle
-
-		// If weapon hits go to pumpsprite
-
-		// if second pump takes too long go to idle
-
-		// if second pump is on time, increase enemy inflate
+		player.GetRopePtr()->Update(deltaTime);
 
 		return nullptr;
 	}
 
 	void AttackState::SetPlayerThrow(Player& player) const
 	{
+		m_Sprite->SetNewTexture("Sprites/Player/ThrowDarkSprite.png", 1, 4, 0, 0);
+
 		switch (player.GetDirection())
 		{
 		case MoveDirection::Left:
@@ -352,6 +350,12 @@ namespace PlayerStates
 	{
 		m_Sprite = player.GetOwner()->GetComponent<SpriteComponent>();
 		SetPlayerThrow(player);
+
+		glm::vec2 ropeStart{
+			player.GetOwner()->GetWorldPosition().x,
+			player.GetOwner()->GetWorldPosition().y + player.GetCollider()->GetBoundingBox().h / 3.f };
+
+		player.GetRopePtr()->ActivateRope(ropeStart, player.GetDirection());
 	}
 	
 	void AttackState::OnExit(Player& )

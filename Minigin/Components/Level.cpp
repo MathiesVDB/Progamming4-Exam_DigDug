@@ -15,6 +15,7 @@
 #include "Pooka.h"
 #include "Player.h"
 #include "Rock.h"
+#include "RopeComponent.h"
 
 //---------------------------
 // Constructor & Destructor
@@ -164,11 +165,37 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
 {
     auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
 
+//--------------------------------------------------------------------------------------------------------------------------
+//Create Rope (cannot make it seperate function without making a member variable to store rope before giving it to player)
+//--------------------------------------------------------------------------------------------------------------------------
+
+    //Start rope out of vision of the player
+    auto RopeHeadGameObject = std::make_unique<dae::GameObject>();
+    RopeHeadGameObject->AddComponent<TextureComponent>("Sprites/Player/Weapon/Right/RightHead.png");
+    RopeHeadGameObject->GetComponent<dae::Transform>()->SetPosition(-100, -100);
+    RopeHeadGameObject->AddComponent<ColliderComponent>(ROPE);
+    RopeHeadGameObject->SetRenderLayer(RenderLayer::Entity);
+
+    auto RopeMiddleGameObject = std::make_unique<dae::GameObject>();
+    RopeMiddleGameObject->AddComponent<TextureComponent>("Sprites/Player/Weapon/Right/RightMiddle.png");
+    RopeMiddleGameObject->GetComponent<dae::Transform>()->SetPosition(-100, -100);
+    RopeMiddleGameObject->SetRenderLayer(RenderLayer::Entity);
+
+    auto RopeTailGameObject = std::make_unique<dae::GameObject>();
+    RopeTailGameObject->AddComponent<TextureComponent>("Sprites/Player/Weapon/Right/RightTail.png");
+    RopeTailGameObject->GetComponent<dae::Transform>()->SetPosition(-100, -100);
+    RopeTailGameObject->SetRenderLayer(RenderLayer::Entity);
+
+//--------------------------------------------------------------------------------------------------------------------------
+//Create Player gameobject
+//--------------------------------------------------------------------------------------------------------------------------
+
     auto Player1 = std::make_unique<dae::GameObject>();
     Player1->AddComponent<SpriteComponent>("Sprites/Player/WalkingSprite.png", 1, 8, 0.25f, 0, 1);
     Player1->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
     Player1->AddComponent<HealthComponent>(3);
 	Player1->AddComponent<ColliderComponent>(FRIENDLY_ENTITY);
+    Player1->AddComponent<RopeComponent>(RopeHeadGameObject.get(), RopeMiddleGameObject.get(), RopeTailGameObject.get());
     Player1->AddComponent<Player>(m_GridComponent);
 	Player1->GetComponent<Player>()->SetLevelPtr(this);
 
@@ -184,6 +211,10 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
     auto damageSound = std::make_unique<DamageSound>(Player1.get(), "Dig Dug SFX (4).wav");
     Player1->GetComponent<HealthComponent>()->AddObserver(std::move(damageSound));
 
+//--------------------------------------------------------------------------------------------------------------------------
+//Add player controls
+//--------------------------------------------------------------------------------------------------------------------------
+
     auto& inputManager = InputManager::GetInstance();
 
     // Keyboard commands
@@ -192,7 +223,7 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
     inputManager.AddCommand(SDL_SCANCODE_S, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Down , 50.f));
     inputManager.AddCommand(SDL_SCANCODE_D, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Right, 50.f));
 
-    inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Down, std::make_unique<DamageCommand>(Player1.get()));
+    inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Down, std::make_unique<AttackCommand>(Player1.get()));
 
 	// Controller commands
     inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_UP   , KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Up   , 50.f));
@@ -200,11 +231,15 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
 	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN , KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Down , 50.f));
 	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Right, 50.f));
 
-	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<DamageCommand>(Player1.get()));
+	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<AttackCommand>(Player1.get()));
 
     Player1->SetRenderLayer(RenderLayer::Player);
     m_Scene.Add(Player1);
     m_Scene.Add(lifeDisplay1GameObject);
+
+    m_Scene.Add(RopeHeadGameObject);
+    m_Scene.Add(RopeMiddleGameObject);
+    m_Scene.Add(RopeTailGameObject);
 }
 
 void Level::SpawnPooka(const glm::vec2& spawnPos) const

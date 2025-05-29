@@ -65,10 +65,10 @@ private:
 	bool m_IsEnemy{ false };
 };
 
-class DamageCommand final : public Command
+class AttackCommand final : public Command
 {
 public:
-	explicit DamageCommand(dae::GameObject* owner)
+	explicit AttackCommand(dae::GameObject* owner)
 		: m_Owner(owner)
 	{
 		if (owner->HasComponent<Player>()) m_Player = owner->GetComponent<Player>();
@@ -77,12 +77,12 @@ public:
 
 	void Execute() override
 	{
-		m_Player->SetState(&PlayerStates::PlayerState::attacking);
+		m_Player->Attack();
 
-		if (auto health = m_Owner->GetComponent<HealthComponent>())
-		{
-			health->TakeDamage(1);
-		}
+		//if (auto health = m_Owner->GetComponent<HealthComponent>())
+		//{
+		//	health->TakeDamage(1);
+		//}
 	}
 
 private:

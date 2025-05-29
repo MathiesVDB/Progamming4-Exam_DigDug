@@ -13,7 +13,12 @@ using namespace FygarStates;
 
 std::unique_ptr<FygarState> MovingState::Update(Fygar& fygar, float deltaTime)
 {
-	if (m_AccumulatedTime >= GHOST_TIMER) return std::make_unique<AttackState>();
+	auto fygarPos{ fygar.GetOwner()->GetWorldPosition() };
+
+	if (m_AccumulatedTime >= GHOST_TIMER && std::abs(fygar.GetTarget().y - fygarPos.y) <= 10.f)
+	{
+		return std::make_unique<AttackState>();
+	}
 
 	m_AccumulatedTime += deltaTime;
 
@@ -358,23 +363,42 @@ void GhostState::OnExit(Fygar&)
 
 std::unique_ptr<FygarState> AttackState::Update(Fygar& fygar, float deltaTime)
 {
+	if (fygar.IsLookingLeft())
+	{
+		auto fygarPos{ fygar.GetOwner()->GetWorldPosition() };
+		m_AttackObject->SetLocalPosition({ fygarPos.x - m_AttackSprite->GetSpriteSize().x, fygarPos.y });
+	}
+
 	m_AccumulatedTime += deltaTime;
 
 	if (m_AccumulatedTime >= ATTACK_TIME) fygar.SetState(std::make_unique<MovingState>());
+
+	if (fygar.IsLookingLeft())	fygar.GetOwner()->GetComponent<SpriteComponent>()->SetSpriteBounds(8, 8, true);
+	else						fygar.GetOwner()->GetComponent<SpriteComponent>()->SetSpriteBounds(0, 0, true);
 
     return nullptr;
 }
 
 void AttackState::OnEnter(Fygar& fygar)
 {
-	m_Collider = fygar.GetOwner()->GetComponent<ColliderComponent>();
-	auto fygarPos = fygar.GetOwner()->GetWorldPosition();
+	m_Sprite	= fygar.GetOwner()->GetComponent<SpriteComponent>();
+	m_Collider	= fygar.GetOwner()->GetComponent<ColliderComponent>();
+
+	CreateFireGameObject(fygar);
+
+	if (fygar.IsLookingLeft()) m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 8, 8);
+	else					   m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0, 0);
+}
+
+void AttackState::CreateFireGameObject(Fygar& fygar)
+{
+	auto fygarPos{ fygar.GetOwner()->GetWorldPosition() };
 
 	auto FygarAttackGameObject = std::make_unique<dae::GameObject>();
 	m_AttackObject = FygarAttackGameObject.get();
 
 	if (fygar.IsLookingLeft())	FygarAttackGameObject->AddComponent<SpriteComponent>("Sprites/Fygar/FireSprite.png", 2, 6, ATTACK_TIME / 3, 6, 11, true);
-	else						FygarAttackGameObject->AddComponent<SpriteComponent>("Sprites/Fygar/FireSprite.png", 2, 6, ATTACK_TIME / 3, 0,  2, true);
+	else						FygarAttackGameObject->AddComponent<SpriteComponent>("Sprites/Fygar/FireSprite.png", 2, 6, ATTACK_TIME / 3, 0, 2, true);
 
 	FygarAttackGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
 
@@ -383,9 +407,9 @@ void AttackState::OnEnter(Fygar& fygar)
 
 	FygarAttackGameObject->SetRenderLayer(RenderLayer::Entity);
 
-	dae::SceneManager::GetInstance().GetActiveScene().Add(FygarAttackGameObject);
+	m_AttackSprite = m_AttackObject->GetComponent<SpriteComponent>();
 
-    fygar.GetOwner()->GetComponent<SpriteComponent>()->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0, 0);
+	dae::SceneManager::GetInstance().GetActiveScene().Add(FygarAttackGameObject);
 }
 
 void AttackState::OnExit(Fygar&)
