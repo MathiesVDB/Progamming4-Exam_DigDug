@@ -5,11 +5,6 @@
 #include "RealCollisionSystem.h"
 
 //-----------------------------------------------------
-// Include Files
-//-----------------------------------------------------
-
-
-//-----------------------------------------------------
 // Fygar Class									 
 //-----------------------------------------------------
 class Fygar final : public dae::Component
@@ -23,6 +18,7 @@ public:
 	void Update(float deltaTime) override;
 
 	void HandleCollision(const CollisionEvent& collision);
+	RopeComponent* GetRopeFromCollision(const CollisionEvent& collision);
 
 	void SetState(std::unique_ptr<FygarStates::FygarState> newState);
 

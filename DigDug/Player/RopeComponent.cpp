@@ -29,19 +29,7 @@ void RopeComponent::Update(float deltaTime)
 	if (!m_Active)
 		return;
 
-	if (m_HasHit)
-	{
-		if (m_IsAttacking)
-		{
-			if (m_HitTarget->HasComponent<Pooka>())
-				m_HitTarget->GetComponent<Pooka>()->IncreaseInflation();
-			else if (m_HitTarget->HasComponent<Fygar>())
-				m_HitTarget->GetComponent<Fygar>()->IncreaseInflation();
-			
-			ToggleAttacking();
-		}
-		return;
-	}
+	if (m_HasHit) return;
 
 	const float movement = ROPE_SPEED * deltaTime;
 	m_ElapsedDistance += movement;
@@ -75,44 +63,43 @@ void RopeComponent::Update(float deltaTime)
 	// Move rope out of screen when at max distance
 	if (m_ElapsedDistance >= m_Width * 3)
 	{
-		m_Active = false;
-
-		const glm::vec2 offscreenPos{ -100.f, -100.f };
-
-		auto moveOffscreenIfNeeded = [&](dae::GameObject* segment)
-			{
-				if (segment->GetWorldPosition() != offscreenPos)
-				{
-					segment->SetLocalPosition(offscreenPos);
-				}
-			};
-
-		moveOffscreenIfNeeded(m_RopeHead);
-		moveOffscreenIfNeeded(m_RopeMiddle);
-		moveOffscreenIfNeeded(m_RopeTail);
+		ResetRope();
 	}
 }
 
 void RopeComponent::HandleCollision(const CollisionEvent& collision)
 {
-	if (m_HasHit || !m_Active)
-		return;
+	if (!m_Active) return;
 
 	const auto& colliderTag = collision.collider->GetComponent<ColliderComponent>()->GetTag();
 	const auto& collidedTag = collision.collided->GetComponent<ColliderComponent>()->GetTag();
 
-	bool colliderIsEnemy = colliderTag == Tag::ENEMY_ENTITY;
-	bool collidedIsEnemy = collidedTag == Tag::ENEMY_ENTITY;
+	bool colliderIsGround = colliderTag == GROUND;
+	bool collidedIsGround = collidedTag == GROUND;
 
-	if (colliderIsEnemy || collidedIsEnemy)
+	if (colliderIsGround || collidedIsGround)
 	{
-		m_HasHit = true;
-
-		if (colliderIsEnemy)
-			m_HitTarget = collision.collider;
-		else if (collidedIsEnemy)
-			m_HitTarget = collision.collided;
+		ResetRope();
 	}
+}
+
+void RopeComponent::ResetRope()
+{
+	m_Active = false;
+
+	constexpr glm::vec2 offscreenPos{ -100.f, -100.f };
+
+	auto moveOffscreenIfNeeded = [&](dae::GameObject* segment)
+		{
+			if (segment->GetWorldPosition() != offscreenPos)
+			{
+				segment->SetLocalPosition(offscreenPos);
+			}
+		};
+
+	moveOffscreenIfNeeded(m_RopeHead);
+	moveOffscreenIfNeeded(m_RopeMiddle);
+	moveOffscreenIfNeeded(m_RopeTail);
 }
 
 void RopeComponent::ActivateRope(const glm::vec2& startPos, MoveDirection shootDirection)

@@ -182,6 +182,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Enemies\RockState.h" />
     <ClInclude Include="Player\RopeComponent.h" />
+    <ClInclude Include="Player\RopeHeadComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DigDug.rc" />

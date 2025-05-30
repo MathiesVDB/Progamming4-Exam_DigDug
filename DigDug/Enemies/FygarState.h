@@ -74,6 +74,8 @@ namespace FygarStates
         const float RESET_THRESHOLD{ 1.f }; // Time player has to inflate again before inflation is reset
 
     private:
+        glm::vec2 m_StartPos{};
+
         float m_ResetTimer{};
 
         Inflated m_PreviousState{ Inflated::None };

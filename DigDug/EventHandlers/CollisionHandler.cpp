@@ -13,9 +13,6 @@ void CollisionHandler::Notify(const dae::GameObject* gameObject, dae::EventID ev
 
 	auto& collision = ServiceLocator::GetCollisionSystem().GetLastCollisionEvent();
 
-	if (gameObject->HasComponent<RopeComponent>())
-		gameObject->GetComponent<RopeComponent>()->HandleCollision(collision);
-
 	if (gameObject->HasComponent<Player>())
 		gameObject->GetComponent<Player>()->HandleCollision(collision);
 

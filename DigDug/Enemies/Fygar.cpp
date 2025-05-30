@@ -6,8 +6,10 @@
 #include "GameObject.h"
 #include "PookaState.h"
 #include "Rock.h"
+#include "RopeHeadComponent.h"
 #include "SceneManager.h"
 #include "Scene.h"
+#include "RopeComponent.h"
 
 //---------------------------
 // Constructor & Destructor
@@ -37,6 +39,8 @@ void Fygar::Update(float deltaTime)
 
 void Fygar::HandleCollision(const CollisionEvent& collision)
 {
+	if (dynamic_cast<FygarStates::GhostState*>(m_State.get()) != nullptr) return;
+
 	const auto& colliderTag{ collision.collider->GetComponent<ColliderComponent>()->GetTag() };
 	const auto& collidedTag{ collision.collided->GetComponent<ColliderComponent>()->GetTag() };
 
@@ -52,6 +56,40 @@ void Fygar::HandleCollision(const CollisionEvent& collision)
 			SetState(std::make_unique<FygarStates::DeathState>());
 		}
 	}
+	else if (collidedTag == ROPE || colliderTag == ROPE)
+	{
+		if (m_InflatedState == Inflated::Exploded || dynamic_cast<FygarStates::DeathState*>(m_State.get()) != nullptr) return;
+
+		RopeComponent* rope = GetRopeFromCollision(collision);
+
+		if (dynamic_cast<FygarStates::InflatedState*>(m_State.get()) == nullptr)
+		{
+			SetState(std::make_unique<FygarStates::InflatedState>());
+			rope->SetHasHit();
+		}
+
+		if (rope && rope->IsAttacking())
+		{
+			IncreaseInflation();
+			rope->ToggleAttacking();
+			rope->SetHasHit();
+		}
+	}
+}
+
+RopeComponent* Fygar::GetRopeFromCollision(const CollisionEvent& collision)
+{
+	dae::GameObject* ropeObj = nullptr;
+
+	if (collision.collided->HasComponent<RopeHeadComponent>())
+		ropeObj = collision.collided;
+	else if (collision.collider->HasComponent<RopeHeadComponent>())
+		ropeObj = collision.collider;
+
+	if (ropeObj)
+		return ropeObj->GetComponent<RopeHeadComponent>()->GetRopeOwner();
+
+	return nullptr;
 }
 
 void Fygar::SetState(std::unique_ptr<FygarStates::FygarState> newState)

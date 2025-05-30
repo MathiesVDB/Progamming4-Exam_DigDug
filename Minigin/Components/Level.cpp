@@ -16,6 +16,7 @@
 #include "Player.h"
 #include "Rock.h"
 #include "RopeComponent.h"
+#include "RopeHeadComponent.h"
 
 //---------------------------
 // Constructor & Destructor
@@ -195,9 +196,11 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
     Player1->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
     Player1->AddComponent<HealthComponent>(3);
 	Player1->AddComponent<ColliderComponent>(FRIENDLY_ENTITY);
-    Player1->AddComponent<RopeComponent>(RopeHeadGameObject.get(), RopeMiddleGameObject.get(), RopeTailGameObject.get());
+    auto ropeComponent = Player1->AddComponent<RopeComponent>(RopeHeadGameObject.get(), RopeMiddleGameObject.get(), RopeTailGameObject.get());
     Player1->AddComponent<Player>(m_GridComponent);
 	Player1->GetComponent<Player>()->SetLevelPtr(this);
+
+    RopeHeadGameObject->AddComponent<RopeHeadComponent>(ropeComponent);
 
     int player1Lives = Player1->GetComponent<HealthComponent>()->GetLives();
 

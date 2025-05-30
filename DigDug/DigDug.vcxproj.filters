@@ -104,6 +104,9 @@
     <ClInclude Include="Enemies\FygarState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Player\RopeHeadComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DigDug.rc">

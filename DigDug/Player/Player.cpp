@@ -78,6 +78,7 @@ void Player::SnapToCellCenter()
 
 void Player::HandleCollision(const CollisionEvent& collision)
 {
+    if (m_State == &PlayerStates::PlayerState::attacking) m_Rope->HandleCollision(collision);
     if (m_State == &PlayerStates::PlayerState::dying) return;
 
     const auto& colliderTag{ collision.collider->GetComponent<ColliderComponent>()->GetTag() };

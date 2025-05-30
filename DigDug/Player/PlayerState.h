@@ -100,5 +100,10 @@ namespace PlayerStates
 
     private:
         void SetPlayerThrow(Player& player) const;
+        void SetPlayerPump(Player& player);
+
+        bool m_IsPumping{ false };
+        bool m_InitializedPump{ false };
+        int m_StartPumpFrame{ 0 };
     };
 }

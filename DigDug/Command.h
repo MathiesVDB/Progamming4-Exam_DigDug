@@ -1,7 +1,6 @@
 #pragma once
 #include "Transform.h"
 #include "GameObject.h"
-#include "HealthComponent.h"
 #include "Player.h"
 
 class Command
@@ -77,6 +76,8 @@ public:
 
 	void Execute() override
 	{
+		if (m_Player->IsDead()) return;
+
 		m_Player->Attack();
 
 		//if (auto health = m_Owner->GetComponent<HealthComponent>())

@@ -203,17 +203,6 @@ void MovingState::OnEnter(Pooka& pooka)
     m_Sprite = pooka.GetOwner()->GetComponent<SpriteComponent>();
 	m_Collider = pooka.GetOwner()->GetComponent<ColliderComponent>();
 
-	//Set position to center
-	int index{ pooka.GetGridPtr()->GetCellIndex(pooka.GetOwner()->GetLocalPosition()) };
-	auto cellCenter{ pooka.GetGridPtr()->GetGrid()[index].centerPoint };
-
-	glm::vec2 snapPosition{
-		cellCenter.x - m_Collider->GetBoundingBox().w / 2.f,
-		cellCenter.y - m_Collider->GetBoundingBox().h / 2.f,
-	};
-
-	pooka.GetOwner()->SetLocalPosition(snapPosition);
-
 	//Setup animation
     if (pooka.IsLookingLeft())  m_Sprite->SetNewTexture("Sprites/Pooka/PookaDefaultSprite.png", 2, 5, 5, 6);
     else                        m_Sprite->SetNewTexture("Sprites/Pooka/PookaDefaultSprite.png", 2, 5, 0, 1);
@@ -229,10 +218,27 @@ void MovingState::OnExit(Pooka&)
 
 void InflatedState::Render(const Pooka& ) const
 {
+	SDL_Renderer* sdlRenderer = dae::Renderer::GetInstance().GetSDLRenderer();
+	SDL_SetRenderDrawColor(sdlRenderer, 255, 0, 0, 255);
+
+	SDL_Rect cellRect{
+		static_cast<int>(m_StartPos.x),
+		static_cast<int>(m_StartPos.y),
+		10,
+		10 };
+
+	SDL_RenderFillRect(sdlRenderer, &cellRect);
 }
 
 std::unique_ptr<PookaState> InflatedState::Update(Pooka& pooka, float deltaTime)
 {
+	if (pooka.GetInflatedState() == Inflated::Exploded)
+	{
+		m_Sprite->SetSpriteBounds(3, 3, true);
+		m_ResetTimer = 0.f;
+		return std::make_unique<DeathState>();
+	}
+
     if (pooka.GetInflatedState() == m_PreviousState)
     {
         m_ResetTimer += deltaTime;
@@ -257,10 +263,6 @@ std::unique_ptr<PookaState> InflatedState::Update(Pooka& pooka, float deltaTime)
 		m_Sprite->SetSpriteBounds(2, 2, true);
 		m_ResetTimer = 0.f;
 		break;
-	case Inflated::Exploded:
-		m_Sprite->SetSpriteBounds(3, 3, true);
-		m_ResetTimer = 0.f;
-		pooka.ResetInflation();
     }
 
     return nullptr;
@@ -271,13 +273,18 @@ void InflatedState::OnEnter(Pooka& pooka)
 	m_ResetTimer = 0.f;
 	m_Sprite = pooka.GetOwner()->GetComponent<SpriteComponent>();
 
-    if (pooka.IsLookingLeft())  m_Sprite->SetNewTexture("Sprites/Pooka/PookaInflateLeftSprite.png" , 1, 4, 0, 0);
-    else                        m_Sprite->SetNewTexture("Sprites/Pooka/PookaInflateRightSprite.png", 1, 4, 0, 0);
+	m_StartPos = pooka.GetOwner()->GetWorldPosition();
+
+    m_Sprite->SetNewTexture("Sprites/Pooka/PookaInflateRightSprite.png", 1, 4, 0, 0);
 }
 
 void InflatedState::OnExit(Pooka& pooka)
 {
-    pooka.ResetInflation();
+	if (m_PreviousState != Inflated::Exploded)
+	{
+		pooka.ResetInflation();
+		pooka.GetOwner()->SetLocalPosition(m_StartPos);
+	}
 }
 
 //-----------------------------------------------------
@@ -376,6 +383,16 @@ void GhostState::OnEnter(Pooka& pooka)
 	m_StartIndex = pooka.GetGridPtr()->GetCellIndex(pooka.GetOwner()->GetWorldPosition());
 }
 
-void GhostState::OnExit(Pooka&)
+void GhostState::OnExit(Pooka& pooka)
 {
+	//Set position to center
+	int index{ pooka.GetGridPtr()->GetCellIndex(pooka.GetOwner()->GetLocalPosition()) };
+	auto cellCenter{ pooka.GetGridPtr()->GetGrid()[index].centerPoint };
+
+	glm::vec2 snapPosition{
+		cellCenter.x - m_PookaCollider->GetBoundingBox().w / 2.f,
+		cellCenter.y - m_PookaCollider->GetBoundingBox().h / 2.f,
+	};
+
+	pooka.GetOwner()->SetLocalPosition(snapPosition);
 }

@@ -1,5 +1,5 @@
 #include "GameObject.h"
-
+#include <algorithm>
 #include <windows.h>
 
 namespace dae
@@ -87,8 +87,11 @@ namespace dae
 
     void GameObject::SetLocalPosition(const glm::vec2& pos)
     {
-		m_LocalPosition = pos;
-		SetPositionDirty();
+        float clampedX = std::clamp(pos.x, static_cast<float>(WORLD_BOUNDS.x), static_cast<float>(WORLD_BOUNDS.x + WORLD_BOUNDS.w));
+        float clampedY = std::clamp(pos.y, static_cast<float>(WORLD_BOUNDS.y), static_cast<float>(WORLD_BOUNDS.y + WORLD_BOUNDS.h));
+
+        m_LocalPosition = { clampedX, clampedY };
+        SetPositionDirty();
     }
 
     const glm::vec2& GameObject::GetWorldPosition()

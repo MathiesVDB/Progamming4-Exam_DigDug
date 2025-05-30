@@ -1,11 +1,13 @@
 #pragma once
 #include <iostream>
 #include <memory>
+#include <SDL_rect.h>
 #include <typeindex>
 #include <type_traits>
 #include <unordered_map>
 #include "Component.h"
 #include "Helpers.h"
+#include "Minigin.h"
 #include "Transform.h"
 #include "TextObject.h"
 
@@ -59,7 +61,7 @@ namespace dae
 		template <typename T>
 		bool HasComponent() const;
 
-
+        const SDL_Rect WORLD_BOUNDS{ 0, 40, dae::Minigin::WINDOW_WIDTH - 40, dae::Minigin::WINDOW_HEIGHT - 120 };
 
 	private:
 		//---------------------------------------------------------------------------------

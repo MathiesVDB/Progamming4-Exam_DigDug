@@ -24,6 +24,7 @@ public:
 	void Render() const override;
 
 	void HandleCollision(const CollisionEvent& collision);
+	RopeComponent* GetRopeFromCollision(const CollisionEvent& collision);
 
 	void SetState(std::unique_ptr<PookaStates::PookaState> newState);
 

@@ -315,10 +315,15 @@ namespace PlayerStates
 	
 	PlayerStates::PlayerState* AttackState::Update(Player& player, float deltaTime)
 	{
+		if (player.GetOwner()->GetVelocity() != glm::vec2{ 0, 0 }) return &PlayerStates::PlayerState::moving;
+
 		if (!player.GetRopePtr()->GetRopeStatus()) return &PlayerStates::PlayerState::moving;
 
-		//Set throw sprite in direction
-		SetPlayerThrow(player);
+		if (player.GetRopePtr()->GetHasHit() && !m_InitializedPump) m_IsPumping = true;
+		if (m_IsPumping) SetPlayerPump(player);
+
+		if (player.GetRopePtr()->IsAttacking()) m_Sprite->SetSpriteBounds(++m_StartPumpFrame, ++m_StartPumpFrame, true);
+		else									m_Sprite->SetSpriteBounds(  m_StartPumpFrame  , m_StartPumpFrame, true);
 
 		player.GetRopePtr()->Update(deltaTime);
 
@@ -345,6 +350,29 @@ namespace PlayerStates
 			break;
 		}
 	}
+
+	void AttackState::SetPlayerPump(Player& player)
+	{
+		m_Sprite->SetNewTexture("Sprites/Player/PumpSprite.png", 1, 16, 0, 0);
+
+		switch (player.GetDirection())
+		{
+		case MoveDirection::Left:
+			m_Sprite->SetSpriteBounds(2, 2, true);
+			break;
+		case MoveDirection::Right:
+			m_Sprite->SetSpriteBounds(0, 0, true);
+			break;
+		case MoveDirection::Up:
+			m_Sprite->SetSpriteBounds(1, 1, true);
+			break;
+		case MoveDirection::Down:
+			m_Sprite->SetSpriteBounds(3, 3, true);
+			break;
+		}
+		m_StartPumpFrame = m_Sprite->GetCurrentFrame();
+		m_InitializedPump = true;
+	}
 	
 	void AttackState::OnEnter(Player& player)
 	{
@@ -358,8 +386,9 @@ namespace PlayerStates
 		player.GetRopePtr()->ActivateRope(ropeStart, player.GetDirection());
 	}
 	
-	void AttackState::OnExit(Player& )
+	void AttackState::OnExit(Player& player)
 	{
+		player.GetRopePtr()->ResetRope();
 	}
 	
 	//-----------------------------------------------------

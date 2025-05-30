@@ -193,17 +193,6 @@ void MovingState::OnEnter(Fygar& fygar)
 	m_Sprite	= fygar.GetOwner()->GetComponent<SpriteComponent>();
 	m_Collider	= fygar.GetOwner()->GetComponent<ColliderComponent>();
 
-	//Set position to center
-	int index{ fygar.GetGridPtr()->GetCellIndex(fygar.GetOwner()->GetLocalPosition()) };
-	auto cellCenter{ fygar.GetGridPtr()->GetGrid()[index].centerPoint };
-
-	glm::vec2 snapPosition{
-		cellCenter.x - m_Collider->GetBoundingBox().w / 2.f,
-		cellCenter.y - m_Collider->GetBoundingBox().h / 2.f,
-	};
-
-	fygar.GetOwner()->SetLocalPosition(snapPosition);
-
 	//Setup animation
 	if (fygar.IsLookingLeft())  m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 8, 9);
 	else                        m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0, 1);
@@ -219,51 +208,59 @@ void MovingState::OnExit(Fygar&)
 
 std::unique_ptr<FygarState> InflatedState::Update(Fygar& fygar, float deltaTime)
 {
-    if (fygar.GetInflatedState() == m_PreviousState)
-    {
-        m_ResetTimer += deltaTime;
+	if (fygar.GetInflatedState() == Inflated::Exploded)
+	{
+		m_Sprite->SetSpriteBounds(3, 3, true);
+		m_ResetTimer = 0.f;
+		return std::make_unique<DeathState>();
+	}
 
-        if (m_ResetTimer >= RESET_THRESHOLD) return std::make_unique<MovingState>();
-        return nullptr;
-    }
+	if (fygar.GetInflatedState() == m_PreviousState)
+	{
+		m_ResetTimer += deltaTime;
 
-    m_PreviousState = fygar.GetInflatedState();
+		if (m_ResetTimer >= RESET_THRESHOLD) return std::make_unique<MovingState>();
+		return nullptr;
+	}
 
-    switch (m_PreviousState)
-    {
-    case Inflated::Stage1:
-        m_Sprite->SetSpriteBounds(0, 0, true);
-        m_ResetTimer = 0.f;
-        break;
-    case Inflated::Stage2:
-        m_Sprite->SetSpriteBounds(1, 1, true);
-        m_ResetTimer = 0.f;
-        break;
-    case Inflated::Stage3:
-        m_Sprite->SetSpriteBounds(2, 2, true);
-        m_ResetTimer = 0.f;
-        break;
-    case Inflated::Exploded:
-        m_Sprite->SetSpriteBounds(3, 3, true);
-        m_ResetTimer = 0.f;
-        fygar.ResetInflation();
-    }
+	m_PreviousState = fygar.GetInflatedState();
 
-    return nullptr;
+	switch (m_PreviousState)
+	{
+	case Inflated::Stage1:
+		m_Sprite->SetSpriteBounds(0, 0, true);
+		m_ResetTimer = 0.f;
+		break;
+	case Inflated::Stage2:
+		m_Sprite->SetSpriteBounds(1, 1, true);
+		m_ResetTimer = 0.f;
+		break;
+	case Inflated::Stage3:
+		m_Sprite->SetSpriteBounds(2, 2, true);
+		m_ResetTimer = 0.f;
+		break;
+	}
+
+	return nullptr;
 }
 
 void InflatedState::OnEnter(Fygar& fygar)
 {
-    m_ResetTimer = 0.f;
-    m_Sprite = fygar.GetOwner()->GetComponent<SpriteComponent>();
+	m_ResetTimer = 0.f;
+	m_Sprite = fygar.GetOwner()->GetComponent<SpriteComponent>();
 
-    if (fygar.IsLookingLeft())  m_Sprite->SetNewTexture("Sprites/Fygar/FygarInflateLeftSprite.png" , 1, 4, 0, 0);
-    else                        m_Sprite->SetNewTexture("Sprites/Fygar/FygarInflateRightSprite.png", 1, 4, 0, 0);
+	m_StartPos = fygar.GetOwner()->GetWorldPosition();
+
+	m_Sprite->SetNewTexture("Sprites/Fygar/FygarInflateRightSprite.png", 1, 4, 0, 0);
 }
 
-void InflatedState::OnExit(Fygar& pooka)
+void InflatedState::OnExit(Fygar& fygar)
 {
-    pooka.ResetInflation();
+	if (m_PreviousState != Inflated::Exploded)
+	{
+		fygar.ResetInflation();
+		fygar.GetOwner()->SetLocalPosition(m_StartPos);
+	}
 }
 
 //-----------------------------------------------------
@@ -353,8 +350,18 @@ void GhostState::OnEnter(Fygar& fygar)
     m_StartIndex = fygar.GetGridPtr()->GetCellIndex(fygar.GetOwner()->GetWorldPosition());
 }
 
-void GhostState::OnExit(Fygar&)
+void GhostState::OnExit(Fygar& fygar)
 {
+	//Set position to center
+	int index{ fygar.GetGridPtr()->GetCellIndex(fygar.GetOwner()->GetLocalPosition()) };
+	auto cellCenter{ fygar.GetGridPtr()->GetGrid()[index].centerPoint };
+
+	glm::vec2 snapPosition{
+		cellCenter.x - m_FygarCollider->GetBoundingBox().w / 2.f,
+		cellCenter.y - m_FygarCollider->GetBoundingBox().h / 2.f
+	};
+
+	fygar.GetOwner()->SetLocalPosition(snapPosition);
 }
 
 //-----------------------------------------------------

@@ -3,6 +3,8 @@
 #include "GameObject.h"
 #include "Renderer.h"
 #include "Rock.h"
+#include "RopeComponent.h"
+#include "RopeHeadComponent.h"
 #include "Scene.h"
 #include "SceneManager.h"
 
@@ -53,7 +55,43 @@ void Pooka::HandleCollision(const CollisionEvent& collision)
 			SetState(std::make_unique<PookaStates::DeathState>());
 		}
 	}
+	else if (collidedTag == ROPE || colliderTag == ROPE)
+	{
+		if (m_InflatedState == Inflated::Exploded || dynamic_cast<PookaStates::DeathState*>(m_State.get()) != nullptr) return;
+
+		RopeComponent* rope = GetRopeFromCollision(collision);
+
+		if (dynamic_cast<PookaStates::InflatedState*>(m_State.get()) == nullptr)
+		{
+			SetState(std::make_unique<PookaStates::InflatedState>());
+			rope->SetHasHit();
+		}
+
+		if (rope && rope->IsAttacking())
+		{
+			IncreaseInflation();
+			rope->ToggleAttacking();
+			rope->SetHasHit();
+		}
+	}
+
 }
+
+RopeComponent* Pooka::GetRopeFromCollision(const CollisionEvent& collision)
+{
+	dae::GameObject* ropeObj = nullptr;
+
+	if (collision.collided->HasComponent<RopeHeadComponent>())
+		ropeObj = collision.collided;
+	else if (collision.collider->HasComponent<RopeHeadComponent>())
+		ropeObj = collision.collider;
+
+	if (ropeObj)
+		return ropeObj->GetComponent<RopeHeadComponent>()->GetRopeOwner();
+
+	return nullptr;
+}
+
 
 void Pooka::SetState(std::unique_ptr<PookaStates::PookaState> newState)
 {

@@ -19,14 +19,19 @@ class RopeComponent : public dae::Component
 public:
 	RopeComponent(dae::GameObject* owner, dae::GameObject* head, dae::GameObject* middle, dae::GameObject* tail);
 
-	void Update(float deltaTime);
+	void Update(float deltaTime) override;
 	void HandleCollision(const CollisionEvent& collision);
+
+	void ResetRope();
 
 	void ActivateRope(const glm::vec2& startPos, MoveDirection shootDirection);
 	void ChangeRopeTexture(MoveDirection shootDirection) const;
 
 	bool GetRopeStatus() const { return m_Active; }
+	bool IsAttacking()	 const { return m_IsAttacking; }
 
+	void SetHasHit() { m_HasHit = true; }
+	bool GetHasHit() const { return m_HasHit; }
 	void ToggleAttacking() { m_IsAttacking = !m_IsAttacking; }
 
 	static constexpr float ROPE_SPEED{ 200.f };
