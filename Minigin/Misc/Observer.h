@@ -65,16 +65,16 @@ namespace dae
 	class Subject
 	{
 	public:
-		void AddObserver(std::unique_ptr<Observer> observer)
+		void AddObserver(std::shared_ptr<Observer> observer)
 		{
-			m_Observers.push_back(std::move(observer));
+			m_Observers.push_back(observer);
 		}
 
 		void RemoveObserver(const Observer* observer)
 		{
 			std::erase_if(
 				m_Observers,
-				[observer](const std::unique_ptr<Observer>& ptr) { return ptr.get() == observer; }
+				[observer](const std::shared_ptr<Observer>& ptr) { return ptr.get() == observer; }
 			);
 		}
 
@@ -88,6 +88,6 @@ namespace dae
 		}
 
 	private:
-		std::vector<std::unique_ptr<Observer>> m_Observers;
+		std::vector<std::shared_ptr<Observer>> m_Observers;
 	};
 }

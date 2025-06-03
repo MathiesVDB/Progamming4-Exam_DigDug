@@ -49,7 +49,6 @@ void GridComponent::CreateGrid()
 	}
 }
 
-
 void GridComponent::DrawGrid() const
 {
 	SDL_Renderer* sdlRenderer = dae::Renderer::GetInstance().GetSDLRenderer();

@@ -4,9 +4,11 @@
 //-----------------------------------------------------
 #include "Component.h"
 #include "ColliderComponent.h"
+#include "GameObject.h"
 #include "RealCollisionSystem.h"
 #include "Helpers.h"
 #include "PlayerState.h"
+#include "HealthComponent.h"
 
 class RopeComponent;
 class Level;
@@ -31,12 +33,14 @@ public:
 
 	void SetState(PlayerStates::PlayerState* state);
 	void SetLevelPtr(Level* level) { m_LevelPtr = level; }
+	void ResetPlayer() const { GetOwner()->SetLocalPosition(m_SpawnPosition); }
 
-	GridComponent*			GetGridPtr()	const { return m_GridPtr;  }
-	RopeComponent*	GetRopePtr()	const { return m_Rope; }
-	Level*					GetLevelPtr()	const { return m_LevelPtr; }
-	MoveDirection			GetDirection()	const { return m_Direction;}
-	ColliderComponent*		GetCollider()	const { return m_Collider; }
+	GridComponent*			GetGridPtr()	const { return m_GridPtr;	}
+	RopeComponent*			GetRopePtr()	const { return m_Rope;		}
+	Level*					GetLevelPtr()	const { return m_LevelPtr;	}
+	MoveDirection			GetDirection()	const { return m_Direction;	}
+	ColliderComponent*		GetCollider()	const { return m_Collider;	}
+	HealthComponent*		GetHealth()		const { return m_Health;	}
 
 	bool					WasCrushed()	const { return m_WasCrushed; }
 	bool					IsDead()		const { return m_State == &PlayerStates::PlayerState::dying; }
@@ -60,10 +64,13 @@ private:
 	//-------------------------------------------------
 	bool m_WasCrushed{ false };
 
+	glm::vec2 m_SpawnPosition{};
+
 	GridComponent*				m_GridPtr;
-	RopeComponent*		m_Rope;
+	RopeComponent*				m_Rope;
 	Level*						m_LevelPtr; 
 	PlayerStates::PlayerState*	m_State;
 	ColliderComponent*			m_Collider;
 	MoveDirection				m_Direction;
+	HealthComponent*			m_Health;
 };

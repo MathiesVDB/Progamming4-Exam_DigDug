@@ -24,7 +24,7 @@
     <ClCompile Include="HealthDisplayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EventHandlers\DamageSound.cpp">
+    <ClCompile Include="EventHandlers\SoundHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Enemies\Pooka.cpp">
@@ -65,7 +65,7 @@
     <ClInclude Include="HealthDisplayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EventHandlers\DamageSound.h">
+    <ClInclude Include="EventHandlers\SoundHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">

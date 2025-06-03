@@ -2,11 +2,27 @@
 #include "GameObject.h"
 #include <algorithm>
 #include <ranges>
+#include "Fygar.h"
+#include "Pooka.h"
 #include "ServiceLocator.h"
 
 using namespace dae;
 
 unsigned int Scene::m_idCounter = 0;
+
+void Scene::ResetSceneEntities() const
+{
+	for (const auto& entity : m_Entities)
+	{
+		if (entity->HasComponent<Pooka>()) entity->GetComponent<Pooka>()->ResetPooka();
+		else if (entity->HasComponent<Fygar>()) entity->GetComponent<Fygar>()->ResetFygar();
+	}
+
+	for (const auto& player : m_Players)
+	{
+		if (player->HasComponent<Player>()) player->GetComponent<Player>()->ResetPlayer();
+	}
+}
 
 dae::GameObject* Scene::GetPlayer(unsigned int index) const
 {

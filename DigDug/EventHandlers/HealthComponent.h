@@ -26,7 +26,7 @@ public:
 	int GetLives() const;
 
 	void SetMaxLives(int newMaxLives);
-	void TakeDamage(int takenDamage);
+	void TakeDamage(); //Nothing in the game removes more than one health so just remove 1
 
 	void SetLivesToMax();
 

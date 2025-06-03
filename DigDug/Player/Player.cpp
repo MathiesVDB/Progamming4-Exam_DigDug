@@ -13,15 +13,18 @@
 //---------------------------
 Player::Player(dae::GameObject* owner, GridComponent* grid)
 	:	Component(owner),
-		m_Direction{MoveDirection::Right},
-		m_GridPtr{ grid }
+		m_GridPtr{ grid },
+		m_Direction{ MoveDirection::Right }
 {
-	m_Collider = GetOwner()->GetComponent<ColliderComponent>();
-    m_Rope = GetOwner()->GetComponent<RopeComponent>();
+	m_Collider  = GetOwner()->GetComponent<ColliderComponent>();
+    m_Rope      = GetOwner()->GetComponent<RopeComponent>();
+    m_Health    = GetOwner()->GetComponent<HealthComponent>();
 
     m_State = &PlayerStates::PlayerState::idling;
 
     SnapToCellCenter();
+
+    m_SpawnPosition = GetOwner()->GetWorldPosition();
 }
 
 void Player::Update(float deltaTime)

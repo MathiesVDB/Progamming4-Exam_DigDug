@@ -9,15 +9,16 @@
     #endif
 
 #include "CollisionHandler.h"
-    #include "FPSComponent.h"
-    #include "Minigin.h"
-    #include "SceneManager.h"
-    #include "ResourceManager.h"
-    #include "Scene.h"
-    #include "SoundSystem.h"
-    #include "ServiceLocator.h"
-	#include "Level.h"
+#include "FPSComponent.h"
+#include "Minigin.h"
+#include "SceneManager.h"
+#include "ResourceManager.h"
+#include "Scene.h"
+#include "SoundSystem.h"
+#include "ServiceLocator.h"
+#include "Level.h"
 #include "Observer.h"
+#include "SoundHandler.h"
 
     using namespace dae;
 
@@ -26,13 +27,14 @@
         ServiceLocator::RegisterSoundSystem(std::make_unique<RealSoundSystem>());
         ServiceLocator::RegisterCollisionSystem(std::make_unique<RealCollisionSystem>());
 
-        dae::EventRegistry::GetInstance().RegisterEvent("HealthChanged");
+        dae::EventRegistry::GetInstance().RegisterEvent("HealthIncrease");
         dae::EventRegistry::GetInstance().RegisterEvent("CollisionEvent");
+        dae::EventRegistry::GetInstance().RegisterEvent("LifeLost");
 
-        static auto collisionHandler = std::make_unique<CollisionHandler>();
-        ServiceLocator::GetCollisionSystem().AddObserver(std::move(collisionHandler));
+        static auto collisionHandler = std::make_shared<CollisionHandler>();
+        ServiceLocator::GetCollisionSystem().AddObserver(collisionHandler);
 
-        auto& scene = dae::SceneManager::GetInstance().CreateScene("DigDug");
+        auto& scene = dae::SceneManager::GetInstance().CreateScene("Level1");
 
         auto FPSGameObject = std::make_unique<dae::GameObject>();
         FPSGameObject->AddComponent<FPSComponent>();

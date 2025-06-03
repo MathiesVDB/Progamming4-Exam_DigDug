@@ -23,6 +23,8 @@ namespace dae
 
 		const std::string& GetName() const { return m_name; }
 
+		void ResetSceneEntities() const;
+
 		bool IsActive() const			{ return m_IsActive; }
 		void SetActive(bool isActive)	{ m_IsActive = isActive; }
 

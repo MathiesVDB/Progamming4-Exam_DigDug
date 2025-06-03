@@ -29,18 +29,18 @@ void HealthComponent::SetMaxLives(int newMaxLives)
 	m_MaxLives = newMaxLives;
 }
 
-void HealthComponent::TakeDamage(int takenDamage)
+void HealthComponent::TakeDamage()
 {
-	dae::EventID HealthChangedEventID = dae::EventRegistry::GetInstance().GetEventID("HealthChanged");
+	dae::EventID LifeLostEventID = dae::EventRegistry::GetInstance().GetEventID("LifeLost");
 
-	m_Lives -= takenDamage;
-	Notify(GetOwner(), HealthChangedEventID);
+	--m_Lives;
+	Notify(GetOwner(), LifeLostEventID);
 }
 
 void HealthComponent::SetLivesToMax()
 {
-	dae::EventID HealthChangedEventID = dae::EventRegistry::GetInstance().GetEventID("HealthChanged");
+	dae::EventID HealthIncreaseEventID = dae::EventRegistry::GetInstance().GetEventID("HealthIncrease");
 
 	m_Lives = m_MaxLives;
-	Notify(GetOwner(), HealthChangedEventID);
+	Notify(GetOwner(), HealthIncreaseEventID);
 }

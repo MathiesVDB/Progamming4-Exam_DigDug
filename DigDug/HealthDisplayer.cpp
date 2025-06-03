@@ -1,16 +1,48 @@
 #include "HealthDisplayer.h"
-
+#include "GridComponent.h"
 #include "Observer.h"
+#include "SceneManager.h"
+#include "Scene.h"
+#include "SpriteComponent.h"
 
-HealthDisplay::HealthDisplay(const dae::GameObject* displayObject, dae::GameObject* player)
-    : m_Player(player)
+HealthDisplay::HealthDisplay(dae::GameObject* player, GridComponent* grid)
+    : m_Player{player}, m_Grid{grid}
 {
-    m_Text = displayObject->GetComponent<dae::TextObject>();
     m_Health = player->GetComponent<HealthComponent>();
 
-    if (m_Health)
+    CreateLives();
+}
+
+void HealthDisplay::CreateLives()
+{
+    if (!m_Health)
     {
-        m_Lives = m_Health->GetLives();
+        std::cerr << "No healthcomponent found!" << std::endl;
+        return;
+    }
+
+    // Clear existing icons
+    for (auto* life : m_DisplayedLives)
+    {
+        dae::SceneManager::GetInstance().GetActiveScene().MarkForDeletion(life);
+    }
+    m_DisplayedLives.clear();
+
+    m_Lives = m_Health->GetLives();
+
+    int startIndex{ 238 };
+    for (int counter{}; counter < m_Lives; ++counter)
+    {
+        glm::vec2 drawPos{ m_Grid->GetGrid()[startIndex + counter].spawnPosition };
+
+        auto life = std::make_unique<dae::GameObject>();
+        life->ToggleOutOfBounds();
+        life->AddComponent<SpriteComponent>("Sprites/Player/WalkingSprite.png", 1, 8, 1.f, 1, 1);
+        life->SetLocalPosition(drawPos);
+
+        m_DisplayedLives.emplace_back(life.get());
+
+        dae::SceneManager::GetInstance().GetActiveScene().Add(life);
     }
 }
 
@@ -18,18 +50,22 @@ void HealthDisplay::Notify(const dae::GameObject*, dae::EventID event)
 {
     std::string eventName = dae::EventRegistry::GetInstance().GetName(event);
 
-    if (eventName == "HealthChanged")
+    if (eventName == "LifeLost")
     {
-        OnLivesChanged();
+        OnLifeLost();
+    }
+    else if (eventName == "HealthIncrease")
+    {
+        CreateLives();
     }
 }
 
-void HealthDisplay::OnLivesChanged()
+void HealthDisplay::OnLifeLost()
 {
     if (!m_Health) return;
 
     m_Lives = m_Health->GetLives();
-    UpdateText();
+    UpdateLives();
 }
 
 void HealthDisplay::SetLives(int lives)
@@ -37,8 +73,12 @@ void HealthDisplay::SetLives(int lives)
     m_Lives = lives;
 }
 
-void HealthDisplay::UpdateText()
+void HealthDisplay::UpdateLives()
 {
-    if (!m_Text) return;
-    m_Text->SetText("Lives: " + std::to_string(m_Lives));
+    if (!m_DisplayedLives.empty())
+    {
+        auto* lastLife = m_DisplayedLives.back();
+        dae::SceneManager::GetInstance().GetActiveScene().MarkForDeletion(lastLife);
+        m_DisplayedLives.pop_back();
+    }
 }

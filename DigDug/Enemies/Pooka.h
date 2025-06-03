@@ -27,6 +27,7 @@ public:
 	RopeComponent* GetRopeFromCollision(const CollisionEvent& collision);
 
 	void SetState(std::unique_ptr<PookaStates::PookaState> newState);
+	void ResetPooka() const { GetOwner()->SetLocalPosition(m_SpawnPosition); }
 
 	void IncreaseInflation();
 	void ResetInflation();

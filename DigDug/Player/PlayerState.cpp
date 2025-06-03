@@ -1,6 +1,7 @@
 #include "PlayerState.h"
 #include "GameObject.h"
 #include "GridComponent.h"
+#include "HealthComponent.h"
 #include "Level.h"
 #include "Player.h"
 #include "RopeComponent.h"
@@ -175,7 +176,7 @@ namespace PlayerStates
 			auto emptyTile = player.GetLevelPtr()->SpawnEmpty(playerPos);
 			player.GetGridPtr()->GetGrid()[index].coverTile = emptyTile.get();
 			player.GetGridPtr()->GetGrid()[index].digDirection = player.GetDirection();
-			player.GetLevelPtr()->GetScene().Add(emptyTile);
+			dae::SceneManager::GetInstance().GetActiveScene().Add(emptyTile);
 		}
 
 		auto coverTile{ player.GetGridPtr()->GetGrid()[index].coverTile };
@@ -265,11 +266,13 @@ namespace PlayerStates
 	{
 	}
 	
-	PlayerStates::PlayerState* DeathState::Update(Player&, float )
+	PlayerStates::PlayerState* DeathState::Update(Player& player, float )
 	{
 		if (m_Sprite->HasReachedLastframe())
 		{
-			m_Sprite->SetSpriteBounds(m_Sprite->GetCurrentFrame(), m_Sprite->GetCurrentFrame(), true);
+			player.GetHealth()->TakeDamage();
+			dae::SceneManager::GetInstance().GetActiveScene().ResetSceneEntities();
+			return &PlayerStates::PlayerState::idling;
 		}
 
 		return nullptr;

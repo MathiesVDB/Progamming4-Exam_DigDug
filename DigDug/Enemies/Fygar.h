@@ -21,6 +21,7 @@ public:
 	RopeComponent* GetRopeFromCollision(const CollisionEvent& collision);
 
 	void SetState(std::unique_ptr<FygarStates::FygarState> newState);
+	void ResetFygar() const { GetOwner()->SetLocalPosition(m_SpawnPosition); }
 
 	void IncreaseInflation();
 	void ResetInflation();

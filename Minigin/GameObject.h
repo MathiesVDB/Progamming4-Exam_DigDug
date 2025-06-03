@@ -43,6 +43,8 @@ namespace dae
 
         const glm::vec2& GetWorldPosition();
 
+        void ToggleOutOfBounds() { m_AllowOutOfBounds = !m_AllowOutOfBounds; }
+
 		//Velocity functions
 		const glm::vec2& GetVelocity() const;
 		void SetVelocity(const glm::vec2& velocity);
@@ -61,7 +63,7 @@ namespace dae
 		template <typename T>
 		bool HasComponent() const;
 
-        const SDL_Rect WORLD_BOUNDS{ 0, 40, dae::Minigin::WINDOW_WIDTH - 40, dae::Minigin::WINDOW_HEIGHT - 120 };
+        const SDL_Rect WORLD_BOUNDS{ 0, 40, dae::Minigin::WINDOW_WIDTH - 40, dae::Minigin::WINDOW_HEIGHT - 115 };
 
 	private:
 		//---------------------------------------------------------------------------------
@@ -81,7 +83,8 @@ namespace dae
         glm::vec2 m_WorldPosition   { 0, 0 };
 		glm::vec2 m_Velocity        { 0, 0 };
         RenderLayer m_RenderLayer{};
-        bool m_IsPositionDirty{ true };
+        bool m_IsPositionDirty {  true };
+        bool m_AllowOutOfBounds{ false };
 
         GameObject* m_Parent{ nullptr };
         std::vector<GameObject*> m_Children;

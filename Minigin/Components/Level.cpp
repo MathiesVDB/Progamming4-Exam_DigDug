@@ -3,10 +3,9 @@
 //---------------------------
 #include "fstream"
 #include "Level.h"
-
 #include "ColliderComponent.h"
 #include "Command.h"
-#include "DamageSound.h"
+#include "SoundHandler.h"
 #include "Fygar.h"
 #include "HealthDisplayer.h"
 #include "InputManager.h"
@@ -23,7 +22,8 @@
 //---------------------------
 Level::Level(dae::GameObject* owner, const std::string& sceneName)
 	:   Component(owner),
-		m_Scene(dae::SceneManager::GetInstance().CreateScene(sceneName, true))
+		m_Scene(dae::SceneManager::GetInstance().CreateScene(sceneName, true)),
+		m_SoundHandler{std::make_shared<SoundHandler>()}
 {
 }
 
@@ -162,7 +162,7 @@ void Level::LoadLevel(const std::string& fileName)
     }
 }
 
-void Level::SpawnPlayer(const glm::vec2& spawnPos)
+void Level::SpawnPlayer(const glm::vec2& spawnPos) 
 {
     auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
 
@@ -172,17 +172,20 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
 
     //Start rope out of vision of the player
     auto RopeHeadGameObject = std::make_unique<dae::GameObject>();
+    RopeHeadGameObject->ToggleOutOfBounds();
     RopeHeadGameObject->AddComponent<TextureComponent>("Sprites/Player/Weapon/Right/RightHead.png");
     RopeHeadGameObject->GetComponent<dae::Transform>()->SetPosition(-100, -100);
     RopeHeadGameObject->AddComponent<ColliderComponent>(ROPE);
     RopeHeadGameObject->SetRenderLayer(RenderLayer::Entity);
 
     auto RopeMiddleGameObject = std::make_unique<dae::GameObject>();
+    RopeMiddleGameObject->ToggleOutOfBounds();
     RopeMiddleGameObject->AddComponent<TextureComponent>("Sprites/Player/Weapon/Right/RightMiddle.png");
     RopeMiddleGameObject->GetComponent<dae::Transform>()->SetPosition(-100, -100);
     RopeMiddleGameObject->SetRenderLayer(RenderLayer::Entity);
 
     auto RopeTailGameObject = std::make_unique<dae::GameObject>();
+    RopeTailGameObject->ToggleOutOfBounds();
     RopeTailGameObject->AddComponent<TextureComponent>("Sprites/Player/Weapon/Right/RightTail.png");
     RopeTailGameObject->GetComponent<dae::Transform>()->SetPosition(-100, -100);
     RopeTailGameObject->SetRenderLayer(RenderLayer::Entity);
@@ -202,17 +205,9 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
 
     RopeHeadGameObject->AddComponent<RopeHeadComponent>(ropeComponent);
 
-    int player1Lives = Player1->GetComponent<HealthComponent>()->GetLives();
-
-    auto lifeDisplay1GameObject = std::make_unique<dae::GameObject>();
-    lifeDisplay1GameObject->AddComponent<dae::TextObject>("Lives: " + std::to_string(player1Lives), font);
-    lifeDisplay1GameObject->GetComponent<dae::Transform>()->SetPosition(10, 150);
-
-    auto healthDisplay = std::make_unique<HealthDisplay>(lifeDisplay1GameObject.get(), Player1.get());
-    Player1->GetComponent<HealthComponent>()->AddObserver(std::move(healthDisplay));
-
-    auto damageSound = std::make_unique<DamageSound>(Player1.get(), "Dig Dug SFX (4).wav");
-    Player1->GetComponent<HealthComponent>()->AddObserver(std::move(damageSound));
+    auto healthDisplay = std::make_shared<HealthDisplay>(Player1.get(), m_GridComponent);
+    Player1->GetComponent<HealthComponent>()->AddObserver(healthDisplay);
+    Player1->GetComponent<HealthComponent>()->AddObserver(m_SoundHandler);
 
 //--------------------------------------------------------------------------------------------------------------------------
 //Add player controls
@@ -238,7 +233,6 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
 
     Player1->SetRenderLayer(RenderLayer::Player);
     m_Scene.Add(Player1);
-    m_Scene.Add(lifeDisplay1GameObject);
 
     m_Scene.Add(RopeHeadGameObject);
     m_Scene.Add(RopeMiddleGameObject);
