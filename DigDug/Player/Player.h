@@ -13,7 +13,7 @@
 class RopeComponent;
 class Level;
 class GridComponent;
-class Player final : public dae::Component
+class Player final : public dae::Component, public dae::Subject
 {
 public:
 	Player(dae::GameObject* owner, GridComponent* grid);
@@ -31,9 +31,16 @@ public:
 
 	void SnapToCellCenter();
 
+	//Event notifiers
+	void NotifyAttack() const;
+
+	//Setters
+
 	void SetState(PlayerStates::PlayerState* state);
 	void SetLevelPtr(Level* level) { m_LevelPtr = level; }
 	void ResetPlayer() const { GetOwner()->SetLocalPosition(m_SpawnPosition); }
+
+	//Getters
 
 	GridComponent*			GetGridPtr()	const { return m_GridPtr;	}
 	RopeComponent*			GetRopePtr()	const { return m_Rope;		}

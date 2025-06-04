@@ -303,6 +303,7 @@ std::unique_ptr<PookaState> DeathState::Update(Pooka& pooka, float deltaTime)
 	if (m_DeathTimer >= DEATH_TIME)
     {
         dae::SceneManager::GetInstance().GetActiveScene().MarkForDeletion(pooka.GetOwner());
+		pooka.NotifyDeath();
         return nullptr;
     }
 
@@ -319,9 +320,8 @@ void DeathState::OnEnter(Pooka& pooka)
     else                        m_Sprite->SetNewTexture("Sprites/Pooka/PookaDefaultSprite.png", 2, 5, 7, 7);
 }
 
-void DeathState::OnExit(Pooka&)
+void DeathState::OnExit(Pooka& )
 {
-
 }
 
 //-----------------------------------------------------

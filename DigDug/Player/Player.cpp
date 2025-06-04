@@ -79,6 +79,13 @@ void Player::SnapToCellCenter()
     GetOwner()->GetComponent<dae::Transform>()->SetPosition(newX, newY);
 }
 
+void Player::NotifyAttack() const
+{
+    dae::EventID PlayerAttackEventID = dae::EventRegistry::GetInstance().GetEventID("PlayerAttack");
+
+    Notify(GetOwner(), PlayerAttackEventID);
+}
+
 void Player::HandleCollision(const CollisionEvent& collision)
 {
     if (m_State == &PlayerStates::PlayerState::attacking) m_Rope->HandleCollision(collision);
@@ -100,6 +107,9 @@ void Player::HandleCollision(const CollisionEvent& collision)
 
         m_WasCrushed = false;
         SetState(&PlayerStates::PlayerState::dying);
+
+        dae::EventID PlayerHitEventID = dae::EventRegistry::GetInstance().GetEventID("PlayerHit");
+        Notify(GetOwner(), PlayerHitEventID);
 	}
     else if (colliderTag == Tag::ROCK || collidedTag == Tag::ROCK)
     {

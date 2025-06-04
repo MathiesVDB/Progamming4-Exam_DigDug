@@ -208,6 +208,7 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
     auto healthDisplay = std::make_shared<HealthDisplay>(Player1.get(), m_GridComponent);
     Player1->GetComponent<HealthComponent>()->AddObserver(healthDisplay);
     Player1->GetComponent<HealthComponent>()->AddObserver(m_SoundHandler);
+    Player1->GetComponent<Player>()->AddObserver(m_SoundHandler);
 
 //--------------------------------------------------------------------------------------------------------------------------
 //Add player controls
@@ -246,6 +247,7 @@ void Level::SpawnPooka(const glm::vec2& spawnPos) const
 	PookaGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 	PookaGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
 	PookaGameObject->AddComponent<Pooka>(m_GridComponent);
+    PookaGameObject->GetComponent<Pooka>()->AddObserver(m_SoundHandler);
 
     PookaGameObject->SetRenderLayer(RenderLayer::Entity);
 	m_Scene.Add(PookaGameObject);
@@ -258,6 +260,7 @@ void Level::SpawnFygar(const glm::vec2& spawnPos) const
 	FygarGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 	FygarGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
     FygarGameObject->AddComponent<Fygar>(m_GridComponent);
+    FygarGameObject->GetComponent<Fygar>()->AddObserver(m_SoundHandler);
 
     FygarGameObject->SetRenderLayer(RenderLayer::Entity);
 	m_Scene.Add(FygarGameObject);

@@ -57,6 +57,9 @@
     <ClCompile Include="Enemies\FygarState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EventHandlers\ScoreHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventHandlers\HealthComponent.h">
@@ -105,6 +108,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Player\RopeHeadComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EventHandlers\ScoreHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

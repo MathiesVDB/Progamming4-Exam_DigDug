@@ -1,10 +1,9 @@
 #pragma once
 #include "Observer.h"
 
-class SoundHandler : public dae::Observer
+class ScoreHandler : public dae::Observer
 {
-public:
-	SoundHandler();
+	ScoreHandler();
 
 	void Notify(const dae::GameObject* gameObject, dae::EventID event) override;
 };

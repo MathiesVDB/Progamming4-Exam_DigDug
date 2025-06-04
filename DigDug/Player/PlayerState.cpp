@@ -387,6 +387,8 @@ namespace PlayerStates
 			player.GetOwner()->GetWorldPosition().y + player.GetCollider()->GetBoundingBox().h / 3.f };
 
 		player.GetRopePtr()->ActivateRope(ropeStart, player.GetDirection());
+
+		player.NotifyAttack();
 	}
 	
 	void AttackState::OnExit(Player& player)

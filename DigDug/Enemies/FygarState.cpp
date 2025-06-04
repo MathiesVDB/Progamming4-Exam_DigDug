@@ -275,6 +275,7 @@ std::unique_ptr<FygarState> DeathState::Update(Fygar& fygar, float deltaTime)
     if (m_DeathTimer >= DEATH_TIME)
     {
         dae::SceneManager::GetInstance().GetActiveScene().MarkForDeletion(fygar.GetOwner());
+		fygar.NotifyDeath();
         return nullptr;
     }
 
@@ -291,9 +292,8 @@ void DeathState::OnEnter(Fygar& fygar)
     else                       m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 10, 10);
 }
 
-void DeathState::OnExit(Fygar&)
+void DeathState::OnExit(Fygar& )
 {
-
 }
 
 //-----------------------------------------------------
@@ -395,6 +395,8 @@ void AttackState::OnEnter(Fygar& fygar)
 
 	if (fygar.IsLookingLeft()) m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 8, 8);
 	else					   m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0, 0);
+
+	fygar.NotifyAttack();
 }
 
 void AttackState::CreateFireGameObject(Fygar& fygar)

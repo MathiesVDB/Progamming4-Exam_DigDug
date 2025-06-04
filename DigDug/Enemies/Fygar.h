@@ -7,7 +7,7 @@
 //-----------------------------------------------------
 // Fygar Class									 
 //-----------------------------------------------------
-class Fygar final : public dae::Component
+class Fygar final : public dae::Component, public dae::Subject
 {
 public:
 	Fygar(dae::GameObject* owner, GridComponent* grid);
@@ -25,6 +25,10 @@ public:
 
 	void IncreaseInflation();
 	void ResetInflation();
+
+	// Event notifiers
+	void NotifyDeath()	const;
+	void NotifyAttack() const;
 
 	// Getters for state machine
 	GridComponent* GetGridPtr() const { return m_GridPtr; }

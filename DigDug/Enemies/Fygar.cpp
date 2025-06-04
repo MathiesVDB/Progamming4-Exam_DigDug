@@ -99,6 +99,20 @@ void Fygar::SetState(std::unique_ptr<FygarStates::FygarState> newState)
 	m_State->OnEnter(*this);
 }
 
+void Fygar::NotifyDeath() const
+{
+	dae::EventID EnemyDiedEventID = dae::EventRegistry::GetInstance().GetEventID("EnemyDied");
+
+	Notify(GetOwner(), EnemyDiedEventID);
+}
+
+void Fygar::NotifyAttack() const
+{
+	dae::EventID FygarFireEventID = dae::EventRegistry::GetInstance().GetEventID("FygarFire");
+
+	Notify(GetOwner(), FygarFireEventID);
+}
+
 void Fygar::IncreaseInflation()
 {
 	if (m_InflatedState == Inflated::Exploded) return;
@@ -120,6 +134,9 @@ void Fygar::IncreaseInflation()
 	default:
 		break;
 	}
+
+	dae::EventID PumpEnemyEventID = dae::EventRegistry::GetInstance().GetEventID("PumpEnemy");
+	Notify(GetOwner(), PumpEnemyEventID);
 }
 
 void Fygar::ResetInflation()

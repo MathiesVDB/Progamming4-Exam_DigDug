@@ -12,7 +12,7 @@ class GridComponent;
 //-----------------------------------------------------
 // Pooka Class									 
 //-----------------------------------------------------
-class Pooka final : public dae::Component
+class Pooka final : public dae::Component, public dae::Subject
 {
 public:
 	Pooka(dae::GameObject* owner, GridComponent* grid);
@@ -28,6 +28,7 @@ public:
 
 	void SetState(std::unique_ptr<PookaStates::PookaState> newState);
 	void ResetPooka() const { GetOwner()->SetLocalPosition(m_SpawnPosition); }
+	void NotifyDeath() const;
 
 	void IncreaseInflation();
 	void ResetInflation();

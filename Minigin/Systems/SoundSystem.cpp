@@ -98,7 +98,7 @@ private:
 		// Wait until the sound finishes playing
 		while (Mix_Playing(channel) != 0 && m_Running)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(30));
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
 
 		Mix_FreeChunk(sound);

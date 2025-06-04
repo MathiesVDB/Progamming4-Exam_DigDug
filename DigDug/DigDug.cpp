@@ -29,7 +29,14 @@
 
         dae::EventRegistry::GetInstance().RegisterEvent("HealthIncrease");
         dae::EventRegistry::GetInstance().RegisterEvent("CollisionEvent");
-        dae::EventRegistry::GetInstance().RegisterEvent("LifeLost");
+        dae::EventRegistry::GetInstance().RegisterEvent("LifeLost"); // Player animation finished and player died
+        dae::EventRegistry::GetInstance().RegisterEvent("EnemyDied");
+        dae::EventRegistry::GetInstance().RegisterEvent("FygarFire");
+        dae::EventRegistry::GetInstance().RegisterEvent("PlayerHit"); //Moment player gets hit
+        dae::EventRegistry::GetInstance().RegisterEvent("PlayerAttack");
+        dae::EventRegistry::GetInstance().RegisterEvent("PumpEnemy");
+        dae::EventRegistry::GetInstance().RegisterEvent("Victory");
+        dae::EventRegistry::GetInstance().RegisterEvent("RockHitEntity");
 
         static auto collisionHandler = std::make_shared<CollisionHandler>();
         ServiceLocator::GetCollisionSystem().AddObserver(collisionHandler);

@@ -121,9 +121,19 @@ void Pooka::IncreaseInflation()
 	default:
 		break;
 	}
+
+	dae::EventID PumpEnemyEventID = dae::EventRegistry::GetInstance().GetEventID("PumpEnemy");
+	Notify(GetOwner(), PumpEnemyEventID);
 }
 
 void Pooka::ResetInflation()
 {
 	m_InflatedState = Inflated::None;
+}
+
+void Pooka::NotifyDeath() const
+{
+	dae::EventID EnemyDiedEventID = dae::EventRegistry::GetInstance().GetEventID("EnemyDied");
+
+	Notify(GetOwner(), EnemyDiedEventID);
 }
