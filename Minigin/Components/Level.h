@@ -6,8 +6,10 @@
 #include "GridComponent.h"
 #include "Component.h"
 #include "Scene.h"
+#include "ScoreDisplayer.h"
 #include "SoundHandler.h"
 
+class ScoreHandler;
 class RopeComponent;
 //-----------------------------------------------------
 // Level Class									 
@@ -48,4 +50,6 @@ private:
 	dae::Scene& m_Scene;
 	GridComponent*					m_GridComponent{ nullptr };
 	std::shared_ptr<SoundHandler>	m_SoundHandler;
+	std::shared_ptr<ScoreHandler>	m_ScoreHandler;
+	std::unique_ptr<ScoreDisplayer> m_ScoreDisplayer;
 };

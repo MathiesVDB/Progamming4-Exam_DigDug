@@ -7,7 +7,7 @@
 #include "Rock.h"
 #include "RopeComponent.h"
 
-void CollisionHandler::Notify(const dae::GameObject* gameObject, dae::EventID event)
+void CollisionHandler::Notify(dae::GameObject* gameObject, dae::EventID event)
 {
 	if (event != dae::EventRegistry::GetInstance().GetEventID("CollisionEvent")) return;
 

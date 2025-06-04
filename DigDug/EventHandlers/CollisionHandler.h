@@ -9,6 +9,6 @@ namespace dae
 class CollisionHandler : public dae::Observer
 {
 public:
-    void Notify(const dae::GameObject* gameObject, dae::EventID event) override;
+    void Notify(dae::GameObject* gameObject, dae::EventID event) override;
 };
 

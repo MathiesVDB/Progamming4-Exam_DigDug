@@ -16,6 +16,8 @@
 #include "Rock.h"
 #include "RopeComponent.h"
 #include "RopeHeadComponent.h"
+#include "ScoreDisplayer.h"
+#include "ScoreHandler.h"
 
 //---------------------------
 // Constructor & Destructor
@@ -25,6 +27,18 @@ Level::Level(dae::GameObject* owner, const std::string& sceneName)
 		m_Scene(dae::SceneManager::GetInstance().CreateScene(sceneName, true)),
 		m_SoundHandler{std::make_shared<SoundHandler>()}
 {
+    auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
+
+    auto ScoreTextDisplayGameObject = std::make_unique<dae::GameObject>();
+    auto scoreDisplayText = ScoreTextDisplayGameObject->AddComponent<dae::TextObject>("0", font);
+    ScoreTextDisplayGameObject->SetLocalPosition({ dae::Minigin::WINDOW_WIDTH / 2 - 10, 25 });
+    ScoreTextDisplayGameObject->SetRenderLayer(RenderLayer::Entity);
+
+    m_ScoreDisplayer = std::make_unique<ScoreDisplayer>(scoreDisplayText);
+
+    m_ScoreHandler = std::make_shared<ScoreHandler>(m_ScoreDisplayer.get());
+
+    m_Scene.Add(ScoreTextDisplayGameObject);
 }
 
 void Level::LoadLevel(const std::string& fileName)
@@ -248,6 +262,7 @@ void Level::SpawnPooka(const glm::vec2& spawnPos) const
 	PookaGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
 	PookaGameObject->AddComponent<Pooka>(m_GridComponent);
     PookaGameObject->GetComponent<Pooka>()->AddObserver(m_SoundHandler);
+    PookaGameObject->GetComponent<Pooka>()->AddObserver(m_ScoreHandler);
 
     PookaGameObject->SetRenderLayer(RenderLayer::Entity);
 	m_Scene.Add(PookaGameObject);
@@ -261,6 +276,7 @@ void Level::SpawnFygar(const glm::vec2& spawnPos) const
 	FygarGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
     FygarGameObject->AddComponent<Fygar>(m_GridComponent);
     FygarGameObject->GetComponent<Fygar>()->AddObserver(m_SoundHandler);
+    FygarGameObject->GetComponent<Fygar>()->AddObserver(m_ScoreHandler);
 
     FygarGameObject->SetRenderLayer(RenderLayer::Entity);
 	m_Scene.Add(FygarGameObject);

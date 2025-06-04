@@ -117,6 +117,7 @@
     <ClInclude Include="Scene\SceneManager.h" />
     <ClInclude Include="Misc\ServiceLocator.h" />
     <ClInclude Include="Misc\Singleton.h" />
+    <ClInclude Include="SelfDestructComponent.h" />
     <ClInclude Include="Systems\RealCollisionSystem.h" />
     <ClInclude Include="Systems\SoundSystem.h" />
     <ClInclude Include="Components\SpriteComponent.h" />
@@ -141,6 +142,7 @@
     <ClCompile Include="Scene\Scene.cpp" />
     <ClCompile Include="Scene\SceneManager.cpp" />
     <ClCompile Include="Misc\ServiceLocator.cpp" />
+    <ClCompile Include="SelfDestructComponent.cpp" />
     <ClCompile Include="Systems\RealCollisionSystem.cpp" />
     <ClCompile Include="Systems\SoundSystem.cpp" />
     <ClCompile Include="Components\SpriteComponent.cpp" />

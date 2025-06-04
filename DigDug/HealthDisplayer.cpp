@@ -46,7 +46,7 @@ void HealthDisplay::CreateLives()
     }
 }
 
-void HealthDisplay::Notify(const dae::GameObject*, dae::EventID event)
+void HealthDisplay::Notify(dae::GameObject*, dae::EventID event)
 {
     std::string eventName = dae::EventRegistry::GetInstance().GetName(event);
 

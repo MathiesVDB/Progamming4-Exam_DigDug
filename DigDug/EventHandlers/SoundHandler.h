@@ -6,6 +6,9 @@ class SoundHandler : public dae::Observer
 public:
 	SoundHandler();
 
-	void Notify(const dae::GameObject* gameObject, dae::EventID event) override;
+	void Notify(dae::GameObject* gameObject, dae::EventID event) override;
+
+private:
+	std::unordered_map<std::string, std::string> m_SoundMap;
 };
 

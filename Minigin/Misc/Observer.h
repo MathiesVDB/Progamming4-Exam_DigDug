@@ -59,7 +59,7 @@ namespace dae
 		Observer& operator=(const Observer&) = delete;
 		Observer& operator=(Observer&&) = delete;
 
-		virtual void Notify(const dae::GameObject* gameObject, EventID event) = 0;
+		virtual void Notify(dae::GameObject* gameObject, EventID event) = 0;
 	};
 
 	class Subject
@@ -79,7 +79,7 @@ namespace dae
 		}
 
 	protected:
-		void Notify(const dae::GameObject* gameObject, EventID event) const
+		void Notify(dae::GameObject* gameObject, EventID event) const
 		{
 			for (const auto& observer : m_Observers)
 			{

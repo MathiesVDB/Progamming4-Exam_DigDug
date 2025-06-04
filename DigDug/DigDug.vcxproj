@@ -166,6 +166,7 @@
     <ClCompile Include="Enemies\RockState.cpp" />
     <ClCompile Include="Player\RopeComponent.cpp" />
     <ClCompile Include="EventHandlers\ScoreHandler.cpp" />
+    <ClCompile Include="ScoreDisplayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Enemies\Rock.h" />
@@ -185,6 +186,7 @@
     <ClInclude Include="Player\RopeComponent.h" />
     <ClInclude Include="Player\RopeHeadComponent.h" />
     <ClInclude Include="EventHandlers\ScoreHandler.h" />
+    <ClInclude Include="ScoreDisplayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DigDug.rc" />

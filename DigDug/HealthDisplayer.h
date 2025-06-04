@@ -11,7 +11,7 @@ public:
     explicit HealthDisplay(dae::GameObject* player, GridComponent* grid);
     ~HealthDisplay() override = default;
 
-    void Notify(const dae::GameObject* gameObject, dae::EventID event) override;
+    void Notify(dae::GameObject* gameObject, dae::EventID event) override;
 
     void OnLifeLost();
 
