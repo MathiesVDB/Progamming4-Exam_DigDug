@@ -7,10 +7,9 @@ class ScoreDisplayer
 public:
 	ScoreDisplayer(dae::TextObject* mainScoreDisplay);
 
-	void AddScore(int score);
+	void ChangeScore(int score);
 
 	void CreateNewScore(int score, const glm::vec2& pos);
-	void ChangeMainScore();
 
 	//Score sprites
     static constexpr std::array<std::pair<int, int>, 14> SCORE_FRAMES = { {
@@ -31,8 +30,6 @@ public:
     } };
 
 private:
-	int m_Score{};
-
 	dae::TextObject* m_MainScoreDisplay;
 
 	std::vector<dae::GameObject*> m_DisplayedScores;

@@ -5,8 +5,7 @@
 #include "Fygar.h"
 #include "ScoreDisplayer.h"
 
-ScoreHandler::ScoreHandler(ScoreDisplayer* display)
-	:   m_Displayer{display}
+ScoreHandler::ScoreHandler()
 {
 }
 
@@ -52,7 +51,10 @@ void ScoreHandler::Notify(dae::GameObject* gameObject, dae::EventID event)
             }
         }
 
-        m_Displayer->AddScore(scoreToAdd);
         m_Displayer->CreateNewScore(scoreToAdd, gameObject->GetWorldPosition());
+
+        m_Score += scoreToAdd;
+
+        m_Displayer->ChangeScore(m_Score);
 	}
 }

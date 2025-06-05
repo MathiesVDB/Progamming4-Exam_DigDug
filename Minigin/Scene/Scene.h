@@ -32,6 +32,10 @@ namespace dae
 		dae::GameObject* GetEntity(const glm::vec2& position) const; // Get specific entity by position
 		dae::GameObject* GetGround(const glm::vec2& position) const; // Get specific ground tile by position
 
+		std::vector <std::unique_ptr<dae::GameObject>> GetAllPlayers()			const { return m_Players;		}
+		std::vector <std::unique_ptr<dae::GameObject>> GetAllEntities()			const { return m_Entities;	}
+		std::vector <std::unique_ptr<dae::GameObject>> GetAllGroundObjects()	const { return m_Ground;		}
+
 	private: 
 		explicit Scene(const std::string& name, bool setActive);
 

@@ -22,10 +22,11 @@
 //---------------------------
 // Constructor & Destructor
 //---------------------------
-Level::Level(dae::GameObject* owner, const std::string& sceneName)
+Level::Level(dae::GameObject* owner, const std::string& sceneName, std::shared_ptr<SoundHandler> soundHandler, std::shared_ptr<ScoreHandler> scoreHandler)
 	:   Component(owner),
 		m_Scene(dae::SceneManager::GetInstance().CreateScene(sceneName, true)),
-		m_SoundHandler{std::make_shared<SoundHandler>()}
+		m_SoundHandler{ soundHandler },
+		m_ScoreHandler{ scoreHandler }
 {
     auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
 
@@ -36,7 +37,7 @@ Level::Level(dae::GameObject* owner, const std::string& sceneName)
 
     m_ScoreDisplayer = std::make_unique<ScoreDisplayer>(scoreDisplayText);
 
-    m_ScoreHandler = std::make_shared<ScoreHandler>(m_ScoreDisplayer.get());
+    m_ScoreHandler->SetScoreTextDisplay(m_ScoreDisplayer.get());
 
     m_Scene.Add(ScoreTextDisplayGameObject);
 }

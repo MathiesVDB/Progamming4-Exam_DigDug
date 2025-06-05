@@ -11,11 +11,11 @@ ScoreDisplayer::ScoreDisplayer(dae::TextObject* mainScoreDisplay)
 
 }
 
-void ScoreDisplayer::AddScore(int score)
+void ScoreDisplayer::ChangeScore(int score)
 {
-	m_Score += score;
+	std::string currentScore{ std::to_string(score) };
 
-	ChangeMainScore();
+	m_MainScoreDisplay->SetText(currentScore);
 }
 
 void ScoreDisplayer::CreateNewScore(int score, const glm::vec2& pos)
@@ -45,11 +45,4 @@ void ScoreDisplayer::CreateNewScore(int score, const glm::vec2& pos)
 	m_DisplayedScores.emplace_back(ScoreGameObject.get());
 
 	dae::SceneManager::GetInstance().GetActiveScene().Add(ScoreGameObject);
-}
-
-void ScoreDisplayer::ChangeMainScore()
-{
-	std::string currentScore{ std::to_string(m_Score)};
-
-	m_MainScoreDisplay->SetText(currentScore);
 }

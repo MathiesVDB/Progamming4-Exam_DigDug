@@ -33,6 +33,8 @@ public:
 	void IncreaseInflation();
 	void ResetInflation();
 
+	void ToggleFleeing() { m_IsFleeing = !m_IsFleeing; }
+
 	// Getters for state machine
 	GridComponent* GetGridPtr() const { return m_GridPtr; }
 

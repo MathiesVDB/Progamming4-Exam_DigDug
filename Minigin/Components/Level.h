@@ -17,7 +17,7 @@ class RopeComponent;
 class Level final : public dae::Component
 {
 public:
-	Level(dae::GameObject* owner, const std::string& sceneName);
+	Level(dae::GameObject* owner, const std::string& sceneName, std::shared_ptr<SoundHandler> soundHandler, std::shared_ptr<ScoreHandler> scoreHandler);
 
 	//-------------------------------------------------
 	// Member functions						

@@ -26,6 +26,8 @@ public:
 	void IncreaseInflation();
 	void ResetInflation();
 
+	void ToggleFleeing() { m_IsFleeing = !m_IsFleeing; }
+
 	// Event notifiers
 	void NotifyDeath()	const;
 	void NotifyAttack() const;

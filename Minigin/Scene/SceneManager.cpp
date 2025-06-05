@@ -1,9 +1,12 @@
 #include "SceneManager.h"
 #include "Scene.h"
+#include "SceneSwitcher.h"
 
 void dae::SceneManager::Update(float deltaTime)
 {
 	GetActiveScene().Update(deltaTime);
+
+	dae::SceneSwitcher::GetInstance().Update();
 }
 
 void dae::SceneManager::Render()

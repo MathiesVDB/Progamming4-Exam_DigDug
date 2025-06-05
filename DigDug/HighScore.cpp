@@ -3,10 +3,12 @@
 #include <sstream>
 #include "Scene.h"
 #include "SceneManager.h"
+#include "ScoreHandler.h"
 
-HighScore::HighScore()
+HighScore::HighScore(std::shared_ptr<ScoreHandler> scoreHandler)
 	:	m_SaveScene			{ dae::SceneManager::GetInstance().CreateScene("HighScoreSaver") },
-		m_HighScoresScene	{ dae::SceneManager::GetInstance().CreateScene("HighScoreShow") }
+		m_HighScoresScene	{ dae::SceneManager::GetInstance().CreateScene("HighScoreShow") },
+		m_ScoreHandler      { scoreHandler }
 {
 	
 }
@@ -21,9 +23,11 @@ void HighScore::LoadHighScoreScene()
 }
 
 
-void HighScore::LoadHighScores()
+void HighScore::LoadHighScores(std::string chosenName)
 {
     m_HighScores.clear();
+
+    m_HighScores.emplace_back(std::pair<std::string, int>{chosenName, m_ScoreHandler->GetScore() });
 
     std::ifstream inFile("Data/HighScores.txt");
     if (!inFile)
@@ -47,6 +51,15 @@ void HighScore::LoadHighScores()
 
         m_HighScores.emplace_back(name, score);
     }
+
+    std::sort(m_HighScores.begin(), m_HighScores.end(),
+        [](const auto& a, const auto& b) {
+            return a.second > b.second;
+        });
+
+    //Trim to top 8
+    if (m_HighScores.size() > 8)
+        m_HighScores.resize(8);
 }
 
 

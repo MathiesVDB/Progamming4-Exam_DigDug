@@ -8,9 +8,13 @@ class ScoreDisplayer;
 class ScoreHandler : public dae::Observer
 {
 public:
-	ScoreHandler(ScoreDisplayer* display);
+	ScoreHandler();
 
 	void Notify(dae::GameObject* gameObject, dae::EventID event) override;
+
+	void SetScoreTextDisplay(ScoreDisplayer* display) { m_Displayer = display; };
+
+	int GetScore() const { return m_Score; }
 
 	//Constants
 	//Layers
@@ -36,5 +40,7 @@ public:
 	};
 
 private:
-	ScoreDisplayer* m_Displayer;
+	ScoreDisplayer* m_Displayer{ nullptr };
+
+	int m_Score{};
 };

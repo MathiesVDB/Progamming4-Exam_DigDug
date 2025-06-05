@@ -18,6 +18,7 @@
 #include "ServiceLocator.h"
 #include "Level.h"
 #include "Observer.h"
+#include "ScoreHandler.h"
 #include "SoundHandler.h"
 
     using namespace dae;
@@ -41,14 +42,17 @@
         static auto collisionHandler = std::make_shared<CollisionHandler>();
         ServiceLocator::GetCollisionSystem().AddObserver(collisionHandler);
 
-        auto& scene = dae::SceneManager::GetInstance().CreateScene("Level1");
+        static auto soundHandler = std::make_shared<SoundHandler>();
+        static auto scoreHandler = std::make_shared<ScoreHandler>();
+
+        auto& scene = dae::SceneManager::GetInstance().CreateScene("MainScene");
 
         auto FPSGameObject = std::make_unique<dae::GameObject>();
         FPSGameObject->AddComponent<FPSComponent>();
         scene.Add(FPSGameObject);
 
         auto levelGameObject = std::make_unique<dae::GameObject>();
-        levelGameObject->AddComponent<Level>("Level1");
+        levelGameObject->AddComponent<Level>("Level1", soundHandler, scoreHandler);
         levelGameObject->AddComponent<GridComponent>();
 		levelGameObject->GetComponent<Level>()->LoadLevel("Level1.json");
         scene.Add(levelGameObject);
