@@ -1,9 +1,13 @@
 #pragma once
+#include "GameDirector.h"
 #include "Transform.h"
 #include "GameObject.h"
+#include "HighScore.h"
 #include "Player.h"
 #include "TextureComponent.h"
 #include "SpriteComponent.h"
+#include "Scene.h"
+#include "SceneManager.h"
 
 class Command
 {
@@ -81,11 +85,6 @@ public:
 		if (m_Player->IsDead()) return;
 
 		m_Player->Attack();
-
-		//if (auto health = m_Owner->GetComponent<HealthComponent>())
-		//{
-		//	health->TakeDamage(1);
-		//}
 	}
 
 private:
@@ -93,120 +92,105 @@ private:
 	Player* m_Player{ nullptr };
 };
 
-class NextItemCommand : public Command
+class LetterUpCommand : public Command
 {
 public:
-	explicit NextItemCommand(std::vector<dae::GameObject*> items, bool isVertical)
-		:   m_IsVertical{ isVertical },
-			m_CurrentItemIndex{ 0 },
-			m_Items{ items }
+	explicit LetterUpCommand(HighScore* highScore) : m_HighScore(highScore) {}
+
+	void Execute() override
 	{
-		glm::vec2 currentItemPos{ m_Items[m_CurrentItemIndex]->GetWorldPosition() };
-		glm::vec2 currentItemSize{};
+		auto& letter = m_HighScore->GetLetters()[m_HighScore->GetLetterIndex()];
+		letter = (letter == 'Z') ? 'A' : letter + 1;
+		m_HighScore->SetCurrentLetter(letter);
+		m_HighScore->UpdateLetterDisplay();
+	}
+private:
+	HighScore* m_HighScore;
+};
 
-		if (m_Items[m_CurrentItemIndex]->HasComponent<TextureComponent>())
-		{
-			currentItemSize.x = m_Items[m_CurrentItemIndex]->GetComponent<TextureComponent>()->GetWidth();
-			currentItemSize.y = m_Items[m_CurrentItemIndex]->GetComponent<TextureComponent>()->GetHeight();
-		}
-		else if (m_Items[m_CurrentItemIndex]->HasComponent<SpriteComponent>())
-		{
-			currentItemSize = m_Items[m_CurrentItemIndex]->GetComponent<SpriteComponent>()->GetSpriteSize();
-		}
-		else
-		{
-			std::cerr << "ColliderComponent requires a TextureComponent or SpriteComponent to be attached to the same GameObject.\n";
-			return;
-		}
+class LetterDownCommand : public Command
+{
+public:
+	explicit LetterDownCommand(HighScore* highScore) : m_HighScore(highScore) {}
 
-		if (m_IsVertical)
-		{
-			auto firstmarker = std::make_unique<dae::GameObject>();
-			firstmarker->AddComponent<TextureComponent>("Sprites/Misc/Highlight/Arrow_Down.png");
-			firstmarker->SetLocalPosition({ currentItemPos.y - 5, currentItemPos.x - currentItemSize.x / 2.f });
-			firstmarker->SetRenderLayer(RenderLayer::Entity);
+	void Execute() override
+	{
+		auto& letter = m_HighScore->GetLetters()[m_HighScore->GetLetterIndex()];
+		letter = (letter == 'A') ? 'Z' : letter - 1;
+		m_HighScore->SetCurrentLetter(letter);
+		m_HighScore->UpdateLetterDisplay();
+	}
+private:
+	HighScore* m_HighScore;
+};
 
-			m_FirstMarkerGameObject = firstmarker.get();
-
-			auto lastmarker = std::make_unique<dae::GameObject>();
-			lastmarker->AddComponent<TextureComponent>("Sprites/Misc/Highlight/Arrow_Up.png");
-			lastmarker->SetLocalPosition({ currentItemPos.y + currentItemSize.y + 5, currentItemPos.x - currentItemSize.x / 2.f });
-			lastmarker->SetRenderLayer(RenderLayer::Entity);
-
-			m_LastMarkerGameObject = firstmarker.get();
-
-			dae::SceneManager::GetInstance().GetActiveScene().Add(firstmarker);
-			dae::SceneManager::GetInstance().GetActiveScene().Add(lastmarker);
-
-			return;
-		}
-
-		auto firstmarker = std::make_unique<dae::GameObject>();
-		firstmarker->AddComponent<TextureComponent>("Sprites/Misc/Highlight/Arrow_Right.png");
-		firstmarker->SetLocalPosition({ currentItemPos.y - currentItemSize.y / 2.f, currentItemPos.x + currentItemSize.x + 5 });
-		firstmarker->SetRenderLayer(RenderLayer::Entity);
-
-		m_FirstMarkerGameObject = firstmarker.get();
-
-		auto lastmarker = std::make_unique<dae::GameObject>();
-		lastmarker->AddComponent<TextureComponent>("Sprites/Misc/Highlight/Arrow_Left.png");
-		lastmarker->SetLocalPosition({ currentItemPos.y - currentItemSize.y / 2.f, currentItemPos.x + currentItemSize.x + 5 });
-		lastmarker->SetRenderLayer(RenderLayer::Entity);
-
-		m_LastMarkerGameObject = firstmarker.get();
-
-		dae::SceneManager::GetInstance().GetActiveScene().Add(firstmarker);
-		dae::SceneManager::GetInstance().GetActiveScene().Add(lastmarker);
+class LetterConfirmCommand : public Command
+{
+public:
+	explicit LetterConfirmCommand(HighScore* highScore)
+		: m_HighScore(highScore)
+	{
 	}
 
 	void Execute() override
 	{
-		++m_CurrentItemIndex;
+		m_HighScore->IncreaseLetterIndex();
 
-		SetNewMarkerPos();
+		if (m_HighScore->GetLetterIndex() >= 3)
+		{
+			m_HighScore->FinishEntry();
+			return;
+		}
+
+		m_HighScore->UpdateLetterDisplay();
 	}
 
 private:
-	//private functions
-	void SetNewMarkerPos()
+	HighScore* m_HighScore;
+};
+
+class ButtonUpCommand : public Command
+{
+public:
+	explicit ButtonUpCommand() {}
+
+	void Execute() override
 	{
-		glm::vec2 currentItemPos{ m_Items[m_CurrentItemIndex]->GetWorldPosition() };
-		glm::vec2 currentItemSize{};
-
-		if (m_Items[m_CurrentItemIndex]->HasComponent<TextureComponent>())
+		auto& director = GameDirector::GetInstance();
+		if (director.GetSelectedMenuIndex() > 0)
 		{
-			currentItemSize.x = m_Items[m_CurrentItemIndex]->GetComponent<TextureComponent>()->GetWidth();
-			currentItemSize.y = m_Items[m_CurrentItemIndex]->GetComponent<TextureComponent>()->GetHeight();
+			director.DecreaseMenuIndex();
+			director.UpdateMenuVisuals();
 		}
-		else if (m_Items[m_CurrentItemIndex]->HasComponent<SpriteComponent>())
-		{
-			currentItemSize = m_Items[m_CurrentItemIndex]->GetComponent<SpriteComponent>()->GetSpriteSize();
-		}
-		else
-		{
-			std::cerr << "ColliderComponent requires a TextureComponent or SpriteComponent to be attached to the same GameObject.\n";
-			return;
-		}
+	}
+};
 
-		if (m_IsVertical)
+class ButtonDownCommand : public Command
+{
+public:
+	explicit ButtonDownCommand() {}
+
+	void Execute() override
+	{
+		auto& director = GameDirector::GetInstance();
+		if (director.GetSelectedMenuIndex() < static_cast<int>(director.GetMenuOptions().size()) - 1)
 		{
-			m_FirstMarkerGameObject->SetLocalPosition({ currentItemPos.y - 5, currentItemPos.x - currentItemSize.x / 2.f });
-			m_LastMarkerGameObject->SetLocalPosition({ currentItemPos.y + currentItemSize.y + 5, currentItemPos.x - currentItemSize.x / 2.f });
-
-			return;
+			director.IncreaseMenuIndex();
+			director.UpdateMenuVisuals();
 		}
+	}
+};
 
-		m_FirstMarkerGameObject->SetLocalPosition({ currentItemPos.y - currentItemSize.y / 2.f, currentItemPos.x + currentItemSize.x + 5 });
-		m_LastMarkerGameObject->SetLocalPosition({ currentItemPos.y - currentItemSize.y / 2.f, currentItemPos.x + currentItemSize.x + 5 });
+class ButtonConfirmCommand : public Command
+{
+public:
+	explicit ButtonConfirmCommand()
+	{
 	}
 
-	//member variables
-	bool m_IsVertical;
-
-	int m_CurrentItemIndex;
-
-	dae::GameObject* m_FirstMarkerGameObject;
-	dae::GameObject* m_LastMarkerGameObject;
-
-	std::vector<dae::GameObject*> m_Items;
+	void Execute() override
+	{
+		auto& director = GameDirector::GetInstance();
+		director.DetermineGameFlow();
+	}
 };

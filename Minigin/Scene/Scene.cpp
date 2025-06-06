@@ -64,7 +64,9 @@ dae::GameObject* Scene::GetGround(const glm::vec2& position) const
 Scene::Scene(const std::string& name, bool setActive)
 	:	m_name(name),
 		m_IsActive{ setActive }
-{}
+{
+	if (m_IsActive) dae::SceneManager::GetInstance().SetActiveScene(*this);
+}
 
 Scene::~Scene() = default;
 

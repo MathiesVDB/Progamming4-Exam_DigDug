@@ -7,7 +7,7 @@ namespace dae
     class Component
     {
     public:
-        Component(dae::GameObject* owner) : m_OwnerPtr{ owner } {};
+        Component(dae::GameObject* owner) : m_OwnerPtr{ owner } {}
         virtual ~Component() = default;
 
         Component& operator=(const Component& other) = delete;

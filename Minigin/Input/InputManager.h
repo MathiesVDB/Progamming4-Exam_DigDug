@@ -22,6 +22,8 @@ public:
 	void AddCommand(unsigned int key, KeyState state, std::unique_ptr<Command> command);
 	void AddControllerCommand(unsigned int button, KeyState state, std::unique_ptr<Command> command);
 
+	void ClearCommands();
+
 private:
 	class InputManagerImpl;
 	std::unique_ptr<InputManagerImpl> m_pImpl;

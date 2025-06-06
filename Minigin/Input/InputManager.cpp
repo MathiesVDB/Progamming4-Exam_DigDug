@@ -106,6 +106,12 @@ public:
         m_ControllerCommands[button].emplace_back(state, std::move(command));
     }
 
+    void ClearCommands()
+    {
+        m_KeyboardCommands.clear();
+        m_ControllerCommands.clear();
+    }
+
 private:
     std::unordered_map<unsigned int, std::vector<std::pair<KeyState, std::unique_ptr<Command>>>> m_KeyboardCommands;
     std::unordered_map<unsigned int, std::vector<std::pair<KeyState, std::unique_ptr<Command>>>> m_ControllerCommands;
@@ -128,4 +134,9 @@ void InputManager::AddCommand(unsigned int key, KeyState state, std::unique_ptr<
 void InputManager::AddControllerCommand(unsigned int button, KeyState state, std::unique_ptr<Command> command)
 {
     m_pImpl->AddControllerCommand(button, state, std::move(command));
+}
+
+void InputManager::ClearCommands()
+{
+    m_pImpl->ClearCommands();
 }

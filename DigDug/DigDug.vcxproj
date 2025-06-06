@@ -162,7 +162,6 @@
     <ClCompile Include="HealthDisplayer.cpp" />
     <ClCompile Include="Enemies\Pooka.cpp" />
     <ClCompile Include="HighScore.cpp" />
-    <ClCompile Include="Menu\LetterPickComponent.cpp" />
     <ClCompile Include="Player\PlayerState.cpp" />
     <ClCompile Include="Player\Player.cpp" />
     <ClCompile Include="Enemies\PookaState.cpp" />
@@ -183,7 +182,6 @@
     <ClInclude Include="HealthDisplayer.h" />
     <ClInclude Include="Enemies\Pooka.h" />
     <ClInclude Include="HighScore.h" />
-    <ClInclude Include="Menu\LetterPickComponent.h" />
     <ClInclude Include="Player\PlayerState.h" />
     <ClInclude Include="Player\Player.h" />
     <ClInclude Include="Enemies\PookaState.h" />

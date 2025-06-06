@@ -3,6 +3,7 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "Fygar.h"
+#include "GameDirector.h"
 #include "ScoreDisplayer.h"
 
 ScoreHandler::ScoreHandler()
@@ -56,5 +57,7 @@ void ScoreHandler::Notify(dae::GameObject* gameObject, dae::EventID event)
         m_Score += scoreToAdd;
 
         m_Displayer->ChangeScore(m_Score);
+
+        GameDirector::GetInstance().Notify(gameObject, event);
 	}
 }

@@ -9,6 +9,7 @@
 #include "ScoreDisplayer.h"
 #include "SoundHandler.h"
 
+class GameDirector;
 class ScoreHandler;
 class RopeComponent;
 //-----------------------------------------------------
@@ -49,7 +50,9 @@ private:
 	//-------------------------------------------------
 	dae::Scene& m_Scene;
 	GridComponent*					m_GridComponent{ nullptr };
+
 	std::shared_ptr<SoundHandler>	m_SoundHandler;
 	std::shared_ptr<ScoreHandler>	m_ScoreHandler;
+
 	std::unique_ptr<ScoreDisplayer> m_ScoreDisplayer;
 };

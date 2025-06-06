@@ -71,5 +71,5 @@ public:
 	void UnregisterCollider(ColliderComponent*) override { std::cout << "NULL COLLISION SYSTEM\n"; }
 	void CheckCollisions() override { std::cout << "NULL COLLISION SYSTEM\n"; }
 
-	virtual const CollisionEvent& GetLastCollisionEvent() const override { return m_LastCollisionEvent; };
+	virtual const CollisionEvent& GetLastCollisionEvent() const override { return m_LastCollisionEvent; }
 };

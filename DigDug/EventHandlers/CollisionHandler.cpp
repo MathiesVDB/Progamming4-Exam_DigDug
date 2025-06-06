@@ -9,9 +9,21 @@
 
 void CollisionHandler::Notify(dae::GameObject* gameObject, dae::EventID event)
 {
+	if (!gameObject)
+	{
+		std::cerr << "[CollisionHandler] Null GameObject passed to Notify!\n";
+		return;
+	}
+
 	if (event != dae::EventRegistry::GetInstance().GetEventID("CollisionEvent")) return;
 
-	auto& collision = ServiceLocator::GetCollisionSystem().GetLastCollisionEvent();
+	const auto& collision = ServiceLocator::GetCollisionSystem().GetLastCollisionEvent();
+
+	if (!collision.collider || !collision.collided)
+	{
+		std::cerr << "[CollisionHandler] CollisionEvent contains null objects!\n";
+		return;
+	}
 
 	if (gameObject->HasComponent<Player>())
 		gameObject->GetComponent<Player>()->HandleCollision(collision);

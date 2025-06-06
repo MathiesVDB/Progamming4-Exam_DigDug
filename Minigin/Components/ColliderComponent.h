@@ -23,6 +23,12 @@ class ColliderComponent final : public dae::Component
 {
 public:
 	ColliderComponent(dae::GameObject* owner, Tag tag);
+	~ColliderComponent() override;
+
+	ColliderComponent(const ColliderComponent&)				= delete;
+	ColliderComponent& operator=(const ColliderComponent&)	= delete;
+	ColliderComponent(ColliderComponent&&)					= delete;
+	ColliderComponent& operator=(ColliderComponent&&)		= delete;
 
 	//-------------------------------------------------
 	// Member functions						

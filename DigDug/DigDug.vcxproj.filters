@@ -69,9 +69,6 @@
     <ClCompile Include="EventHandlers\GameDirector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Menu\LetterPickComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventHandlers\HealthComponent.h">
@@ -132,9 +129,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EventHandlers\GameDirector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Menu\LetterPickComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

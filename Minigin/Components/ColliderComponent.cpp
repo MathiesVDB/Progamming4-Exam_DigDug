@@ -40,6 +40,11 @@ ColliderComponent::ColliderComponent(dae::GameObject* owner, Tag tag)
 	m_BoundingBox = { static_cast<int>(owner->GetWorldPosition().x), static_cast<int>(owner->GetWorldPosition().y), m_Width, m_Height };
 }
 
+ColliderComponent::~ColliderComponent()
+{
+	ServiceLocator::GetCollisionSystem().UnregisterCollider(this);
+}
+
 void ColliderComponent::Update(float )
 {
 	m_BoundingBox.x = static_cast<int>(GetOwner()->GetWorldPosition().x);

@@ -15,6 +15,8 @@ namespace dae
 		void Update();
 
 	private:
+		friend class dae::Singleton<SceneSwitcher>;
+
 		SceneSwitcher() = default;
 
 		std::function<void()> m_NextSceneFunc{};

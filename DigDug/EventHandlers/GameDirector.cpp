@@ -3,17 +3,63 @@
 #include "Level.h"
 #include "FPSComponent.h"
 #include "Fygar.h"
+#include "InputManager.h"
 #include "Pooka.h"
+#include "ResourceManager.h"
 #include "Scene.h"
 #include "SceneManager.h"
 #include "SceneSwitcher.h"
-#include "HighScore.h"
 
-GameDirector::GameDirector(std::shared_ptr<SoundHandler> soundHandler, std::shared_ptr<ScoreHandler> scoreHandler)
-	:	m_CurrentSceneName{ dae::SceneManager::GetInstance().GetActiveScene().GetName() },
-		m_SoundHandler{ std::move(soundHandler)},
-		m_ScoreHandler{ std::move(scoreHandler)}
+void GameDirector::Init(std::shared_ptr<SoundHandler> soundHandler, std::shared_ptr<ScoreHandler> scoreHandler)
 {
+	m_CurrentSceneName	= dae::SceneManager::GetInstance().GetActiveScene().GetName();
+	m_SoundHandler		= std::move(soundHandler);
+	m_ScoreHandler		= std::move(scoreHandler);
+
+	dae::SceneSwitcher::GetInstance().QueueSceneChange([this]() {
+
+		auto& scene = dae::SceneManager::GetInstance().CreateScene("StartScreen");
+
+		auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
+
+		auto logoGO = std::make_unique<dae::GameObject>();
+		auto texture = logoGO->AddComponent<TextureComponent>("Sprites/Misc/StartLogo.png");
+		logoGO->SetLocalPosition({dae::Minigin::WINDOW_WIDTH / 2.f - texture->GetWidth() / 2.f, 100.f});
+		logoGO->SetRenderLayer(RenderLayer::Entity);
+
+		scene.Add(logoGO);
+
+		m_MenuOptions = { "1 Player", "2 Players", "Versus" };
+		m_SelectedMenuIndex = 0;
+
+		for (int index = 0; index < m_MenuOptions.size(); ++index)
+		{
+			auto menuGO = std::make_unique<dae::GameObject>();
+			std::string label = (index == m_SelectedMenuIndex ? "> " : "  ") + m_MenuOptions[index];
+			menuGO->AddComponent<dae::TextObject>(label, font);
+			menuGO->SetLocalPosition({ dae::Minigin::WINDOW_WIDTH / 2.f - 100, 300.f + static_cast<float>(index) * 50.f });
+			menuGO->SetRenderLayer(RenderLayer::Entity);
+
+			m_MenuButtons[index] = menuGO.get();
+			scene.Add(menuGO);
+		}
+
+		auto& inputManager = InputManager::GetInstance();
+
+		// Keyboard commands
+		inputManager.AddCommand(SDL_SCANCODE_W, KeyState::Down, std::make_unique<ButtonUpCommand>());
+		inputManager.AddCommand(SDL_SCANCODE_S, KeyState::Down, std::make_unique<ButtonDownCommand>());
+
+		inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Down, std::make_unique<ButtonConfirmCommand>());
+
+		// Controller commands
+		inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, KeyState::Down, std::make_unique<ButtonUpCommand>());
+		inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, KeyState::Down, std::make_unique<ButtonDownCommand>());
+
+		inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<ButtonConfirmCommand>());
+
+		dae::SceneManager::GetInstance().SetActiveScene(scene);
+		});
 }
 
 void GameDirector::Notify(dae::GameObject* gameObject, dae::EventID event)
@@ -24,9 +70,28 @@ void GameDirector::Notify(dae::GameObject* gameObject, dae::EventID event)
 
 	if (eventName == "EnemyDied")
 	{
-		if (GetCurrentEnemies() == 1) FleeLastEnemy();
-		else if (GetCurrentEnemies() <= 0) SwitchToNextScene();
+		int currentEnemies{ GetCurrentEnemies() };
+
+		//Need to count one extra because counting happens before dead enemy gets removed from scene
+		if (currentEnemies == 2) FleeLastEnemy();
+		else if (currentEnemies <= 1) SwitchToNextScene();
 	}
+}
+
+void GameDirector::DetermineGameFlow()
+{
+	constexpr SceneFlows sceneFlows[] = {
+		SceneFlows::SinglePlayer,
+		SceneFlows::TwoPlayer,
+		SceneFlows::Versus
+	};
+
+	if (m_SelectedMenuIndex >= 0 && m_SelectedMenuIndex < static_cast<int>(std::size(sceneFlows)))
+	{
+		m_SceneFlow = sceneFlows[m_SelectedMenuIndex];
+	}
+
+	SwitchToNextScene();
 }
 
 int GameDirector::GetCurrentEnemies()
@@ -37,7 +102,7 @@ int GameDirector::GetCurrentEnemies()
 
 	m_CurrentSceneName = activeScene.GetName();
 	m_AliveEnemies = 0;
-	auto entities{ activeScene.GetAllEntities() };
+	const auto& entities{ activeScene.GetAllEntities() };
 
 	for (const auto& entity : entities)
 	{
@@ -50,8 +115,8 @@ int GameDirector::GetCurrentEnemies()
 void GameDirector::FleeLastEnemy()
 {
 	//Function only gets called on last enemy so first valid enemy is only enemy
-	auto& activeScene{ dae::SceneManager::GetInstance().GetActiveScene() };
-	auto entities{ activeScene.GetAllEntities() };
+	const auto& activeScene{ dae::SceneManager::GetInstance().GetActiveScene() };
+	const auto& entities{ activeScene.GetAllEntities() };
 
 	for (const auto& entity : entities)
 	{
@@ -70,32 +135,85 @@ void GameDirector::FleeLastEnemy()
 
 void GameDirector::SwitchToNextScene()
 {
-	switch (m_Scene)
+	switch (m_SceneFlow)
 	{
-	case Scenes::MAIN:
+		case SceneFlows::SinglePlayer:
 		{
-		auto soundHandler = m_SoundHandler;
-		auto scoreHandler = m_ScoreHandler;
-
-		dae::SceneSwitcher::GetInstance().QueueSceneChange([soundHandler, scoreHandler]() {
-			auto& scene = dae::SceneManager::GetInstance().CreateScene("MainScene");
-
-			auto FPSGameObject = std::make_unique<dae::GameObject>();
-			FPSGameObject->AddComponent<FPSComponent>();
-			scene.Add(FPSGameObject);
-
-			auto levelGameObject = std::make_unique<dae::GameObject>();
-			levelGameObject->AddComponent<Level>("Level1", soundHandler, scoreHandler);
-			levelGameObject->AddComponent<GridComponent>();
-			levelGameObject->GetComponent<Level>()->LoadLevel("Level1.json");
-			scene.Add(levelGameObject);
-			});
-		break;
+			SingleplayerFlow();
+			break;
 		}
-	case Scenes::LEVEL1:
+		case SceneFlows::TwoPlayer:
 		{
-		std::unique_ptr<HighScore> highScore{ std::make_unique<HighScore>(m_ScoreHandler) };
-		highScore->LoadSaveScene();
+			TwoplayerFlow();
+			break;
+		}
+		case SceneFlows::Versus:
+		{
+			VersusFlow();
+			break;
+		}
+		default:
+		{
+			std::cout << "INVALID SCENE FLOW" << std::endl;
 		}
 	}
+}
+
+void GameDirector::UpdateMenuVisuals()
+{
+	for (int counter = 0; counter < m_MenuOptions.size(); ++counter)
+	{
+		std::string label = (counter == m_SelectedMenuIndex ? "> " : "  ") + m_MenuOptions[counter];
+		m_MenuButtons[counter]->GetComponent<dae::TextObject>()->SetText(label);
+	}
+}
+
+void GameDirector::SingleplayerFlow()
+{
+	switch (m_Scene)
+	{
+		case Scenes::MAIN:
+		{
+			auto soundHandler = m_SoundHandler;
+			auto scoreHandler = m_ScoreHandler;
+
+			dae::SceneSwitcher::GetInstance().QueueSceneChange([soundHandler, scoreHandler]() {
+				auto& scene = dae::SceneManager::GetInstance().CreateScene("MainScene");
+
+				auto FPSGameObject = std::make_unique<dae::GameObject>();
+				FPSGameObject->AddComponent<FPSComponent>();
+				scene.Add(FPSGameObject);
+
+				auto levelGameObject = std::make_unique<dae::GameObject>();
+				levelGameObject->AddComponent<Level>("Level1", soundHandler, scoreHandler);
+				levelGameObject->AddComponent<GridComponent>();
+				levelGameObject->GetComponent<Level>()->LoadLevel("Level1.json");
+				scene.Add(levelGameObject);
+				});
+
+			m_Scene = Scenes::LEVEL1;
+			break;
+		}
+		case Scenes::LEVEL1:
+		{
+			dae::SceneSwitcher::GetInstance().QueueSceneChange([this]() {
+
+				m_HighScore = std::make_unique<HighScore>(m_ScoreHandler);
+				m_HighScore->LoadSaveScene();
+				});
+
+			m_Scene = Scenes::HIGHSCORE;
+			break;
+		}
+	}
+}
+
+void GameDirector::TwoplayerFlow()
+{
+	std::cout << "NOT IMPLEMENTED YET" << std::endl;
+}
+
+void GameDirector::VersusFlow()
+{
+	std::cout << "NOT IMPLEMENTED YET" << std::endl;
 }

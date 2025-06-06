@@ -1,5 +1,4 @@
 #include "ScoreDisplayer.h"
-
 #include "Scene.h"
 #include "SceneManager.h"
 #include "SelfDestructComponent.h"
