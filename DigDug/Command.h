@@ -8,12 +8,20 @@
 #include "SpriteComponent.h"
 #include "Scene.h"
 #include "SceneManager.h"
+#include "ServiceLocator.h"
 
 class Command
 {
 public:
 	virtual ~Command() = default;
 	virtual void Execute() = 0;
+
+
+	void SetGlobal() { m_IsGlobal = true; }
+	bool IsGlobal() const { return m_IsGlobal; }
+
+private:
+	bool m_IsGlobal{ false };
 };
 
 //------------------------------------------------
@@ -192,5 +200,35 @@ public:
 	{
 		auto& director = GameDirector::GetInstance();
 		director.DetermineGameFlow();
+	}
+};
+
+class MuteCommand : public Command
+{
+public:
+	explicit MuteCommand()
+	{
+	}
+
+	void Execute() override
+	{
+		ServiceLocator::GetSoundSystem().ToggleMute();
+
+		std::cout << "[GLOBAL COMMAND] GAME MUTED" << std::endl;
+	}
+};
+
+class SkipLevelCommand : public Command
+{
+public:
+	explicit SkipLevelCommand()
+	{
+	}
+
+	void Execute() override
+	{
+		GameDirector::GetInstance().SwitchToNextScene();
+
+		std::cout << "[GLOBAL COMMAND] LEVEL SKIPPED" << std::endl;
 	}
 };

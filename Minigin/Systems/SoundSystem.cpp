@@ -40,6 +40,12 @@ public:
 
 	void AddSoundToQueue(const std::string& soundPath) 
 	{
+		if (m_IsMuted)
+		{
+			std::cout << "[Sound System] NO SOUND ADDED - SOUNDSYSTEM IS MUTED" << std::endl;
+			return;
+		}
+
 		{
 			std::string fullPath = "../Data/SFX/" + soundPath;
 			std::cout << "[Sound System] Adding sound to queue: " << fullPath << std::endl;
@@ -49,12 +55,16 @@ public:
 		m_Condition.notify_one();
 	}
 
+	void ToggleMute() { m_IsMuted = !m_IsMuted; }
+
 private:
 	std::queue<std::string>		m_SoundQueue;
 	std::mutex					m_QueueMutex;
 	std::condition_variable		m_Condition;
 	std::atomic<bool>			m_Running;
 	std::jthread				m_WorkerThread;
+
+	bool m_IsMuted{ false };
 
 	void Run()
 	{
@@ -114,4 +124,9 @@ RealSoundSystem::~RealSoundSystem() = default;
 void RealSoundSystem::AddSoundToQueue(const std::string& sound_path)
 {
 	m_ImplPtr->AddSoundToQueue(sound_path);
+}
+
+void RealSoundSystem::ToggleMute()
+{
+	m_ImplPtr->ToggleMute();
 }

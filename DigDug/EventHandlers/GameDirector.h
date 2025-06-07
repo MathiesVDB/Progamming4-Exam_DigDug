@@ -26,7 +26,10 @@ public:
 	void IncreaseMenuIndex() { ++m_SelectedMenuIndex; }
 	void DecreaseMenuIndex() { --m_SelectedMenuIndex; }
 
+	//Game flow functions
 	void DetermineGameFlow();
+
+	void SwitchToNextScene();
 
 private:
 	friend class dae::Singleton<GameDirector>;
@@ -51,7 +54,6 @@ private:
 	//Private functions
 	int GetCurrentEnemies();
 	void FleeLastEnemy();
-	void SwitchToNextScene();
 
 	void SingleplayerFlow();
 	void TwoplayerFlow();

@@ -187,7 +187,7 @@ void GameDirector::SingleplayerFlow()
 				auto levelGameObject = std::make_unique<dae::GameObject>();
 				levelGameObject->AddComponent<Level>("Level1", soundHandler, scoreHandler);
 				levelGameObject->AddComponent<GridComponent>();
-				levelGameObject->GetComponent<Level>()->LoadLevel("Level1.json");
+				levelGameObject->GetComponent<Level>()->LoadLevel("Level2.json");
 				scene.Add(levelGameObject);
 				});
 

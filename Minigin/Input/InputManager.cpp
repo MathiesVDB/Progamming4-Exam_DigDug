@@ -108,8 +108,25 @@ public:
 
     void ClearCommands()
     {
-        m_KeyboardCommands.clear();
-        m_ControllerCommands.clear();
+        //Preserve global commands
+
+        auto filterGlobals = [](auto& commandMap) {
+            for (auto iterator = commandMap.begin(); iterator != commandMap.end(); )
+            {
+                auto& command = iterator->second;
+                command.erase(std::remove_if(command.begin(), command.end(), [](const std::pair<KeyState, std::unique_ptr<Command>>& pair) 
+                {
+                    return !pair.second->IsGlobal();
+                }),
+                command.end());
+
+                if (command.empty()) iterator = commandMap.erase(iterator);
+                else ++iterator;
+            }
+            };
+
+        filterGlobals(m_KeyboardCommands);
+        filterGlobals(m_ControllerCommands);
     }
 
 private:

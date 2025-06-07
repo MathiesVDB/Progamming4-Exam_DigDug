@@ -136,7 +136,7 @@ void Scene::RemoveAll()
 void Scene::Update(float deltaTime)
 {
 	for (auto& object : m_Ground)   object->Update(deltaTime);
-	for (auto& object : m_Entities) object->Update(deltaTime);
+	for (auto& object : m_Entities) object->Update(deltaTime); 
 	for (auto& object : m_Players)  object->Update(deltaTime);
 
 	// Collision check

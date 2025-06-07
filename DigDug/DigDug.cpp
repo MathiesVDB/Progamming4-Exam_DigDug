@@ -9,8 +9,10 @@
     #endif
 
 #include "CollisionHandler.h"
+#include "Command.h"
 #include "FPSComponent.h"
 #include "GameDirector.h"
+#include "InputManager.h"
 #include "Minigin.h"
 #include "SceneManager.h"
 #include "ResourceManager.h"
@@ -43,22 +45,19 @@
         static auto collisionHandler = std::make_shared<CollisionHandler>();
         ServiceLocator::GetCollisionSystem().AddObserver(collisionHandler);
 
+        auto skipLevelCommand = std::make_unique<SkipLevelCommand>();
+        skipLevelCommand->SetGlobal();
+
+        auto muteCommand = std::make_unique<MuteCommand>();
+        muteCommand->SetGlobal();
+
+        InputManager::GetInstance().AddCommand(SDL_SCANCODE_F1, KeyState::Down, std::move(skipLevelCommand));
+        InputManager::GetInstance().AddCommand(SDL_SCANCODE_F2, KeyState::Down, std::move(muteCommand));
+
         static auto soundHandler = std::make_shared<SoundHandler>();
         static auto scoreHandler = std::make_shared<ScoreHandler>();
 
         GameDirector::GetInstance().Init(soundHandler, scoreHandler);
-
-        //auto& scene = dae::SceneManager::GetInstance().CreateScene("MainScene");
-        //
-        //auto FPSGameObject = std::make_unique<dae::GameObject>();
-        //FPSGameObject->AddComponent<FPSComponent>();
-        //scene.Add(FPSGameObject);
-        //
-        //auto levelGameObject = std::make_unique<dae::GameObject>();
-        //levelGameObject->AddComponent<Level>("Level1", soundHandler, scoreHandler);
-        //levelGameObject->AddComponent<GridComponent>();
-		//levelGameObject->GetComponent<Level>()->LoadLevel("Level1.json");
-        //scene.Add(levelGameObject);
     }
 
     int main(int, char* []) {
