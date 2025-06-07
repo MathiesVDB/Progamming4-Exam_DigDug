@@ -1,9 +1,12 @@
 #include "PlayerState.h"
+
+#include "Fygar.h"
 #include "GameObject.h"
 #include "GridComponent.h"
 #include "HealthComponent.h"
 #include "Level.h"
 #include "Player.h"
+#include "Pooka.h"
 #include "RopeComponent.h"
 #include "SpriteComponent.h"
 
@@ -176,7 +179,7 @@ namespace PlayerStates
 			auto emptyTile = player.GetLevelPtr()->SpawnEmpty(playerPos);
 			player.GetGridPtr()->GetGrid()[index].coverTile = emptyTile.get();
 			player.GetGridPtr()->GetGrid()[index].digDirection = player.GetDirection();
-			dae::SceneManager::GetInstance().GetActiveScene().Add(emptyTile);
+			dae::SceneManager::GetInstance().GetActiveScene().MarkForAdd(std::move(emptyTile));
 		}
 
 		auto coverTile{ player.GetGridPtr()->GetGrid()[index].coverTile };
@@ -195,7 +198,7 @@ namespace PlayerStates
 
 		if (player.GetGridPtr()->GetGrid()[index].hasBeenDug)
 		{
-			auto originalTile = dae::SceneManager::GetInstance().GetActiveScene().GetGround(player.GetGridPtr()->GetGrid()[index].spawnPosition);
+			auto originalTile = dae::SceneManager::GetInstance().GetActiveScene().GetObjectByPosition(player.GetGridPtr()->GetGrid()[index].spawnPosition);
 			if (originalTile)
 			{
 				dae::SceneManager::GetInstance().GetActiveScene().MarkForDeletion(originalTile);
@@ -271,7 +274,16 @@ namespace PlayerStates
 		if (m_Sprite->HasReachedLastframe())
 		{
 			player.GetHealth()->TakeDamage();
-			dae::SceneManager::GetInstance().GetActiveScene().ResetSceneEntities();
+			auto entities{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByRenderLayer(RenderLayer::Entity) };
+
+			for (const auto& entity : entities)
+			{
+				if (entity->HasComponent<Pooka>()) entity->GetComponent<Pooka>()->ResetPooka();
+				else if (entity->HasComponent<Fygar>()) entity->GetComponent<Fygar>()->ResetFygar();
+			}
+
+			player.ResetPlayer();
+
 			return &PlayerStates::PlayerState::idling;
 		}
 

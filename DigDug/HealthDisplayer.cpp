@@ -42,7 +42,7 @@ void HealthDisplay::CreateLives()
 
         m_DisplayedLives.emplace_back(life.get());
 
-        dae::SceneManager::GetInstance().GetActiveScene().Add(life);
+        dae::SceneManager::GetInstance().GetActiveScene().MarkForAdd(std::move(life));
     }
 }
 

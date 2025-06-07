@@ -21,7 +21,7 @@ Pooka::Pooka(dae::GameObject* owner, GridComponent* grid)
 void Pooka::Update(float deltaTime)
 {
 	if (m_IsFleeing) m_CurrentTarget = m_FleeingTarget;
-	else			 m_CurrentTarget = dae::SceneManager::GetInstance().GetActiveScene().GetPlayer(0)->GetWorldPosition();
+	else			 m_CurrentTarget = dae::SceneManager::GetInstance().GetActiveScene().GetPlayerByIndex(0)->GetWorldPosition();
 
 	m_IsLookingLeft = m_CurrentTarget.x < GetOwner()->GetWorldPosition().x;
 	

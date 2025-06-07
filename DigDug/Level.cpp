@@ -39,7 +39,7 @@ Level::Level(dae::GameObject* owner, const std::string& sceneName, std::shared_p
 
     m_ScoreHandler->SetScoreTextDisplay(m_ScoreDisplayer.get());
 
-    m_Scene.Add(ScoreTextDisplayGameObject);
+    m_Scene.MarkForAdd(std::move(ScoreTextDisplayGameObject));
 }
 
 void Level::LoadLevel(const std::string& fileName)
@@ -109,7 +109,7 @@ void Level::LoadLevel(const std::string& fileName)
             case '#':
             {
                 auto empty = SpawnEmpty(spawnPos);
-                m_Scene.Add(empty);
+                m_Scene.MarkForAdd(std::move(empty));
                 break;
             }
             default:
@@ -226,7 +226,7 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
     Player1->GetComponent<Player>()->AddObserver(m_SoundHandler);
 
 //--------------------------------------------------------------------------------------------------------------------------
-//Add player controls
+//MarkForAdd player controls
 //--------------------------------------------------------------------------------------------------------------------------
 
     auto& inputManager = InputManager::GetInstance();
@@ -248,11 +248,11 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
 	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<AttackCommand>(Player1.get()));
 
     Player1->SetRenderLayer(RenderLayer::Player);
-    m_Scene.Add(Player1);
+    m_Scene.MarkForAdd(std::move(Player1));
 
-    m_Scene.Add(RopeHeadGameObject);
-    m_Scene.Add(RopeMiddleGameObject);
-    m_Scene.Add(RopeTailGameObject);
+    m_Scene.MarkForAdd(std::move(RopeHeadGameObject));
+    m_Scene.MarkForAdd(std::move(RopeMiddleGameObject));
+    m_Scene.MarkForAdd(std::move(RopeTailGameObject));
 }
 
 void Level::SpawnPooka(const glm::vec2& spawnPos) const
@@ -266,7 +266,7 @@ void Level::SpawnPooka(const glm::vec2& spawnPos) const
     PookaGameObject->GetComponent<Pooka>()->AddObserver(m_ScoreHandler);
 
     PookaGameObject->SetRenderLayer(RenderLayer::Entity);
-	m_Scene.Add(PookaGameObject);
+	m_Scene.MarkForAdd(std::move(PookaGameObject));
 }
 
 void Level::SpawnFygar(const glm::vec2& spawnPos) const
@@ -280,7 +280,7 @@ void Level::SpawnFygar(const glm::vec2& spawnPos) const
     FygarGameObject->GetComponent<Fygar>()->AddObserver(m_ScoreHandler);
 
     FygarGameObject->SetRenderLayer(RenderLayer::Entity);
-	m_Scene.Add(FygarGameObject);
+	m_Scene.MarkForAdd(std::move(FygarGameObject));
 }
 
 void Level::SpawnRock(const glm::vec2& spawnPos) const
@@ -294,7 +294,7 @@ void Level::SpawnRock(const glm::vec2& spawnPos) const
     m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasRock = true;
 
     RockGameObject->SetRenderLayer(RenderLayer::Entity); //May not technically be an entity but should render between ground and player
-	m_Scene.Add(RockGameObject);
+	m_Scene.MarkForAdd(std::move(RockGameObject));
 }
 
 void Level::SpawnDirtYellow(const glm::vec2& spawnPos) const
@@ -307,7 +307,7 @@ void Level::SpawnDirtYellow(const glm::vec2& spawnPos) const
 	m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
     DirtYellowGameObject->SetRenderLayer(RenderLayer::Ground);
-	m_Scene.Add(DirtYellowGameObject);
+	m_Scene.MarkForAdd(std::move(DirtYellowGameObject));
 }
 
 void Level::SpawnDirtOrangeLight(const glm::vec2& spawnPos) const
@@ -320,7 +320,7 @@ void Level::SpawnDirtOrangeLight(const glm::vec2& spawnPos) const
     m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
     DirtOrangeLightGameObject->SetRenderLayer(RenderLayer::Ground);
-	m_Scene.Add(DirtOrangeLightGameObject);
+	m_Scene.MarkForAdd(std::move(DirtOrangeLightGameObject));
 }
 
 void Level::SpawnDirtOrangeDark(const glm::vec2& spawnPos) const
@@ -333,7 +333,7 @@ void Level::SpawnDirtOrangeDark(const glm::vec2& spawnPos) const
     m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
     DirtOrangeDarkGameObject->SetRenderLayer(RenderLayer::Ground);
-	m_Scene.Add(DirtOrangeDarkGameObject);
+	m_Scene.MarkForAdd(std::move(DirtOrangeDarkGameObject));
 }
 
 void Level::SpawnDirtRed(const glm::vec2& spawnPos) const
@@ -346,7 +346,7 @@ void Level::SpawnDirtRed(const glm::vec2& spawnPos) const
     m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
     DirtRedGameObject->SetRenderLayer(RenderLayer::Ground);
-	m_Scene.Add(DirtRedGameObject);
+	m_Scene.MarkForAdd(std::move(DirtRedGameObject));
 }
 
 std::unique_ptr<dae::GameObject> Level::SpawnEmpty(const glm::vec2& spawnPos) const
@@ -376,5 +376,5 @@ void Level::SpawnFlower(const glm::vec2& spawnPos) const
 	FlowerGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 
     FlowerGameObject->SetRenderLayer(RenderLayer::Ground);
-	m_Scene.Add(FlowerGameObject);
+	m_Scene.MarkForAdd(std::move(FlowerGameObject));
 }

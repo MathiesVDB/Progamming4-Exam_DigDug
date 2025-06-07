@@ -71,7 +71,7 @@ void TiltState::OnEnter(Rock& rock)
 	m_Sprite = rock.GetOwner()->GetComponent<SpriteComponent>();
 	m_Sprite->SetSpriteBounds(0, 1, true);
 
-	m_Player = dae::SceneManager::GetInstance().GetActiveScene().GetPlayer(0);
+	m_Player = dae::SceneManager::GetInstance().GetActiveScene().GetPlayerByIndex(0);
 	m_PlayerCollider = m_Player->GetComponent<ColliderComponent>();
 }
 

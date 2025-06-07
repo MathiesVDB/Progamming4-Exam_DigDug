@@ -2,93 +2,63 @@
 #include "GameObject.h"
 #include <algorithm>
 #include <ranges>
-#include "Fygar.h"
-#include "Pooka.h"
 #include "ServiceLocator.h"
 
 using namespace dae;
 
 unsigned int Scene::m_idCounter = 0;
 
-void Scene::ResetSceneEntities() const
-{
-	for (const auto& entity : m_Entities)
-	{
-		if (entity->HasComponent<Pooka>()) entity->GetComponent<Pooka>()->ResetPooka();
-		else if (entity->HasComponent<Fygar>()) entity->GetComponent<Fygar>()->ResetFygar();
-	}
-
-	for (const auto& player : m_Players)
-	{
-		if (player->HasComponent<Player>()) player->GetComponent<Player>()->ResetPlayer();
-	}
-}
-
-dae::GameObject* Scene::GetPlayer(unsigned int index) const
-{
-	if (index < m_Players.size())
-	{
-		return m_Players[index].get();
-	}
-	return nullptr;
-}
-
-dae::GameObject* Scene::GetEntity(const glm::vec2& position) const
-{
-	auto it = std::ranges::find_if(m_Entities, [&position](const std::unique_ptr<dae::GameObject>& obj)
-		{
-			return obj->GetWorldPosition().x == position.x && obj->GetWorldPosition().y == position.y;
-		});
-
-	if (it != m_Entities.end())
-	{
-		return it->get();
-	}
-	return nullptr;
-}
-
-dae::GameObject* Scene::GetGround(const glm::vec2& position) const
-{
-	auto it = std::ranges::find_if(m_Ground, [&position](const std::unique_ptr<dae::GameObject>& obj)
-		{
-			return obj->GetWorldPosition().x == position.x && obj->GetWorldPosition().y == position.y;
-		});
-
-	if (it != m_Ground.end())
-	{
-		return it->get();
-	}
-	return nullptr;
-}
-
 Scene::Scene(const std::string& name, bool setActive)
-	:	m_name(name),
-		m_IsActive{ setActive }
+	: m_name(name),
+	m_IsActive{ setActive }
 {
 	if (m_IsActive) dae::SceneManager::GetInstance().SetActiveScene(*this);
 }
 
 Scene::~Scene() = default;
 
-void Scene::Add(std::unique_ptr<dae::GameObject>& object)
-{
-	RenderLayer layer = object->GetRenderLayer();
 
-	switch (layer)
+dae::GameObject* Scene::GetPlayerByIndex(unsigned int index) const
+{
+	auto players{ GetObjectsByRenderLayer(RenderLayer::Player) };
+
+	if (index < players.size())
 	{
-	case RenderLayer::Ground:
-		m_Ground.emplace_back(std::move(object));
-		break;
-	case RenderLayer::Entity:
-		m_Entities.emplace_back(std::move(object));
-		break;
-	case RenderLayer::Player:
-		m_Players.emplace_back(std::move(object));
-		break;
-	default: //No layer = middleground (always over ground but under player)
-		m_Entities.emplace_back(std::move(object));
-		break;
+		return players[index];
 	}
+	return nullptr;
+}
+
+dae::GameObject* Scene::GetObjectByPosition(const glm::vec2& position) const
+{
+	auto it = std::ranges::find_if(m_SceneObjects, [&position](const std::unique_ptr<dae::GameObject>& obj)
+		{
+			return obj->GetWorldPosition().x == position.x && obj->GetWorldPosition().y == position.y;
+		});
+
+	if (it != m_SceneObjects.end())
+	{
+		return it->get();
+	}
+	return nullptr;
+}
+
+std::vector<dae::GameObject*> Scene::GetObjectsByRenderLayer(RenderLayer layer) const
+{
+	std::vector<dae::GameObject*> results;
+	for (const auto& object : m_SceneObjects)
+	{
+		if (object->GetRenderLayer() == layer)
+		{
+			results.push_back(object.get());
+		}
+	}
+	return results;
+}
+
+void Scene::MarkForAdd(std::unique_ptr<dae::GameObject> object)
+{
+	m_PendingAddObjects.emplace_back(std::move(object));
 }
 
 void Scene::MarkForDeletion(dae::GameObject* object)
@@ -112,35 +82,32 @@ void Scene::Remove(dae::GameObject* object)
 				container.end());
 		};
 
-	switch (object->GetRenderLayer())
-	{
-	case RenderLayer::Ground:
-		removeFrom(m_Ground);
-		break;
-	case RenderLayer::Entity:
-		removeFrom(m_Entities);
-		break;
-	case RenderLayer::Player:
-		removeFrom(m_Players);
-		break;
-	}
+	removeFrom(m_SceneObjects);
+}
+
+void Scene::Add(std::unique_ptr<dae::GameObject> object)
+{
+	m_SceneObjects.emplace_back(std::move(object));
 }
 
 void Scene::RemoveAll()
 {
-	m_Ground.clear();
-	m_Entities.clear();
-	m_Players.clear();
+	m_SceneObjects.clear();
 }
 
 void Scene::Update(float deltaTime)
 {
-	for (auto& object : m_Ground)   object->Update(deltaTime);
-	for (auto& object : m_Entities) object->Update(deltaTime); 
-	for (auto& object : m_Players)  object->Update(deltaTime);
+	for (auto& object : m_SceneObjects) object->Update(deltaTime);
 
 	// Collision check
 	ServiceLocator::GetCollisionSystem().CheckCollisions();
+
+	//Add objects marked for addition
+	for (auto& object : m_PendingAddObjects)
+	{
+		Add(std::move(object));
+	}
+	m_PendingAddObjects.clear();
 
 	// Remove objects marked for deletion
 	for (auto* object : m_PendingDeleteObjects)
@@ -152,8 +119,5 @@ void Scene::Update(float deltaTime)
 
 void Scene::Render() const
 {
-	for (auto& object : m_Ground)   object->Render();
-	for (auto& object : m_Entities) object->Render();
-	for (auto& object : m_Players)  object->Render();
+	for (auto& object : m_SceneObjects) object->Render();
 }
-

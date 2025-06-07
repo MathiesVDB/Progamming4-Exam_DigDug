@@ -1,10 +1,10 @@
 #include "InputManager.h"
+#include <iostream>
 #include "Gamepad.h"
 #include <SDL.h>
 #include <unordered_map>
 #include <vector>
 #include <memory>
-#include <string>
 
 class InputManager::InputManagerImpl
 {

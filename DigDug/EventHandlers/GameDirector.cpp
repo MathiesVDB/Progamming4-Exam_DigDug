@@ -27,7 +27,7 @@ void GameDirector::Init(std::shared_ptr<SoundHandler> soundHandler, std::shared_
 		logoGO->SetLocalPosition({dae::Minigin::WINDOW_WIDTH / 2.f - texture->GetWidth() / 2.f, 100.f});
 		logoGO->SetRenderLayer(RenderLayer::Entity);
 
-		scene.Add(logoGO);
+		scene.MarkForAdd(std::move(logoGO));
 
 		m_MenuOptions = { "1 Player", "2 Players", "Versus" };
 		m_SelectedMenuIndex = 0;
@@ -41,7 +41,7 @@ void GameDirector::Init(std::shared_ptr<SoundHandler> soundHandler, std::shared_
 			menuGO->SetRenderLayer(RenderLayer::Entity);
 
 			m_MenuButtons[index] = menuGO.get();
-			scene.Add(menuGO);
+			scene.MarkForAdd(std::move(menuGO));
 		}
 
 		auto& inputManager = InputManager::GetInstance();
@@ -102,9 +102,9 @@ int GameDirector::GetCurrentEnemies()
 
 	m_CurrentSceneName = activeScene.GetName();
 	m_AliveEnemies = 0;
-	const auto& entities{ activeScene.GetAllEntities() };
+	const auto& objects{ activeScene.GetObjectsByRenderLayer(RenderLayer::Entity) };
 
-	for (const auto& entity : entities)
+	for (const auto& entity : objects)
 	{
 		if (entity->HasComponent<Fygar>() || entity->HasComponent<Pooka>()) ++m_AliveEnemies;
 	}
@@ -116,7 +116,7 @@ void GameDirector::FleeLastEnemy()
 {
 	//Function only gets called on last enemy so first valid enemy is only enemy
 	const auto& activeScene{ dae::SceneManager::GetInstance().GetActiveScene() };
-	const auto& entities{ activeScene.GetAllEntities() };
+	const auto& entities{ activeScene.GetObjectsByRenderLayer(RenderLayer::Entity) };
 
 	for (const auto& entity : entities)
 	{
@@ -182,13 +182,13 @@ void GameDirector::SingleplayerFlow()
 
 				auto FPSGameObject = std::make_unique<dae::GameObject>();
 				FPSGameObject->AddComponent<FPSComponent>();
-				scene.Add(FPSGameObject);
+				scene.MarkForAdd(std::move(FPSGameObject));
 
 				auto levelGameObject = std::make_unique<dae::GameObject>();
 				levelGameObject->AddComponent<Level>("Level1", soundHandler, scoreHandler);
 				levelGameObject->AddComponent<GridComponent>();
 				levelGameObject->GetComponent<Level>()->LoadLevel("Level2.json");
-				scene.Add(levelGameObject);
+				scene.MarkForAdd(std::move(levelGameObject));
 				});
 
 			m_Scene = Scenes::LEVEL1;

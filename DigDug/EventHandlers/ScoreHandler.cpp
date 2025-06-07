@@ -43,7 +43,7 @@ void ScoreHandler::Notify(dae::GameObject* gameObject, dae::EventID event)
         {
             const float MARGIN{ 2.0f };
 
-            auto player = dae::SceneManager::GetInstance().GetActiveScene().GetPlayer(0);
+            auto player = dae::SceneManager::GetInstance().GetActiveScene().GetPlayerByIndex(0);
             float playerY = player->GetWorldPosition().y;
 
             if (std::abs(position.y - playerY) <= MARGIN)

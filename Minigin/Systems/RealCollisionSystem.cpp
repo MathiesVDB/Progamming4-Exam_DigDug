@@ -3,7 +3,6 @@
 //---------------------------
 #include "RealCollisionSystem.h"
 #include "Observer.h"
-#include "CollisionHandler.h"
 
 //---------------------------
 // Constructor & Destructor

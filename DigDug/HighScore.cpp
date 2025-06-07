@@ -27,7 +27,7 @@ void HighScore::LoadSaveScene()
     titleGO->AddComponent<dae::TextObject>("Choose name!", font);
     titleGO->SetLocalPosition({ dae::Minigin::WINDOW_WIDTH / 2.f - 100, 100.f });
     titleGO->SetRenderLayer(RenderLayer::Entity);
-    scene.Add(titleGO);
+    scene.MarkForAdd(std::move(titleGO));
 
     for (int iterator = 0; iterator < 3; ++iterator)
     {
@@ -37,7 +37,7 @@ void HighScore::LoadSaveScene()
         letterGO->SetRenderLayer(RenderLayer::Entity);
 
         m_LetterObjects[iterator] = letterGO.get(); 
-        scene.Add(letterGO);
+        scene.MarkForAdd(std::move(letterGO));
     }
 
     auto& inputManager = InputManager::GetInstance();
@@ -63,7 +63,7 @@ void HighScore::LoadSaveScene()
     upArrow->SetLocalPosition({ pos.x, pos.y - texture->GetHeight() - 5.f});
     upArrow->SetRenderLayer(RenderLayer::Entity);
     m_UpArrowMarker = upArrow.get();
-    scene.Add(upArrow);
+    scene.MarkForAdd(std::move(upArrow));
 
     // Down Arrow
     auto downArrow = std::make_unique<dae::GameObject>();
@@ -71,7 +71,7 @@ void HighScore::LoadSaveScene()
     downArrow->SetLocalPosition({ pos.x, pos.y + FONT_SIZE });
     downArrow->SetRenderLayer(RenderLayer::Entity);
     m_DownArrowMarker = downArrow.get();
-    scene.Add(downArrow);
+    scene.MarkForAdd(std::move(downArrow));
 
     dae::SceneManager::GetInstance().SetActiveScene(m_SaveScene);
 }
@@ -86,7 +86,7 @@ void HighScore::LoadHighScoreScene()
     titleGO->AddComponent<dae::TextObject>("High Scores", font);
     titleGO->SetLocalPosition({ 100.f, 100.f });
     titleGO->SetRenderLayer(RenderLayer::Entity);
-    scene.Add(titleGO);
+    scene.MarkForAdd(std::move(titleGO));
 
     for (size_t index = 0; index < m_HighScores.size(); ++index)
     {
@@ -101,7 +101,7 @@ void HighScore::LoadHighScoreScene()
         scoreGO->AddComponent<dae::TextObject>(ss.str(), font);
         scoreGO->SetLocalPosition({ 100.f, startY + index * lineHeight });
         scoreGO->SetRenderLayer(RenderLayer::Entity);
-        scene.Add(scoreGO);
+        scene.MarkForAdd(std::move(scoreGO));
     }
 
     dae::SceneManager::GetInstance().SetActiveScene(m_SaveScene);

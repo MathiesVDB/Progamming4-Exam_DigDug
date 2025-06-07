@@ -43,5 +43,5 @@ void ScoreDisplayer::CreateNewScore(int score, const glm::vec2& pos)
 
 	m_DisplayedScores.emplace_back(ScoreGameObject.get());
 
-	dae::SceneManager::GetInstance().GetActiveScene().Add(ScoreGameObject);
+	dae::SceneManager::GetInstance().GetActiveScene().MarkForAdd(std::move(ScoreGameObject));
 }

@@ -3,26 +3,13 @@
 #include "Transform.h"
 #include "GameObject.h"
 #include "HighScore.h"
+#include "InputManager.h"
 #include "Player.h"
 #include "TextureComponent.h"
 #include "SpriteComponent.h"
 #include "Scene.h"
 #include "SceneManager.h"
 #include "ServiceLocator.h"
-
-class Command
-{
-public:
-	virtual ~Command() = default;
-	virtual void Execute() = 0;
-
-
-	void SetGlobal() { m_IsGlobal = true; }
-	bool IsGlobal() const { return m_IsGlobal; }
-
-private:
-	bool m_IsGlobal{ false };
-};
 
 //------------------------------------------------
 // Current Commands

@@ -418,7 +418,7 @@ void AttackState::CreateFireGameObject(Fygar& fygar)
 
 	m_AttackSprite = m_AttackObject->GetComponent<SpriteComponent>();
 
-	dae::SceneManager::GetInstance().GetActiveScene().Add(FygarAttackGameObject);
+	dae::SceneManager::GetInstance().GetActiveScene().MarkForAdd(std::move(FygarAttackGameObject));
 }
 
 void AttackState::OnExit(Fygar&)

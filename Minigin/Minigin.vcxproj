@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)DigDug;$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems;$(SolutionDir)Minigin;$(SolutionDir)DigDug/EventHandlers;$(SolutionDir)DigDug/Enemies;$(SolutionDir)DigDug/Player;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems;$(SolutionDir)Minigin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -82,7 +82,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)DigDug;$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems;$(SolutionDir)Minigin;$(SolutionDir)DigDug/EventHandlers;$(SolutionDir)DigDug/Enemies;$(SolutionDir)DigDug/Player;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Minigin/Components;$(SolutionDir)Minigin/Misc;$(SolutionDir)Minigin/Input;$(SolutionDir)Minigin/ResourceHandling;$(SolutionDir)Minigin/Scene;$(SolutionDir)Minigin/Systems;$(SolutionDir)Minigin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -108,7 +108,6 @@
     <ClInclude Include="Components\GridComponent.h" />
     <ClInclude Include="Misc\Helpers.h" />
     <ClInclude Include="Input\InputManager.h" />
-    <ClInclude Include="Components\Level.h" />
     <ClInclude Include="Minigin.h" />
     <ClInclude Include="Misc\Observer.h" />
     <ClInclude Include="SceneSwitcher.h" />
@@ -136,7 +135,6 @@
     <ClCompile Include="Input\GamePad.cpp" />
     <ClCompile Include="Components\GridComponent.cpp" />
     <ClCompile Include="Input\InputManager.cpp" />
-    <ClCompile Include="Components\Level.cpp" />
     <ClCompile Include="Minigin.cpp" />
     <ClCompile Include="SceneSwitcher.cpp" />
     <ClCompile Include="Scene\Renderer.cpp" />

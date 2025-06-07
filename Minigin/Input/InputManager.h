@@ -1,14 +1,27 @@
 #pragma once
 #include <memory>
-
 #include "Singleton.h"
-#include "Command.h"
 
 enum class KeyState
 {
 	Down,
 	Up,
 	Pressed
+};
+
+
+class Command
+{
+public:
+	virtual ~Command() = default;
+	virtual void Execute() = 0;
+
+
+	void SetGlobal() { m_IsGlobal = true; }
+	bool IsGlobal() const { return m_IsGlobal; }
+
+private:
+	bool m_IsGlobal{ false };
 };
 
 class InputManager final : public dae::Singleton<InputManager>
