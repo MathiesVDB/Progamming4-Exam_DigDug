@@ -28,8 +28,12 @@ namespace dae
 		void Render() const;
 
         //Render layer
-        void SetRenderLayer(RenderLayer layer) { m_RenderLayer = layer; }
-        RenderLayer GetRenderLayer() const { return m_RenderLayer; }
+        void SetRenderLayer(int layer) { m_RenderLayer = layer; }
+        int GetRenderLayer() const { return m_RenderLayer; }
+
+        //Tag
+        void SetObjectTag(const std::string& tag) { m_Tag = tag; }
+        const std::string& GetObjectTag() const { return m_Tag; }
 
 		//Handle parent/child relationship
 		void SetParent(GameObject* parent, bool keepWorldPosition);
@@ -82,9 +86,11 @@ namespace dae
         glm::vec2 m_LocalPosition   { 0, 0 };
         glm::vec2 m_WorldPosition   { 0, 0 };
 		glm::vec2 m_Velocity        { 0, 0 };
-        RenderLayer m_RenderLayer{};
+        int m_RenderLayer{ 0 };
         bool m_IsPositionDirty {  true };
         bool m_AllowOutOfBounds{ false };
+
+        std::string m_Tag{""};
 
         GameObject* m_Parent{ nullptr };
         std::vector<GameObject*> m_Children;

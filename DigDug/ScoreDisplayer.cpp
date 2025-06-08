@@ -39,7 +39,7 @@ void ScoreDisplayer::CreateNewScore(int score, const glm::vec2& pos)
 	ScoreGameObject->AddComponent<SpriteComponent>("Sprites/Misc/ScoreDarkSprite.png", 7, 2, 1.f, frameIndex, frameIndex);
 	ScoreGameObject->AddComponent<SelfDestructComponent>(2.5f);
 	ScoreGameObject->SetLocalPosition(pos);
-	ScoreGameObject->SetRenderLayer(RenderLayer::Entity);
+	ScoreGameObject->SetRenderLayer(3);
 
 	m_DisplayedScores.emplace_back(ScoreGameObject.get());
 

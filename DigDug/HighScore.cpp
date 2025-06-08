@@ -26,7 +26,7 @@ void HighScore::LoadSaveScene()
     auto titleGO = std::make_unique<dae::GameObject>();
     titleGO->AddComponent<dae::TextObject>("Choose name!", font);
     titleGO->SetLocalPosition({ dae::Minigin::WINDOW_WIDTH / 2.f - 100, 100.f });
-    titleGO->SetRenderLayer(RenderLayer::Entity);
+    titleGO->SetRenderLayer(3);
     scene.MarkForAdd(std::move(titleGO));
 
     for (int iterator = 0; iterator < 3; ++iterator)
@@ -34,7 +34,7 @@ void HighScore::LoadSaveScene()
         auto letterGO = std::make_unique<dae::GameObject>();
         letterGO->AddComponent<dae::TextObject>("A", font);
         letterGO->SetLocalPosition({ dae::Minigin::WINDOW_WIDTH / 2.f - 70 + iterator * 50.f, 200.f });
-        letterGO->SetRenderLayer(RenderLayer::Entity);
+        letterGO->SetRenderLayer(3);
 
         m_LetterObjects[iterator] = letterGO.get(); 
         scene.MarkForAdd(std::move(letterGO));
@@ -61,7 +61,7 @@ void HighScore::LoadSaveScene()
     auto upArrow = std::make_unique<dae::GameObject>();
     auto texture = upArrow->AddComponent<TextureComponent>("Sprites/Misc/Highlight/Arrow_Up.png");
     upArrow->SetLocalPosition({ pos.x, pos.y - texture->GetHeight() - 5.f});
-    upArrow->SetRenderLayer(RenderLayer::Entity);
+    upArrow->SetRenderLayer(3);
     m_UpArrowMarker = upArrow.get();
     scene.MarkForAdd(std::move(upArrow));
 
@@ -69,7 +69,7 @@ void HighScore::LoadSaveScene()
     auto downArrow = std::make_unique<dae::GameObject>();
     downArrow->AddComponent<TextureComponent>("Sprites/Misc/Highlight/Arrow_Down.png");
     downArrow->SetLocalPosition({ pos.x, pos.y + FONT_SIZE });
-    downArrow->SetRenderLayer(RenderLayer::Entity);
+    downArrow->SetRenderLayer(3);
     m_DownArrowMarker = downArrow.get();
     scene.MarkForAdd(std::move(downArrow));
 
@@ -85,7 +85,7 @@ void HighScore::LoadHighScoreScene()
     auto titleGO = std::make_unique<dae::GameObject>();
     titleGO->AddComponent<dae::TextObject>("High Scores", font);
     titleGO->SetLocalPosition({ 100.f, 100.f });
-    titleGO->SetRenderLayer(RenderLayer::Entity);
+    titleGO->SetRenderLayer(3);
     scene.MarkForAdd(std::move(titleGO));
 
     for (size_t index = 0; index < m_HighScores.size(); ++index)
@@ -100,7 +100,7 @@ void HighScore::LoadHighScoreScene()
         auto scoreGO = std::make_unique<dae::GameObject>();
         scoreGO->AddComponent<dae::TextObject>(ss.str(), font);
         scoreGO->SetLocalPosition({ 100.f, startY + index * lineHeight });
-        scoreGO->SetRenderLayer(RenderLayer::Entity);
+        scoreGO->SetRenderLayer(3);
         scene.MarkForAdd(std::move(scoreGO));
     }
 

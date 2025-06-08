@@ -274,7 +274,7 @@ namespace PlayerStates
 		if (m_Sprite->HasReachedLastframe())
 		{
 			player.GetHealth()->TakeDamage();
-			auto entities{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByRenderLayer(RenderLayer::Entity) };
+			auto entities{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Entity") };
 
 			for (const auto& entity : entities)
 			{

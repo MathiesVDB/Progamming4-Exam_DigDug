@@ -26,11 +26,10 @@ namespace dae
 
 		void SetActive(bool isActive)	{ m_IsActive = isActive; }
 
-		dae::GameObject* GetPlayerByIndex(unsigned int index) const; // Stays separate function to allow access to player position from everywhere in the program
 		dae::GameObject* GetObjectByPosition(const glm::vec2& position) const; // Get specific object by position
 
 		const std::vector<std::unique_ptr<dae::GameObject>>& GetAllObjects() const { return m_SceneObjects;	}
-		std::vector<dae::GameObject*> GetObjectsByRenderLayer(RenderLayer layer) const;
+		std::vector<dae::GameObject*> GetObjectsByTag(const std::string& tag) const;
 
 	private: 
 		explicit Scene(const std::string& name, bool setActive);

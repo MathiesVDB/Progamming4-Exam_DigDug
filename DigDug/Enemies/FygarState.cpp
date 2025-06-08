@@ -414,7 +414,8 @@ void AttackState::CreateFireGameObject(Fygar& fygar)
 	if (fygar.IsLookingLeft())	FygarAttackGameObject->GetComponent<dae::Transform>()->SetPosition(fygarPos.x - m_Collider->GetBoundingBox().w, fygarPos.y);
 	else						FygarAttackGameObject->GetComponent<dae::Transform>()->SetPosition(fygarPos.x + m_Collider->GetBoundingBox().w, fygarPos.y);
 
-	FygarAttackGameObject->SetRenderLayer(RenderLayer::Entity);
+	FygarAttackGameObject->SetRenderLayer(2);
+	FygarAttackGameObject->SetObjectTag("Entity");
 
 	m_AttackSprite = m_AttackObject->GetComponent<SpriteComponent>();
 

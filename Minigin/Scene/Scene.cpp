@@ -19,18 +19,6 @@ Scene::Scene(const std::string& name, bool setActive)
 
 Scene::~Scene() = default;
 
-
-dae::GameObject* Scene::GetPlayerByIndex(unsigned int index) const
-{
-	auto players{ GetObjectsByRenderLayer(RenderLayer::Player) };
-
-	if (index < players.size())
-	{
-		return players[index];
-	}
-	return nullptr;
-}
-
 dae::GameObject* Scene::GetObjectByPosition(const glm::vec2& position) const
 {
 	auto it = std::ranges::find_if(m_SceneObjects, [&position](const std::unique_ptr<dae::GameObject>& obj)
@@ -45,12 +33,12 @@ dae::GameObject* Scene::GetObjectByPosition(const glm::vec2& position) const
 	return nullptr;
 }
 
-std::vector<dae::GameObject*> Scene::GetObjectsByRenderLayer(RenderLayer layer) const
+std::vector<dae::GameObject*> Scene::GetObjectsByTag(const std::string& tag) const
 {
 	std::vector<dae::GameObject*> results;
 	for (const auto& object : m_SceneObjects)
 	{
-		if (object->GetRenderLayer() == layer)
+		if (object->GetObjectTag() == tag)
 		{
 			results.push_back(object.get());
 		}

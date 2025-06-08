@@ -25,7 +25,7 @@ void GameDirector::Init(std::shared_ptr<SoundHandler> soundHandler, std::shared_
 		auto logoGO = std::make_unique<dae::GameObject>();
 		auto texture = logoGO->AddComponent<TextureComponent>("Sprites/Misc/StartLogo.png");
 		logoGO->SetLocalPosition({dae::Minigin::WINDOW_WIDTH / 2.f - texture->GetWidth() / 2.f, 100.f});
-		logoGO->SetRenderLayer(RenderLayer::Entity);
+		logoGO->SetObjectTag("UI");
 
 		scene.MarkForAdd(std::move(logoGO));
 
@@ -38,7 +38,7 @@ void GameDirector::Init(std::shared_ptr<SoundHandler> soundHandler, std::shared_
 			std::string label = (index == m_SelectedMenuIndex ? "> " : "  ") + m_MenuOptions[index];
 			menuGO->AddComponent<dae::TextObject>(label, font);
 			menuGO->SetLocalPosition({ dae::Minigin::WINDOW_WIDTH / 2.f - 100, 300.f + static_cast<float>(index) * 50.f });
-			menuGO->SetRenderLayer(RenderLayer::Entity);
+			menuGO->SetObjectTag("UI");
 
 			m_MenuButtons[index] = menuGO.get();
 			scene.MarkForAdd(std::move(menuGO));
@@ -102,7 +102,7 @@ int GameDirector::GetCurrentEnemies()
 
 	m_CurrentSceneName = activeScene.GetName();
 	m_AliveEnemies = 0;
-	const auto& objects{ activeScene.GetObjectsByRenderLayer(RenderLayer::Entity) };
+	const auto& objects{ activeScene.GetObjectsByTag("Entity") };
 
 	for (const auto& entity : objects)
 	{
@@ -116,7 +116,7 @@ void GameDirector::FleeLastEnemy()
 {
 	//Function only gets called on last enemy so first valid enemy is only enemy
 	const auto& activeScene{ dae::SceneManager::GetInstance().GetActiveScene() };
-	const auto& entities{ activeScene.GetObjectsByRenderLayer(RenderLayer::Entity) };
+	const auto& entities{ activeScene.GetObjectsByTag("Entity") };
 
 	for (const auto& entity : entities)
 	{

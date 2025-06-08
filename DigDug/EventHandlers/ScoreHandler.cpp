@@ -43,7 +43,11 @@ void ScoreHandler::Notify(dae::GameObject* gameObject, dae::EventID event)
         {
             const float MARGIN{ 2.0f };
 
-            auto player = dae::SceneManager::GetInstance().GetActiveScene().GetPlayerByIndex(0);
+            const auto& players{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Player") };
+
+            assert(!players.empty() && "NO PLAYERS FOUND");
+
+            auto player = players[0];
             float playerY = player->GetWorldPosition().y;
 
             if (std::abs(position.y - playerY) <= MARGIN)
