@@ -28,7 +28,7 @@ enum class Inflated
 class Level final : public dae::Component
 {
 public:
-	Level(dae::GameObject* owner, const std::string& sceneName, std::shared_ptr<SoundHandler> soundHandler, std::shared_ptr<ScoreHandler> scoreHandler);
+	Level(dae::GameObject* owner, const std::string& sceneName, std::shared_ptr<SoundHandler> soundHandler, std::shared_ptr<ScoreHandler> scoreHandler, int player1Health, int player2Health = 0);
 
 	//-------------------------------------------------
 	// Member functions						
@@ -58,6 +58,10 @@ private:
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
+	int m_Player1Health;
+	int m_Player2Health;
+	int m_PlayerCount{};
+
 	dae::Scene& m_Scene;
 	GridComponent*					m_GridComponent{ nullptr };
 

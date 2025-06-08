@@ -185,9 +185,9 @@ void GameDirector::SingleplayerFlow()
 				scene.MarkForAdd(std::move(FPSGameObject));
 
 				auto levelGameObject = std::make_unique<dae::GameObject>();
-				levelGameObject->AddComponent<Level>("Level1", soundHandler, scoreHandler);
+				levelGameObject->AddComponent<Level>("Level1", soundHandler, scoreHandler, 3);
 				levelGameObject->AddComponent<GridComponent>();
-				levelGameObject->GetComponent<Level>()->LoadLevel("Level2.json");
+				levelGameObject->GetComponent<Level>()->LoadLevel("Level1.json");
 				scene.MarkForAdd(std::move(levelGameObject));
 				});
 
@@ -195,6 +195,60 @@ void GameDirector::SingleplayerFlow()
 			break;
 		}
 		case Scenes::LEVEL1:
+		{
+			const auto& players{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Player") };
+			assert(!players.empty() && "NO PLAYERS FOUND");
+
+			int player1Health{players[0]->GetComponent<Player>()->GetHealth()->GetLives()};
+
+			auto soundHandler = m_SoundHandler;
+			auto scoreHandler = m_ScoreHandler;
+
+			dae::SceneSwitcher::GetInstance().QueueSceneChange([soundHandler, scoreHandler, player1Health]() {
+				auto& scene = dae::SceneManager::GetInstance().CreateScene("MainScene");
+
+				auto FPSGameObject = std::make_unique<dae::GameObject>();
+				FPSGameObject->AddComponent<FPSComponent>();
+				scene.MarkForAdd(std::move(FPSGameObject));
+
+				auto levelGameObject = std::make_unique<dae::GameObject>();
+				levelGameObject->AddComponent<Level>("Level2", soundHandler, scoreHandler, player1Health);
+				levelGameObject->AddComponent<GridComponent>();
+				levelGameObject->GetComponent<Level>()->LoadLevel("Level2.json");
+				scene.MarkForAdd(std::move(levelGameObject));
+				});
+
+			m_Scene = Scenes::LEVEL2;
+			break;
+		}
+		case Scenes::LEVEL2:
+		{
+			const auto& players{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Player") };
+			assert(!players.empty() && "NO PLAYERS FOUND");
+
+			int player1Health{ players[0]->GetComponent<Player>()->GetHealth()->GetLives() };
+
+			auto soundHandler = m_SoundHandler;
+			auto scoreHandler = m_ScoreHandler;
+
+			dae::SceneSwitcher::GetInstance().QueueSceneChange([soundHandler, scoreHandler, player1Health]() {
+				auto& scene = dae::SceneManager::GetInstance().CreateScene("MainScene");
+
+				auto FPSGameObject = std::make_unique<dae::GameObject>();
+				FPSGameObject->AddComponent<FPSComponent>();
+				scene.MarkForAdd(std::move(FPSGameObject));
+
+				auto levelGameObject = std::make_unique<dae::GameObject>();
+				levelGameObject->AddComponent<Level>("Level3", soundHandler, scoreHandler, player1Health);
+				levelGameObject->AddComponent<GridComponent>();
+				levelGameObject->GetComponent<Level>()->LoadLevel("Level3.json");
+				scene.MarkForAdd(std::move(levelGameObject));
+				});
+
+			m_Scene = Scenes::LEVEL3;
+			break;
+		}
+		case Scenes::LEVEL3:
 		{
 			dae::SceneSwitcher::GetInstance().QueueSceneChange([this]() {
 

@@ -14,7 +14,7 @@ Rock::Rock(dae::GameObject* owner, GridComponent* grid)
 		m_GridPtr{ grid }
 {
 	m_StartCellIndex = m_GridPtr->GetCellIndex({ owner->GetLocalPosition().x, owner->GetLocalPosition().y });
-	m_CellIndexBelow = m_StartCellIndex + GridComponent::COLUMNS;
+	m_CellIndexBelow = m_StartCellIndex + m_GridPtr->GetColumns();
 }
 
 void Rock::HandleCollision(const CollisionEvent& collision)

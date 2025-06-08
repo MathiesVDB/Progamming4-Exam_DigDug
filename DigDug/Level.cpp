@@ -22,11 +22,13 @@
 //---------------------------
 // Constructor & Destructor
 //---------------------------
-Level::Level(dae::GameObject* owner, const std::string& sceneName, std::shared_ptr<SoundHandler> soundHandler, std::shared_ptr<ScoreHandler> scoreHandler)
+Level::Level(dae::GameObject* owner, const std::string& sceneName, std::shared_ptr<SoundHandler> soundHandler, std::shared_ptr<ScoreHandler> scoreHandler, int player1Health, int player2Health)
 	:   Component(owner),
 		m_Scene(dae::SceneManager::GetInstance().CreateScene(sceneName, true)),
 		m_SoundHandler{ soundHandler },
-		m_ScoreHandler{ scoreHandler }
+		m_ScoreHandler{ scoreHandler },
+		m_Player1Health{ player1Health },
+		m_Player2Health{ player2Health }
 {
     auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
 
@@ -92,10 +94,10 @@ void Level::LoadLevel(const std::string& fileName)
             char tile = line[col];
             if (tile == ' ' || tile == 'P' || tile == 'p' || tile == 'F' || tile == 'R') continue;
 
-            float x = static_cast<float>(col) * GridComponent::CELL_SIZE;
-            float y = static_cast<float>(row) * GridComponent::CELL_SIZE;
+            float x = static_cast<float>(col) * m_GridComponent->GetCellSize();
+            float y = static_cast<float>(row) * m_GridComponent->GetCellSize();
             int index = m_GridComponent->GetCellIndex({ x, y });
-            if (index < 0 || index >= GridComponent::COLUMNS * GridComponent::ROWS) continue;
+            if (index < 0 || index >= m_GridComponent->GetColumns() * m_GridComponent->GetRows()) continue;
 
             glm::vec2 spawnPos = m_GridComponent->GetGrid()[index].spawnPosition;
             if (tile == '#') m_GridComponent->GetGrid()[index].hasBeenDug = true;
@@ -162,7 +164,7 @@ void Level::LoadLevel(const std::string& fileName)
         std::string indexStr = entry.substr(comma + 1);
         int index = std::stoi(indexStr);
 
-        if (index < 0 || index >= GridComponent::COLUMNS * GridComponent::ROWS) continue;
+        if (index < 0 || index >= m_GridComponent->GetColumns() * m_GridComponent->GetRows()) continue;
 
         glm::vec2 spawnPos = m_GridComponent->GetGrid()[index].spawnPosition;
 
@@ -180,6 +182,8 @@ void Level::LoadLevel(const std::string& fileName)
 
 void Level::SpawnPlayer(const glm::vec2& spawnPos) 
 {
+    ++m_PlayerCount;
+
     auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -216,7 +220,8 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
     auto Player1 = std::make_unique<dae::GameObject>();
     Player1->AddComponent<SpriteComponent>("Sprites/Player/WalkingSprite.png", 1, 8, 0.25f, 0, 1);
     Player1->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
-    Player1->AddComponent<HealthComponent>(3);
+    if (m_PlayerCount == 1) Player1->AddComponent<HealthComponent>(m_Player1Health);
+    else                    Player1->AddComponent<HealthComponent>(m_Player2Health);
 	Player1->AddComponent<ColliderComponent>(FRIENDLY_ENTITY);
     auto ropeComponent = Player1->AddComponent<RopeComponent>(RopeHeadGameObject.get(), RopeMiddleGameObject.get(), RopeTailGameObject.get());
     Player1->AddComponent<Player>(m_GridComponent);

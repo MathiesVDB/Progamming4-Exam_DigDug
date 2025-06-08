@@ -22,7 +22,7 @@ public:
 		bool hasRock{ false };
 	};
 
-	GridComponent(dae::GameObject* owner);
+	GridComponent(dae::GameObject* owner, int columns = 14, int rows = 18, int cellSize = 40); // Defaulted to digdug values
 
 	void Render() const override;
 
@@ -33,10 +33,14 @@ public:
 
 	int GetCellIndex(const glm::vec2& pos);
 
-	//Constants
-	static constexpr int COLUMNS	{ 14 };
-	static constexpr int ROWS		{ 18 };
-	static constexpr int CELL_SIZE	{ 40 };
+	int GetColumns()	const { return m_Columns;	}
+	int GetRows()		const { return m_Rows;		}
+	int GetCellSize()	const { return m_CellSize;	}
+	
 private:
 	std::vector<Cell> m_Grid;
+
+	int m_Columns;
+	int m_Rows;
+	int m_CellSize;
 };

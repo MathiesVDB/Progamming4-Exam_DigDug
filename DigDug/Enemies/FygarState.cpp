@@ -137,10 +137,10 @@ std::vector<GridComponent::Cell> MovingState::GetPossibleCells(Fygar& fygar)
 				possibleCells.emplace_back(fygar.GetGridPtr()->GetGrid()[possibleIndex]);
 		};
 
-	possibleIndex = currentIndex - fygar.GetGridPtr()->COLUMNS; // Up
+	possibleIndex = currentIndex - fygar.GetGridPtr()->GetColumns(); // Up
 	tryAddCell(possibleIndex, MoveDirection::Down);
 
-	possibleIndex = currentIndex + fygar.GetGridPtr()->COLUMNS; // Down
+	possibleIndex = currentIndex + fygar.GetGridPtr()->GetColumns(); // Down
 	tryAddCell(possibleIndex, MoveDirection::Up);
 
 	possibleIndex = currentIndex - 1; // Left

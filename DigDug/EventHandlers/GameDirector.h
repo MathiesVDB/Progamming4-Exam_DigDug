@@ -48,6 +48,8 @@ private:
 	{
 		MAIN,
 		LEVEL1,
+		LEVEL2,
+		LEVEL3,
 		HIGHSCORE
 	};
 
@@ -66,6 +68,8 @@ private:
 	std::string m_CurrentSceneName;
 
 	int m_AliveEnemies{};
+	int m_Player1Health{ 3 };
+	int m_Player2Health{ 3 };
 
 	std::unique_ptr<HighScore>		m_HighScore;
 	std::shared_ptr<SoundHandler>	m_SoundHandler;

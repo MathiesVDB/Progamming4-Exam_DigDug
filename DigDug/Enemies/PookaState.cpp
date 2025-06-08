@@ -147,10 +147,10 @@ std::vector<GridComponent::Cell> MovingState::GetPossibleCells(Pooka& pooka)
 				possibleCells.emplace_back(pooka.GetGridPtr()->GetGrid()[possibleIndex]);
 		};
 
-	possibleIndex = currentIndex - pooka.GetGridPtr()->COLUMNS; // Up
+	possibleIndex = currentIndex - pooka.GetGridPtr()->GetColumns(); // Up
 	tryAddCell(possibleIndex, MoveDirection::Down);
 
-	possibleIndex = currentIndex + pooka.GetGridPtr()->COLUMNS; // Down
+	possibleIndex = currentIndex + pooka.GetGridPtr()->GetColumns(); // Down
 	tryAddCell(possibleIndex, MoveDirection::Up);
 
 	possibleIndex = currentIndex - 1; // Left
