@@ -15,6 +15,16 @@ class RopeComponent;
 //-----------------------------------------------------
 // Level Class									 
 //-----------------------------------------------------
+
+enum class Inflated
+{
+	None,
+	Stage1,
+	Stage2,
+	Stage3,
+	Exploded
+};
+
 class Level final : public dae::Component
 {
 public:

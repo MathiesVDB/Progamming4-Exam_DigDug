@@ -13,7 +13,6 @@ namespace dae
 		void RemoveAll();
 
 		void Update(float deltaTime);
-		void Render() const;
 
 		~Scene();
 		Scene(const Scene& other)				= delete;
@@ -24,6 +23,7 @@ namespace dae
 		const std::string& GetName() const { return m_name; }
 
 		bool IsActive() const			{ return m_IsActive; }
+
 		void SetActive(bool isActive)	{ m_IsActive = isActive; }
 
 		dae::GameObject* GetPlayerByIndex(unsigned int index) const; // Stays separate function to allow access to player position from everywhere in the program

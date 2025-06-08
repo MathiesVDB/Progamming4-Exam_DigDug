@@ -87,10 +87,10 @@
     <ClInclude Include="Systems\RealCollisionSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SelfDestructComponent.h">
+    <ClInclude Include="Components\SelfDestructComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SceneSwitcher.h">
+    <ClInclude Include="Scene\SceneSwitcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -158,10 +158,10 @@
     <ClCompile Include="Systems\RealCollisionSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SelfDestructComponent.cpp">
+    <ClCompile Include="Components\SelfDestructComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SceneSwitcher.cpp">
+    <ClCompile Include="Scene\SceneSwitcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

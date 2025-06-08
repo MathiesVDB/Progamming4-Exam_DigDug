@@ -1,5 +1,9 @@
 #include <stdexcept>
 #include "Renderer.h"
+
+#include <algorithm>
+
+#include "Scene.h"
 #include "SceneManager.h"
 #include "Texture2D.h"
 
@@ -33,7 +37,26 @@ void dae::Renderer::Render() const
 	SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
 	SDL_RenderClear(m_renderer);
 
-	SceneManager::GetInstance().Render();
+	if (m_IsDirty)
+	{
+		m_RenderedObjects.clear();
+
+		const auto& objects = SceneManager::GetInstance().GetActiveScene().GetAllObjects();
+
+		for (const auto& object : objects) m_RenderedObjects.push_back(object.get());
+
+		std::ranges::sort(m_RenderedObjects, [](const GameObject* a, const GameObject* b)
+			{
+				return a->GetRenderLayer() < b->GetRenderLayer();
+			});
+
+		m_IsDirty = false;
+	}
+
+	for (const auto& object : m_RenderedObjects)
+	{
+		object->Render();
+	}
 	
 	SDL_RenderPresent(m_renderer);
 }

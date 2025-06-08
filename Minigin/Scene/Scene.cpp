@@ -2,6 +2,8 @@
 #include "GameObject.h"
 #include <algorithm>
 #include <ranges>
+
+#include "Renderer.h"
 #include "ServiceLocator.h"
 
 using namespace dae;
@@ -93,6 +95,7 @@ void Scene::Add(std::unique_ptr<dae::GameObject> object)
 void Scene::RemoveAll()
 {
 	m_SceneObjects.clear();
+	dae::Renderer::GetInstance().SetDirty();
 }
 
 void Scene::Update(float deltaTime)
@@ -106,6 +109,7 @@ void Scene::Update(float deltaTime)
 	for (auto& object : m_PendingAddObjects)
 	{
 		Add(std::move(object));
+		dae::Renderer::GetInstance().SetDirty();
 	}
 	m_PendingAddObjects.clear();
 
@@ -113,11 +117,7 @@ void Scene::Update(float deltaTime)
 	for (auto* object : m_PendingDeleteObjects)
 	{
 		Remove(object);
+		dae::Renderer::GetInstance().SetDirty();
 	}
 	m_PendingDeleteObjects.clear();
-}
-
-void Scene::Render() const
-{
-	for (auto& object : m_SceneObjects) object->Render();
 }

@@ -1,9 +1,11 @@
 #pragma once
 #include <SDL.h>
+#include <vector>
 #include "Singleton.h"
 
 namespace dae
 {
+	class GameObject;
 	class Texture2D;
 	/**
 	 * Simple RAII wrapper for the SDL renderer
@@ -12,11 +14,16 @@ namespace dae
 	{
 		SDL_Renderer* m_renderer{};
 		SDL_Window* m_window{};
-		SDL_Color m_clearColor{};	
+		SDL_Color m_clearColor{};
+
+		mutable std::vector<dae::GameObject*> m_RenderedObjects{};
+		mutable bool m_IsDirty{ false };
 	public:
 		void Init(SDL_Window* window);
 		void Render() const;
 		void Destroy();
+
+		void SetDirty() { m_IsDirty = true; }
 
 		void RenderTexture(const Texture2D& texture, float x, float y) const;
 		void RenderTexture(const Texture2D& texture, float x, float y, float width, float height) const;

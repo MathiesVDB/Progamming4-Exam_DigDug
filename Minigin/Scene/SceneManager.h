@@ -13,7 +13,6 @@ namespace dae
 		Scene& CreateScene(const std::string& name, bool setActive = false);
 
 		void Update(float deltaTime);
-		void Render();
 
 		Scene& GetActiveScene();
 		Scene& GetScene(const std::string& name) const;

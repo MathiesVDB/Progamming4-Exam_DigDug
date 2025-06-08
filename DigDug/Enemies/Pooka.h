@@ -4,9 +4,9 @@
 // Include Files
 //-----------------------------------------------------
 #include "Component.h"
-#include "Helpers.h"
 #include "PookaState.h"
 #include "RealCollisionSystem.h"
+#include "Level.h"
 
 class GridComponent;
 //-----------------------------------------------------

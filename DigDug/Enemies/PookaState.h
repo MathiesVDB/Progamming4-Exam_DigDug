@@ -4,6 +4,7 @@
 #include "GridComponent.h"
 #include "Helpers.h"
 #include "Command.h"
+#include "Level.h"
 
 class GridComponent;
 struct Cell;

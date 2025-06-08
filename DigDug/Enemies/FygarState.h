@@ -5,6 +5,7 @@
 #include "Helpers.h"
 #include "GridComponent.h"
 #include "Command.h"
+#include "Level.h"
 
 class ColliderComponent;
 class SpriteComponent;

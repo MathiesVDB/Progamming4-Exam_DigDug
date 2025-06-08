@@ -9,11 +9,6 @@ void dae::SceneManager::Update(float deltaTime)
 	dae::SceneSwitcher::GetInstance().Update();
 }
 
-void dae::SceneManager::Render()
-{
-	GetActiveScene().Render();
-}
-
 dae::Scene& dae::SceneManager::GetActiveScene()
 {
 	if (m_scenes.empty()) return CreateScene("DefaultScene", true);

@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <vec2.hpp>
 #include "FygarState.h"
-#include "Helpers.h"
 #include "RealCollisionSystem.h"
+#include "Level.h"
 
 //-----------------------------------------------------
 // Fygar Class									 
