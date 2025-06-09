@@ -36,9 +36,10 @@ public:
 
 	//Setters
 
-	void SetState(PlayerStates::PlayerState* state);
+	void SetState(std::unique_ptr<PlayerStates::PlayerState> state);
 	void SetLevelPtr(Level* level) { m_LevelPtr = level; }
 	void ResetPlayer() const { GetOwner()->SetLocalPosition(m_SpawnPosition); }
+	void StartInvincibiltyPeriod() { m_IsInvincible = true; }
 
 	//Getters
 
@@ -50,12 +51,13 @@ public:
 	HealthComponent*		GetHealth()		const { return m_Health;	}
 
 	bool					WasCrushed()	const { return m_WasCrushed; }
-	bool					IsDead()		const { return m_State == &PlayerStates::PlayerState::dying; }
+	bool					IsDead()		const { return dynamic_cast<PlayerStates::DeathState*>(m_State.get()) != nullptr; }
 
 	//-------------------------------------------------
 	// Constants					
 	//-------------------------------------------------
-	static constexpr int SNAP_DISTANCE = 1;
+	static constexpr int	SNAP_DISTANCE		{ 1   };
+	static constexpr float	INVINCIBILITY_TIME	{ 1.5f };
 private:
 	//-------------------------------------------------
 	// Private member functions								
@@ -69,15 +71,18 @@ private:
 	//-------------------------------------------------
 	// Datamembers								
 	//-------------------------------------------------
-	bool m_WasCrushed{ false };
+	bool m_WasCrushed	{ false };
+	bool m_IsInvincible	{ false };
+
+	float m_AccumulatedTime{};
 
 	glm::vec2 m_SpawnPosition{};
 
-	GridComponent*				m_GridPtr;
-	RopeComponent*				m_Rope;
-	Level*						m_LevelPtr; 
-	PlayerStates::PlayerState*	m_State;
-	ColliderComponent*			m_Collider;
-	MoveDirection				m_Direction;
-	HealthComponent*			m_Health;
+	GridComponent*								m_GridPtr;
+	RopeComponent*								m_Rope;
+	Level*										m_LevelPtr; 
+	std::unique_ptr<PlayerStates::PlayerState>	m_State;
+	ColliderComponent*							m_Collider;
+	MoveDirection								m_Direction;
+	HealthComponent*							m_Health;
 };

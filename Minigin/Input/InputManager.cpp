@@ -10,9 +10,19 @@ class InputManager::InputManagerImpl
 {
 public:
     InputManagerImpl()
-        : m_Gamepad(0) // Controller 0
     {
-        std::cout << "InputManager initialized.\n";
+        //m_Gamepads[0] = std::make_unique<GamePad>(0);
+
+        int numJoysticks = SDL_NumJoysticks();
+        for (int counter = 0; counter < numJoysticks; ++counter) 
+        {
+            if (SDL_IsGameController(counter)) 
+            {
+                RegisterController(counter);
+            }
+        }
+
+        std::cout << "[InputManager] Input initialized.\n";
     }
 
     bool ProcessInput()
@@ -27,7 +37,11 @@ public:
 	        }
         }
 
-        m_Gamepad.Update();
+        for (auto& [id, gamepad] : m_Gamepads) 
+        {
+            gamepad->Update();
+        }
+
 
         const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
@@ -62,33 +76,42 @@ public:
             m_PreviousKeyState[key] = isPressed;
         }
 
-
-        for (const auto& [button, commands] : m_ControllerCommands)
+        for (const auto& [controllerId, commandMap] : m_ControllerCommands)
         {
-            bool buttonDown = m_Gamepad.IsButtonDown(button);
-            bool buttonPressed = m_Gamepad.IsButtonPressed(button);
-            bool buttonUp = m_Gamepad.IsButtonUp(button);
+            auto iterator = m_Gamepads.find(controllerId);
+            if (iterator == m_Gamepads.end()) continue;
 
-            // Execute commands based on button states
-            for (const auto& [keyState, command] : commands)
+            GamePad* gamepad = iterator->second.get();
+
+            for (const auto& [button, commands] : commandMap) 
             {
-                bool execute = false;
-                switch (keyState)
-                {
-                case KeyState::Down:
-                    execute = buttonDown;
-                    break;
-                case KeyState::Up:
-                    execute = buttonUp;
-                    break;
-                case KeyState::Pressed:
-                    execute = buttonPressed;
-                    break;
-                }
+                bool buttonDown     = gamepad->IsButtonDown(button);
+                bool buttonPressed  = gamepad->IsButtonPressed(button);
+                bool buttonUp       = gamepad->IsButtonUp(button);
 
-                if (execute)
+                for (const auto& [keyState, command] : commands)
                 {
-                    command->Execute();
+                    bool execute = false;
+                    switch (keyState)
+                	{
+                    case KeyState::Down:
+                    {
+                        execute = buttonDown;
+                    	break;
+                    }
+                    case KeyState::Up:
+	                {
+		                execute = buttonUp;
+                    	break;
+	                }
+                    case KeyState::Pressed:
+	                {
+		                execute = buttonPressed;
+                    	break;
+	                }
+                    }
+
+                    if (execute && command) command->Execute();
                 }
             }
         }
@@ -101,39 +124,51 @@ public:
         m_KeyboardCommands[key].emplace_back(state, std::move(command));
     }
 
-    void AddControllerCommand(unsigned int button, KeyState state, std::unique_ptr<Command> command)
-    {
-        m_ControllerCommands[button].emplace_back(state, std::move(command));
+    void AddControllerCommand(int controllerIndex, unsigned int button, KeyState state, std::unique_ptr<Command> command)
+	{
+        m_ControllerCommands[controllerIndex][button].emplace_back(state, std::move(command));
     }
 
     void ClearCommands()
     {
-        //Preserve global commands
+        //Keep global commands
+        for (auto it = m_KeyboardCommands.begin(); it != m_KeyboardCommands.end(); )
+        {
+            auto& commandList = it->second;
+            commandList.erase(
+                std::remove_if(
+                    commandList.begin(),
+                    commandList.end(),
+                    [](const std::pair<KeyState, std::unique_ptr<Command>>& pair) 
+                    {
+                        return !pair.second->IsGlobal();
+                    }
+                ),
+                commandList.end()
+            );
 
-        auto filterGlobals = [](auto& commandMap) {
-            for (auto iterator = commandMap.begin(); iterator != commandMap.end(); )
-            {
-                auto& command = iterator->second;
-                command.erase(std::remove_if(command.begin(), command.end(), [](const std::pair<KeyState, std::unique_ptr<Command>>& pair) 
-                {
-                    return !pair.second->IsGlobal();
-                }),
-                command.end());
+            if (commandList.empty())
+                it = m_KeyboardCommands.erase(it);
+            else
+                ++it;
+        }
 
-                if (command.empty()) iterator = commandMap.erase(iterator);
-                else ++iterator;
-            }
-            };
-
-        filterGlobals(m_KeyboardCommands);
-        filterGlobals(m_ControllerCommands);
+        //There are no global controller commands
+        m_ControllerCommands.clear();
     }
+
+    void RegisterController(int controllerIndex)
+	{
+        m_Gamepads[controllerIndex] = std::make_unique<GamePad>(controllerIndex);
+        std::cout << "Controller registered" << std::endl;
+    }
+
 
 private:
     std::unordered_map<unsigned int, std::vector<std::pair<KeyState, std::unique_ptr<Command>>>> m_KeyboardCommands;
-    std::unordered_map<unsigned int, std::vector<std::pair<KeyState, std::unique_ptr<Command>>>> m_ControllerCommands;
+    std::unordered_map<int, std::unordered_map<unsigned int, std::vector<std::pair<KeyState, std::unique_ptr<Command>>>>> m_ControllerCommands;
     std::unordered_map<unsigned int, bool> m_PreviousKeyState;
-    GamePad m_Gamepad;
+    std::unordered_map<int, std::unique_ptr<GamePad>> m_Gamepads;
 };
 
 InputManager::InputManager()
@@ -148,9 +183,9 @@ void InputManager::AddCommand(unsigned int key, KeyState state, std::unique_ptr<
 {
     m_pImpl->AddCommand(key, state, std::move(command));
 }
-void InputManager::AddControllerCommand(unsigned int button, KeyState state, std::unique_ptr<Command> command)
+void InputManager::AddControllerCommand(int controllerIndex, unsigned int button, KeyState state, std::unique_ptr<Command> command)
 {
-    m_pImpl->AddControllerCommand(button, state, std::move(command));
+    m_pImpl->AddControllerCommand(controllerIndex, button, state, std::move(command));
 }
 
 void InputManager::ClearCommands()

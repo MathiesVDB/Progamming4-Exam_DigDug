@@ -40,6 +40,7 @@
         dae::EventRegistry::GetInstance().RegisterEvent("PlayerAttack");
         dae::EventRegistry::GetInstance().RegisterEvent("PumpEnemy");
         dae::EventRegistry::GetInstance().RegisterEvent("Victory");
+        dae::EventRegistry::GetInstance().RegisterEvent("GameOver");
         dae::EventRegistry::GetInstance().RegisterEvent("RockHitEntity");
 
         static auto collisionHandler = std::make_shared<CollisionHandler>();

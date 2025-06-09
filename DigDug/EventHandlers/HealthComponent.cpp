@@ -32,9 +32,12 @@ void HealthComponent::SetMaxLives(int newMaxLives)
 void HealthComponent::TakeDamage()
 {
 	dae::EventID LifeLostEventID = dae::EventRegistry::GetInstance().GetEventID("LifeLost");
+	dae::EventID GameOverEventId = dae::EventRegistry::GetInstance().GetEventID("GameOver");
 
 	--m_Lives;
 	Notify(GetOwner(), LifeLostEventID);
+
+	if (m_Lives < 0) Notify(GetOwner(), GameOverEventId);
 }
 
 void HealthComponent::SetLivesToMax()

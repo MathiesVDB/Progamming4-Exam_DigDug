@@ -1,4 +1,6 @@
-﻿#include "Gamepad.h"
+﻿#include <iostream>
+
+#include "Gamepad.h"
 #include <SDL.h>
 #include <memory>
 #include <unordered_set>
@@ -10,22 +12,23 @@ public:
     explicit GamepadImpl(int controllerIndex)
         : m_ControllerIndex(controllerIndex), m_Controller(nullptr), m_IsConnected(false)
     {
-        if (SDL_Init(SDL_INIT_GAMECONTROLLER) < 0) {
+        if (SDL_Init(SDL_INIT_GAMECONTROLLER) < 0) 
+        {
             SDL_Log("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
             return;
         }
 
-        if (SDL_IsGameController(m_ControllerIndex)) {
+        if (SDL_IsGameController(m_ControllerIndex)) 
+        {
             m_Controller = SDL_GameControllerOpen(m_ControllerIndex);
             m_IsConnected = (m_Controller != nullptr);
+            std::cout << "Controller initialized" << std::endl;
         }
     }
 
     ~GamepadImpl()
     {
-        if (m_Controller)
-            SDL_GameControllerClose(m_Controller);
-        // Do not call SDL_QuitSubSystem here if other SDL parts are in use.
+        if (m_Controller) SDL_GameControllerClose(m_Controller);
     }
 
     void Update()

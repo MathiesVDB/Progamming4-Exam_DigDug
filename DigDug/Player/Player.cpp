@@ -14,13 +14,14 @@
 Player::Player(dae::GameObject* owner, GridComponent* grid)
 	:	Component(owner),
 		m_GridPtr{ grid },
-		m_Direction{ MoveDirection::Right }
+		m_Direction{ MoveDirection::Right },
+		m_State{std::make_unique<PlayerStates::IdleState>()}
 {
 	m_Collider  = GetOwner()->GetComponent<ColliderComponent>();
     m_Rope      = GetOwner()->GetComponent<RopeComponent>();
     m_Health    = GetOwner()->GetComponent<HealthComponent>();
 
-    m_State = &PlayerStates::PlayerState::idling;
+    SetState(std::make_unique<PlayerStates::IdleState>());
 
     SnapToCellCenter();
 
@@ -29,10 +30,21 @@ Player::Player(dae::GameObject* owner, GridComponent* grid)
 
 void Player::Update(float deltaTime)
 {
-    auto newState = m_State->Update(*this, deltaTime);
+    if (m_IsInvincible)
+    {
+        m_AccumulatedTime += deltaTime;
 
-	if (newState == nullptr) return;
-    SetState(newState);
+        if (m_AccumulatedTime >= INVINCIBILITY_TIME)
+        {
+            m_AccumulatedTime = 0;
+            m_IsInvincible = false;
+        }
+    }
+
+    if (auto newState = m_State->Update(*this, deltaTime))
+    {
+        SetState(std::move(newState));
+    }
 }
 
 void Player::Render() const
@@ -42,19 +54,19 @@ void Player::Render() const
 
 void Player::Attack()
 {
-    if (m_State != &PlayerStates::PlayerState::attacking)
+    if (dynamic_cast<PlayerStates::AttackState*>(m_State.get()) == nullptr)
     {
-        SetState(&PlayerStates::PlayerState::attacking);
+        SetState(std::make_unique<PlayerStates::AttackState>());
         return;
     }
 
     m_Rope->ToggleAttacking();
 }
 
-void Player::SetState(PlayerStates::PlayerState* state)
+void Player::SetState(std::unique_ptr<PlayerStates::PlayerState> state)
 {
     m_State->OnExit(*this);
-    m_State = state;
+    m_State = std::move(state);
     m_State->OnEnter(*this);
 }
 
@@ -88,8 +100,9 @@ void Player::NotifyAttack() const
 
 void Player::HandleCollision(const CollisionEvent& collision)
 {
-    if (m_State == &PlayerStates::PlayerState::attacking) m_Rope->HandleCollision(collision);
-    if (m_State == &PlayerStates::PlayerState::dying) return;
+    if (dynamic_cast<PlayerStates::AttackState*>(m_State.get()) != nullptr) m_Rope->HandleCollision(collision);
+    if (dynamic_cast<PlayerStates::DeathState*>(m_State.get()) != nullptr) return;
+    if (m_IsInvincible) return;
 
     const auto& colliderTag{ collision.collider->GetComponent<ColliderComponent>()->GetTag() };
     const auto& collidedTag{ collision.collided->GetComponent<ColliderComponent>()->GetTag() };
@@ -106,7 +119,7 @@ void Player::HandleCollision(const CollisionEvent& collision)
         if (!isPlayerDead) return;
 
         m_WasCrushed = false;
-        SetState(&PlayerStates::PlayerState::dying);
+        SetState(std::make_unique<PlayerStates::DeathState>());
 
         dae::EventID PlayerHitEventID = dae::EventRegistry::GetInstance().GetEventID("PlayerHit");
         Notify(GetOwner(), PlayerHitEventID);
@@ -120,7 +133,7 @@ void Player::HandleCollision(const CollisionEvent& collision)
 		else if (rock->IsBreaking())
 		{
             m_WasCrushed = true;
-            SetState(&PlayerStates::PlayerState::dying);
+            SetState(std::make_unique<PlayerStates::DeathState>());
         }
     }
 }

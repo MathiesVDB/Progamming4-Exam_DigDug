@@ -49,10 +49,10 @@ void HighScore::LoadSaveScene()
     inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Down, std::make_unique<LetterConfirmCommand>(this));
 
     // Controller commands
-    inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, KeyState::Down, std::make_unique<LetterUpCommand>(this));
-    inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, KeyState::Down, std::make_unique<LetterDownCommand>(this));
+    inputManager.AddControllerCommand(0, SDL_CONTROLLER_BUTTON_DPAD_UP, KeyState::Down, std::make_unique<LetterUpCommand>(this));
+    inputManager.AddControllerCommand(0, SDL_CONTROLLER_BUTTON_DPAD_DOWN, KeyState::Down, std::make_unique<LetterDownCommand>(this));
 
-    inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<LetterConfirmCommand>(this));
+    inputManager.AddControllerCommand(0, SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<LetterConfirmCommand>(this));
 
     auto& letterGO = m_LetterObjects[m_SelectedLetterIndex];
     glm::vec2 pos = letterGO->GetWorldPosition();

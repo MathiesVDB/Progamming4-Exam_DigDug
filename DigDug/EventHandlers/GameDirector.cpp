@@ -53,10 +53,10 @@ void GameDirector::Init(std::shared_ptr<SoundHandler> soundHandler, std::shared_
 		inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Down, std::make_unique<ButtonConfirmCommand>());
 
 		// Controller commands
-		inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, KeyState::Down, std::make_unique<ButtonUpCommand>());
-		inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, KeyState::Down, std::make_unique<ButtonDownCommand>());
+		inputManager.AddControllerCommand(0, SDL_CONTROLLER_BUTTON_DPAD_UP, KeyState::Down, std::make_unique<ButtonUpCommand>());
+		inputManager.AddControllerCommand(0, SDL_CONTROLLER_BUTTON_DPAD_DOWN, KeyState::Down, std::make_unique<ButtonDownCommand>());
 
-		inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<ButtonConfirmCommand>());
+		inputManager.AddControllerCommand(0, SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<ButtonConfirmCommand>());
 
 		dae::SceneManager::GetInstance().SetActiveScene(scene);
 		});
@@ -75,6 +75,11 @@ void GameDirector::Notify(dae::GameObject* gameObject, dae::EventID event)
 		//Need to count one extra because counting happens before dead enemy gets removed from scene
 		if (currentEnemies == 2) FleeLastEnemy();
 		else if (currentEnemies <= 1) SwitchToNextScene();
+	}
+	else if (eventName == "GameOver")
+	{
+		m_SceneFlow = SceneFlows::GameOver;
+		SwitchToNextScene();
 	}
 }
 
@@ -152,9 +157,32 @@ void GameDirector::SwitchToNextScene()
 			VersusFlow();
 			break;
 		}
-		default:
+		case SceneFlows::GameOver:
 		{
-			std::cout << "INVALID SCENE FLOW" << std::endl;
+			auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
+
+			const auto& objects = scene.GetAllObjects();
+			for (const auto& object : objects)
+			{
+				if (object->GetObjectTag() != "Ground" && object->GetObjectTag() != "UI")
+				{
+					scene.MarkForDeletion(object.get());
+				}
+			}
+
+			auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 48);
+
+			auto gameOverText = std::make_unique<dae::GameObject>();
+			gameOverText->AddComponent<dae::TextObject>("GAME OVER", font);
+			gameOverText->SetLocalPosition({
+				dae::Minigin::WINDOW_WIDTH / 2.f - 150.f, // Adjust as needed
+				dae::Minigin::WINDOW_HEIGHT / 2.f - 24.f
+				});
+			gameOverText->SetObjectTag("UI");
+			gameOverText->SetRenderLayer(3);
+
+			scene.MarkForAdd(std::move(gameOverText));
+			break;
 		}
 	}
 }
@@ -256,7 +284,7 @@ void GameDirector::SingleplayerFlow()
 				m_HighScore->LoadSaveScene();
 				});
 
-			m_Scene = Scenes::HIGHSCORE;
+			m_Scene = Scenes::VICTORY;
 			break;
 		}
 	}
@@ -264,7 +292,103 @@ void GameDirector::SingleplayerFlow()
 
 void GameDirector::TwoplayerFlow()
 {
-	std::cout << "NOT IMPLEMENTED YET" << std::endl;
+	switch (m_Scene)
+	{
+	case Scenes::MAIN:
+	{
+		auto soundHandler = m_SoundHandler;
+		auto scoreHandler = m_ScoreHandler;
+
+		dae::SceneSwitcher::GetInstance().QueueSceneChange([soundHandler, scoreHandler]() {
+			auto& scene = dae::SceneManager::GetInstance().CreateScene("MainScene");
+
+			auto FPSGameObject = std::make_unique<dae::GameObject>();
+			FPSGameObject->AddComponent<FPSComponent>();
+			scene.MarkForAdd(std::move(FPSGameObject));
+
+			auto levelGameObject = std::make_unique<dae::GameObject>();
+			levelGameObject->AddComponent<Level>("CoopLevel1", soundHandler, scoreHandler, 3);
+			levelGameObject->AddComponent<GridComponent>();
+			levelGameObject->GetComponent<Level>()->LoadLevel("CoopLevel1.json");
+			scene.MarkForAdd(std::move(levelGameObject));
+			});
+
+		m_Scene = Scenes::LEVEL1;
+		break;
+	}
+	case Scenes::LEVEL1:
+	{
+		const auto& players{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Player") };
+		assert(!players.empty() && "NO PLAYERS FOUND");
+
+		int player1Health{ players[0]->GetComponent<Player>()->GetHealth()->GetLives() };
+
+		auto soundHandler = m_SoundHandler;
+		auto scoreHandler = m_ScoreHandler;
+
+		dae::SceneSwitcher::GetInstance().QueueSceneChange([soundHandler, scoreHandler, player1Health]() {
+			auto& scene = dae::SceneManager::GetInstance().CreateScene("MainScene");
+
+			auto FPSGameObject = std::make_unique<dae::GameObject>();
+			FPSGameObject->AddComponent<FPSComponent>();
+			scene.MarkForAdd(std::move(FPSGameObject));
+
+			auto levelGameObject = std::make_unique<dae::GameObject>();
+			levelGameObject->AddComponent<Level>("CoopLevel2", soundHandler, scoreHandler, player1Health);
+			levelGameObject->AddComponent<GridComponent>();
+			levelGameObject->GetComponent<Level>()->LoadLevel("CoopLevel2.json");
+			scene.MarkForAdd(std::move(levelGameObject));
+			});
+
+		m_Scene = Scenes::LEVEL2;
+		break;
+	}
+	case Scenes::LEVEL2:
+	{
+		const auto& players{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Player") };
+		assert(!players.empty() && "NO PLAYERS FOUND");
+
+		int player1Health{ players[0]->GetComponent<Player>()->GetHealth()->GetLives() };
+
+		auto soundHandler = m_SoundHandler;
+		auto scoreHandler = m_ScoreHandler;
+
+		dae::SceneSwitcher::GetInstance().QueueSceneChange([soundHandler, scoreHandler, player1Health]() {
+			auto& scene = dae::SceneManager::GetInstance().CreateScene("MainScene");
+
+			auto FPSGameObject = std::make_unique<dae::GameObject>();
+			FPSGameObject->AddComponent<FPSComponent>();
+			scene.MarkForAdd(std::move(FPSGameObject));
+
+			auto levelGameObject = std::make_unique<dae::GameObject>();
+			levelGameObject->AddComponent<Level>("CoopLevel3", soundHandler, scoreHandler, player1Health);
+			levelGameObject->AddComponent<GridComponent>();
+			levelGameObject->GetComponent<Level>()->LoadLevel("CoopLevel3.json");
+			scene.MarkForAdd(std::move(levelGameObject));
+			});
+
+		m_Scene = Scenes::LEVEL3;
+		break;
+	}
+	case Scenes::LEVEL3:
+	{
+		dae::SceneSwitcher::GetInstance().QueueSceneChange([]() {
+			auto& scene = dae::SceneManager::GetInstance().CreateScene("CoopVictoryScene", true);
+
+			auto roundClearGO = std::make_unique<dae::GameObject>();
+			auto texture = roundClearGO->AddComponent<TextureComponent>("Sprites/Misc/RoundClear.png");
+			roundClearGO->SetLocalPosition({
+				dae::Minigin::WINDOW_WIDTH / 2.f - texture->GetWidth() / 2.f,
+				100.f
+				});
+			roundClearGO->SetObjectTag("UI");
+			scene.MarkForAdd(std::move(roundClearGO));
+			});
+
+		m_Scene = Scenes::VICTORY;
+		break;
+	}
+	}
 }
 
 void GameDirector::VersusFlow()

@@ -182,8 +182,6 @@ void Level::LoadLevel(const std::string& fileName)
 
 void Level::SpawnPlayer(const glm::vec2& spawnPos) 
 {
-    ++m_PlayerCount;
-
     auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -220,7 +218,7 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
     auto Player1 = std::make_unique<dae::GameObject>();
     Player1->AddComponent<SpriteComponent>("Sprites/Player/WalkingSprite.png", 1, 8, 0.25f, 0, 1);
     Player1->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
-    if (m_PlayerCount == 1) Player1->AddComponent<HealthComponent>(m_Player1Health);
+    if (m_PlayerCount == 0) Player1->AddComponent<HealthComponent>(m_Player1Health);
     else                    Player1->AddComponent<HealthComponent>(m_Player2Health);
 	Player1->AddComponent<ColliderComponent>(FRIENDLY_ENTITY);
     auto ropeComponent = Player1->AddComponent<RopeComponent>(RopeHeadGameObject.get(), RopeMiddleGameObject.get(), RopeTailGameObject.get());
@@ -232,6 +230,7 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
     auto healthDisplay = std::make_shared<HealthDisplay>(Player1.get(), m_GridComponent);
     Player1->GetComponent<HealthComponent>()->AddObserver(healthDisplay);
     Player1->GetComponent<HealthComponent>()->AddObserver(m_SoundHandler);
+    Player1->GetComponent<HealthComponent>()->AddObserver(m_ScoreHandler);
     Player1->GetComponent<Player>()->AddObserver(m_SoundHandler);
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -240,21 +239,35 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
 
     auto& inputManager = InputManager::GetInstance();
 
-    // Keyboard commands
-    inputManager.AddCommand(SDL_SCANCODE_W, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Up   , 50.f));
-    inputManager.AddCommand(SDL_SCANCODE_A, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Left , 50.f));
-    inputManager.AddCommand(SDL_SCANCODE_S, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Down , 50.f));
-    inputManager.AddCommand(SDL_SCANCODE_D, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Right, 50.f));
+    if (m_PlayerCount == 0)
+    {
+        // Keyboard commands
+        inputManager.AddCommand(SDL_SCANCODE_W, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Up, 50.f));
+        inputManager.AddCommand(SDL_SCANCODE_A, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Left, 50.f));
+        inputManager.AddCommand(SDL_SCANCODE_S, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Down, 50.f));
+        inputManager.AddCommand(SDL_SCANCODE_D, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Right, 50.f));
 
-    inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Down, std::make_unique<AttackCommand>(Player1.get()));
+        inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Down, std::make_unique<AttackCommand>(Player1.get()));
+    }
+    else
+    {
+        // Keyboard commands
+        inputManager.AddCommand(SDL_SCANCODE_I, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Up, 50.f));
+        inputManager.AddCommand(SDL_SCANCODE_J, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Left, 50.f));
+        inputManager.AddCommand(SDL_SCANCODE_K, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Down, 50.f));
+        inputManager.AddCommand(SDL_SCANCODE_L, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Right, 50.f));
 
-	// Controller commands
-    inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_UP   , KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Up   , 50.f));
-	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT , KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Left , 50.f));
-	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN , KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Down , 50.f));
-	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Right, 50.f));
+        inputManager.AddCommand(SDL_SCANCODE_N, KeyState::Down, std::make_unique<AttackCommand>(Player1.get()));
+    }
 
-	inputManager.AddControllerCommand(SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<AttackCommand>(Player1.get()));
+
+    // Controller commands
+    inputManager.AddControllerCommand(m_PlayerCount, SDL_CONTROLLER_BUTTON_DPAD_UP, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Up, 50.f));
+    inputManager.AddControllerCommand(m_PlayerCount, SDL_CONTROLLER_BUTTON_DPAD_LEFT, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Left, 50.f));
+    inputManager.AddControllerCommand(m_PlayerCount, SDL_CONTROLLER_BUTTON_DPAD_DOWN, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Down, 50.f));
+    inputManager.AddControllerCommand(m_PlayerCount, SDL_CONTROLLER_BUTTON_DPAD_RIGHT, KeyState::Pressed, std::make_unique<MoveCommand>(Player1.get(), MoveDirection::Right, 50.f));
+
+    inputManager.AddControllerCommand(m_PlayerCount, SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<AttackCommand>(Player1.get()));
 
     Player1->SetObjectTag("Player");
     Player1->SetRenderLayer(4);
@@ -263,6 +276,8 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
     m_Scene.MarkForAdd(std::move(RopeHeadGameObject));
     m_Scene.MarkForAdd(std::move(RopeMiddleGameObject));
     m_Scene.MarkForAdd(std::move(RopeTailGameObject));
+
+    ++m_PlayerCount;
 }
 
 void Level::SpawnPooka(const glm::vec2& spawnPos) const

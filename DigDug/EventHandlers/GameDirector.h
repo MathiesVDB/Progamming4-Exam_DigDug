@@ -41,7 +41,8 @@ private:
 	{
 		SinglePlayer,
 		TwoPlayer,
-		Versus
+		Versus,
+		GameOver
 	};
 
 	enum class Scenes
@@ -50,7 +51,7 @@ private:
 		LEVEL1,
 		LEVEL2,
 		LEVEL3,
-		HIGHSCORE
+		VICTORY
 	};
 
 	//Private functions

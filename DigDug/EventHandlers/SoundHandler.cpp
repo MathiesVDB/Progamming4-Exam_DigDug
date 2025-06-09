@@ -13,7 +13,8 @@ SoundHandler::SoundHandler()
 	{"PlayerAttack"		, "PumpShoot.wav"	},
 	{"PumpEnemy"		, "PumpToEnemy.wav"	},
 	{"Victory"			, "Victory.wav"		},
-	{"RockHitEntity"	, "RockHit.wav"		}
+	{"RockHitEntity"	, "RockHit.wav"		},
+	{"GameOver"			, "GameOver.wav"	}
 	};
 }
 

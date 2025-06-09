@@ -33,7 +33,7 @@ public:
 	bool ProcessInput();
 
 	void AddCommand(unsigned int key, KeyState state, std::unique_ptr<Command> command);
-	void AddControllerCommand(unsigned int button, KeyState state, std::unique_ptr<Command> command);
+	void AddControllerCommand(int controllerIndex, unsigned int button, KeyState state, std::unique_ptr<Command> command);
 
 	void ClearCommands();
 

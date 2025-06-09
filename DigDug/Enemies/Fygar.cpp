@@ -30,10 +30,26 @@ void Fygar::Update(float deltaTime)
 	else
 	{
 		const auto& players = dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Player");
-
 		assert(!players.empty() && "NO PLAYERS FOUND");
 
-		m_CurrentTarget = players[0]->GetWorldPosition();
+		const glm::vec2 myPos = GetOwner()->GetWorldPosition();
+
+		float closestDistance = std::numeric_limits<float>::max();
+		glm::vec2 closestTarget{};
+
+		for (const auto& player : players)
+		{
+			const glm::vec2 playerPos = player->GetWorldPosition();
+			const float distance = glm::distance(myPos, playerPos);
+
+			if (distance < closestDistance)
+			{
+				closestDistance = distance;
+				closestTarget = playerPos;
+			}
+		}
+
+		m_CurrentTarget = closestTarget;
 	}
 
 	m_IsLookingLeft = m_CurrentTarget.x < GetOwner()->GetWorldPosition().x;

@@ -20,9 +20,9 @@ namespace PlayerStates
 	{
 	}
 	
-	PlayerStates::PlayerState* IdleState::Update(Player& player, float )
+	std::unique_ptr<PlayerState> IdleState::Update(Player& player, float )
 	{
-		if (player.GetOwner()->GetVelocity() != glm::vec2{ 0, 0 }) return &PlayerStates::PlayerState::moving;
+		if (player.GetOwner()->GetVelocity() != glm::vec2{ 0, 0 }) return std::make_unique<MovingState>();
 
 		switch (player.GetDirection())
 		{
@@ -61,9 +61,9 @@ namespace PlayerStates
 	{
 	}
 	
-	PlayerStates::PlayerState* MovingState::Update(Player& player, float)
+	std::unique_ptr<PlayerState> MovingState::Update(Player& player, float)
 	{
-		if (player.GetOwner()->GetVelocity() == glm::vec2{ 0, 0 }) return &PlayerStates::PlayerState::idling;
+		if (player.GetOwner()->GetVelocity() == glm::vec2{ 0, 0 }) return std::make_unique<IdleState>();
 
 		glm::vec2 position{};
 		if (player.GetDirection() == MoveDirection::Left || player.GetDirection() == MoveDirection::Up)
@@ -78,7 +78,7 @@ namespace PlayerStates
 		}
 		int index{ player.GetGridPtr()->GetCellIndex(position) };
 
-		if (!player.GetGridPtr()->GetGrid()[index].hasBeenDug && !player.GetGridPtr()->GetGrid()[index].hasRock) return &PlayerStates::PlayerState::digging;
+		if (!player.GetGridPtr()->GetGrid()[index].hasBeenDug && !player.GetGridPtr()->GetGrid()[index].hasRock) return std::make_unique<DiggingState>();
 		
 		if (player.GetOwner()->GetVelocity().x < 0)
 		{
@@ -119,9 +119,9 @@ namespace PlayerStates
 
 	}
 	
-	PlayerStates::PlayerState* DiggingState::Update(Player& player, float )
+	std::unique_ptr<PlayerState> DiggingState::Update(Player& player, float )
 	{
-		if (player.GetOwner()->GetVelocity() == glm::vec2{ 0, 0}) return &PlayerStates::PlayerState::idling;
+		if (player.GetOwner()->GetVelocity() == glm::vec2{ 0, 0}) return std::make_unique<IdleState>();
 
 		// Bug when player goes down or right, because position point will enter cell last and mess with digging. THis
 		if (player.GetDirection() == MoveDirection::Left || player.GetDirection() == MoveDirection::Up)
@@ -136,7 +136,7 @@ namespace PlayerStates
 		}
 		int index{ player.GetGridPtr()->GetCellIndex(m_Position) };
 
-		if (player.GetGridPtr()->GetGrid()[index].hasBeenDug) return &PlayerStates::PlayerState::moving;
+		if (player.GetGridPtr()->GetGrid()[index].hasBeenDug) return std::make_unique<MovingState>();
 
 		if (player.GetOwner()->GetVelocity().x < 0)
 		{
@@ -269,22 +269,29 @@ namespace PlayerStates
 	{
 	}
 	
-	PlayerStates::PlayerState* DeathState::Update(Player& player, float )
+	std::unique_ptr<PlayerState> DeathState::Update(Player& player, float )
 	{
 		if (m_Sprite->HasReachedLastframe())
 		{
 			player.GetHealth()->TakeDamage();
-			auto entities{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Entity") };
 
-			for (const auto& entity : entities)
+			//Only reset in singleplayer
+			if (dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Player").size() <= 1)
 			{
-				if (entity->HasComponent<Pooka>()) entity->GetComponent<Pooka>()->ResetPooka();
-				else if (entity->HasComponent<Fygar>()) entity->GetComponent<Fygar>()->ResetFygar();
+				auto entities{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Entity") };
+
+				for (const auto& entity : entities)
+				{
+					if (entity->HasComponent<Pooka>()) entity->GetComponent<Pooka>()->ResetPooka();
+					else if (entity->HasComponent<Fygar>()) entity->GetComponent<Fygar>()->ResetFygar();
+				}
+
+				player.ResetPlayer();
 			}
 
-			player.ResetPlayer();
+			player.StartInvincibiltyPeriod();
 
-			return &PlayerStates::PlayerState::idling;
+			return std::make_unique<IdleState>();
 		}
 
 		return nullptr;
@@ -328,11 +335,11 @@ namespace PlayerStates
 	{
 	}
 	
-	PlayerStates::PlayerState* AttackState::Update(Player& player, float deltaTime)
+	std::unique_ptr<PlayerState> AttackState::Update(Player& player, float deltaTime)
 	{
-		if (player.GetOwner()->GetVelocity() != glm::vec2{ 0, 0 }) return &PlayerStates::PlayerState::moving;
+		if (player.GetOwner()->GetVelocity() != glm::vec2{ 0, 0 }) return std::make_unique<MovingState>();
 
-		if (!player.GetRopePtr()->GetRopeStatus()) return &PlayerStates::PlayerState::moving;
+		if (!player.GetRopePtr()->GetRopeStatus()) return std::make_unique<MovingState>();
 
 		if (player.GetRopePtr()->GetHasHit() && !m_InitializedPump) m_IsPumping = true;
 		if (m_IsPumping) SetPlayerPump(player);
@@ -407,15 +414,4 @@ namespace PlayerStates
 	{
 		player.GetRopePtr()->ResetRope();
 	}
-	
-	//-----------------------------------------------------
-	// Statics
-	//-----------------------------------------------------
-	
-	IdleState    PlayerState::idling;
-	MovingState  PlayerState::moving;
-	DiggingState PlayerState::digging;
-	DeathState   PlayerState::dying;
-	AttackState  PlayerState::attacking;
-	
 }

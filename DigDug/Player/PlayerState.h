@@ -1,6 +1,7 @@
 #pragma once
 #include <vec2.hpp>
 #include "Helpers.h"
+#include <memory>
 
 namespace dae
 {
@@ -11,25 +12,13 @@ class SpriteComponent;
 class Player;
 
 namespace PlayerStates
-{
-    class IdleState;
-    class MovingState;
-    class DiggingState;
-    class DeathState;
-    class AttackState;
-    
+{    
     class PlayerState
     {
-    public:
-        static IdleState    idling;
-        static MovingState  moving;
-        static DiggingState digging;
-        static DeathState   dying;
-        static AttackState  attacking;
-    
+    public:    
         virtual ~PlayerState() {}
         virtual void Render(const Player&) const {}
-        virtual PlayerStates::PlayerState* Update(Player&, float) { return nullptr; }
+        virtual std::unique_ptr<PlayerState> Update(Player&, float) { return nullptr; }
     
         virtual void OnEnter(Player&) {}
         virtual void OnExit(Player&) {}
@@ -42,7 +31,7 @@ namespace PlayerStates
     {
     public:
         void Render(const Player& player) const override;
-        PlayerStates::PlayerState* Update(Player& player, float deltaTime) override;
+        std::unique_ptr<PlayerState> Update(Player& player, float deltaTime) override;
     
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;
@@ -52,7 +41,7 @@ namespace PlayerStates
     {
     public:
         void Render(const Player& player) const override;
-        PlayerStates::PlayerState* Update(Player& player, float deltaTime) override;
+        std::unique_ptr<PlayerState> Update(Player& player, float deltaTime) override;
     
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;
@@ -62,7 +51,7 @@ namespace PlayerStates
     {
     public:
         void Render(const Player& player) const override;
-        PlayerStates::PlayerState* Update(Player& player, float deltaTime) override;
+        std::unique_ptr<PlayerState> Update(Player& player, float deltaTime) override;
     
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;
@@ -81,7 +70,7 @@ namespace PlayerStates
     {
     public:
         void Render(const Player& player) const override;
-        PlayerStates::PlayerState* Update(Player& player, float deltaTime) override;
+        std::unique_ptr<PlayerState> Update(Player& player, float deltaTime) override;
     
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;
@@ -91,7 +80,7 @@ namespace PlayerStates
     {
     public:
         void Render(const Player& player) const override;
-        PlayerStates::PlayerState* Update(Player& player, float deltaTime) override;
+        std::unique_ptr<PlayerState> Update(Player& player, float deltaTime) override;
     
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;
