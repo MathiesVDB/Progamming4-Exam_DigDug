@@ -53,6 +53,7 @@ public:
 	bool					WasCrushed()	const { return m_WasCrushed; }
 	bool					IsDead()		const { return dynamic_cast<PlayerStates::DeathState*>(m_State.get()) != nullptr; }
 
+
 	//-------------------------------------------------
 	// Constants					
 	//-------------------------------------------------

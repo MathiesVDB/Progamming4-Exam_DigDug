@@ -11,16 +11,17 @@ class InputManager::InputManagerImpl
 public:
     InputManagerImpl()
     {
-        //m_Gamepads[0] = std::make_unique<GamePad>(0);
+        m_Gamepads[0] = std::make_unique<GamePad>(0);
+        m_Gamepads[1] = std::make_unique<GamePad>(1);
 
-        int numJoysticks = SDL_NumJoysticks();
-        for (int counter = 0; counter < numJoysticks; ++counter) 
-        {
-            if (SDL_IsGameController(counter)) 
-            {
-                RegisterController(counter);
-            }
-        }
+        //int numJoysticks = SDL_NumJoysticks();
+        //for (int counter = 0; counter < numJoysticks; ++counter) 
+        //{
+        //    if (SDL_IsGameController(counter)) 
+        //    {
+        //        RegisterController(counter);
+        //    }
+        //}
 
         std::cout << "[InputManager] Input initialized.\n";
     }

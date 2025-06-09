@@ -27,13 +27,13 @@ public:
 	void HandleCollision(const CollisionEvent& collision);
 	void Update(float deltaTime) override;
 
-	void SetState(RockStates::RockState* state);
+	void SetState(std::unique_ptr<RockStates::RockState> state);
 
 	GridComponent* GetGridPtr()	const { return m_GridPtr; }
 	int GetStartCellIndex()		const { return m_StartCellIndex; }
 	int GetCellIndexBelow()		const { return m_CellIndexBelow; }
-	bool IsFalling()			const { return m_State == &RockStates::RockState::falling; }
-	bool IsBreaking()			const { return m_State == &RockStates::RockState::breaking; }
+	bool IsFalling()			const { return dynamic_cast<RockStates::FallState*>(m_State.get()) != nullptr;}
+	bool IsBreaking()			const { return dynamic_cast<RockStates::BreakState*>(m_State.get()) != nullptr; }
 
 private:
 	//-------------------------------------------------
@@ -43,5 +43,5 @@ private:
 	int m_CellIndexBelow;
 
 	GridComponent* m_GridPtr;
-	RockStates::RockState* m_State{ &RockStates::RockState::idling };
+	std::unique_ptr<RockStates::RockState> m_State{std::make_unique<RockStates::IdleState>() };
 };

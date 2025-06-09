@@ -11,18 +11,18 @@ using namespace RockStates;
 // Idle state
 //-----------------------------------------------------
 
-RockStates::RockState* IdleState::HandleCollision(Rock& , const CollisionEvent& )
+std::unique_ptr<RockStates::RockState> IdleState::HandleCollision(Rock& , const CollisionEvent& )
 {
 	return nullptr;
 }
 
-RockStates::RockState* IdleState::Update(Rock& rock, float )
+std::unique_ptr<RockStates::RockState> IdleState::Update(Rock& rock, float )
 {
 	auto cellBelow{ rock.GetGridPtr()->GetGrid()[rock.GetCellIndexBelow()] };
 
 	if (cellBelow.hasBeenDug)
 	{
-		return &RockStates::RockState::tilting;
+		return std::make_unique<TiltState>();
 	}
 
 	return nullptr;
@@ -43,27 +43,34 @@ void IdleState::OnExit(Rock& )
 // Tilt state
 //-----------------------------------------------------
 
-RockStates::RockState* TiltState::HandleCollision(Rock&, const CollisionEvent&)
+std::unique_ptr<RockStates::RockState> TiltState::HandleCollision(Rock&, const CollisionEvent&)
 {
 	return nullptr;
 }
 
-RockStates::RockState* TiltState::Update(Rock& rock, float )
+std::unique_ptr<RockStates::RockState> TiltState::Update(Rock& rock, float )
 {
-	auto playerPosition = glm::vec2{ m_Player->GetWorldPosition() };
-	//Make sure player is completely away from under the rock before falling
-	int playerTopLeftCellIndex{ rock.GetGridPtr()->GetCellIndex(playerPosition) };
+	for (const auto& player : m_Players)
+	{
+		const glm::vec2 playerPosition = player->GetWorldPosition();
+		const auto collider = player->GetComponent<ColliderComponent>();
 
-	glm::vec2 playerBottomRightPos{
-		playerPosition.x + static_cast<float>(m_PlayerCollider->GetBoundingBox().w),
-		playerPosition.y + static_cast<float>(m_PlayerCollider->GetBoundingBox().h)
-	};
+		int playerTopLeftCellIndex = rock.GetGridPtr()->GetCellIndex(playerPosition);
 
-	int playerBottomRightCellIndex{ rock.GetGridPtr()->GetCellIndex(playerBottomRightPos) };
+		glm::vec2 playerBottomRightPos{
+			playerPosition.x + static_cast<float>(collider->GetBoundingBox().w),
+			playerPosition.y + static_cast<float>(collider->GetBoundingBox().h)
+		};
 
-	if (rock.GetCellIndexBelow() != playerTopLeftCellIndex && rock.GetCellIndexBelow() != playerBottomRightCellIndex) return &RockStates::RockState::falling;
+		int playerBottomRightCellIndex = rock.GetGridPtr()->GetCellIndex(playerBottomRightPos);
 
-	return nullptr;
+		if (rock.GetCellIndexBelow() == playerTopLeftCellIndex || rock.GetCellIndexBelow() == playerBottomRightCellIndex)
+		{
+			return nullptr;
+		}
+	}
+
+	return std::make_unique<FallState>();
 }
 
 void TiltState::OnEnter(Rock& rock)
@@ -75,8 +82,7 @@ void TiltState::OnEnter(Rock& rock)
 
 	assert(!players.empty() && "NO PLAYERS FOUND");
 
-	m_Player = players[0];
-	m_PlayerCollider = m_Player->GetComponent<ColliderComponent>();
+	m_Players = players;
 }
 
 void TiltState::OnExit(Rock&)
@@ -88,7 +94,7 @@ void TiltState::OnExit(Rock&)
 // Fall state
 //-----------------------------------------------------
 
-RockStates::RockState* FallState::HandleCollision(Rock& rock, const CollisionEvent& collision)
+std::unique_ptr<RockStates::RockState> FallState::HandleCollision(Rock& rock, const CollisionEvent& collision)
 {
 	auto grid{ rock.GetGridPtr() };
 	const auto& colliderTag{ collision.collider->GetComponent<ColliderComponent>()->GetTag() };
@@ -102,10 +108,10 @@ RockStates::RockState* FallState::HandleCollision(Rock& rock, const CollisionEve
 
 	if (index == rock.GetStartCellIndex() || grid->GetGrid()[index].hasBeenDug) return nullptr;
 
-	return &RockStates::RockState::breaking;
+	return std::make_unique<BreakState>();
 }
 
-RockStates::RockState* FallState::Update(Rock& rock, float deltaTime)
+std::unique_ptr<RockStates::RockState> FallState::Update(Rock& rock, float deltaTime)
 {
 	auto rockVelocity = GRAVITY * deltaTime;
 
@@ -129,12 +135,12 @@ void FallState::OnExit(Rock&)
 // Break state
 //-----------------------------------------------------
 
-RockStates::RockState* BreakState::HandleCollision(Rock&, const CollisionEvent&)
+std::unique_ptr<RockStates::RockState> BreakState::HandleCollision(Rock&, const CollisionEvent&)
 {
 	return nullptr;
 }
 
-RockStates::RockState* BreakState::Update(Rock& rock, float)
+std::unique_ptr<RockStates::RockState> BreakState::Update(Rock& rock, float)
 {
 	if(m_Sprite->HasReachedLastframe()) dae::SceneManager::GetInstance().GetActiveScene().MarkForDeletion(rock.GetOwner());
 
@@ -151,12 +157,3 @@ void BreakState::OnExit(Rock&)
 {
 
 }
-
-//-----------------------------------------------------
-// Statics
-//-----------------------------------------------------
-
-IdleState		RockState::idling;
-TiltState		RockState::tilting;
-FallState		RockState::falling;
-BreakState      RockState::breaking;

@@ -73,7 +73,7 @@ void GameDirector::Notify(dae::GameObject* gameObject, dae::EventID event)
 		int currentEnemies{ GetCurrentEnemies() };
 
 		//Need to count one extra because counting happens before dead enemy gets removed from scene
-		if (currentEnemies == 2) FleeLastEnemy();
+		if		(currentEnemies == 2) FleeLastEnemy();
 		else if (currentEnemies <= 1) SwitchToNextScene();
 	}
 	else if (eventName == "GameOver")
@@ -159,6 +159,8 @@ void GameDirector::SwitchToNextScene()
 		}
 		case SceneFlows::GameOver:
 		{
+			InputManager::GetInstance().ClearCommands();
+
 			auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
 
 			const auto& objects = scene.GetAllObjects();

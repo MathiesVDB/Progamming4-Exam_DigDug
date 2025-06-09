@@ -1,4 +1,7 @@
 #pragma once
+#include <memory>
+#include <vector>
+
 #include "Helpers.h"
 
 namespace dae
@@ -13,22 +16,12 @@ class Rock;
 
 namespace RockStates
 {
-    class IdleState;
-    class TiltState;
-    class FallState;
-    class BreakState;
-
 	class RockState
     {
     public:
-        static IdleState        idling;
-        static TiltState        tilting;
-        static FallState        falling;
-        static BreakState       breaking;
-
         virtual ~RockState() {}
-        virtual RockStates::RockState* HandleCollision(Rock&, const CollisionEvent&) { return nullptr; }
-        virtual RockStates::RockState* Update(Rock&, float) { return nullptr; }
+        virtual std::unique_ptr<RockStates::RockState> HandleCollision(Rock&, const CollisionEvent&) { return nullptr; }
+        virtual std::unique_ptr<RockStates::RockState> Update(Rock&, float) { return nullptr; }
 
         virtual void OnEnter(Rock&) {}
         virtual void OnExit(Rock&) {}
@@ -40,8 +33,8 @@ namespace RockStates
     class IdleState : public RockState
     {
 	public:
-        RockStates::RockState* HandleCollision(Rock&, const CollisionEvent& collision) override;
-		RockStates::RockState* Update(Rock& rock, float deltaTime) override;
+        std::unique_ptr<RockStates::RockState> HandleCollision(Rock&, const CollisionEvent& collision) override;
+		std::unique_ptr<RockStates::RockState> Update(Rock& rock, float deltaTime) override;
 
 		void OnEnter(Rock& rock) override;
 		void OnExit(Rock& rock) override;
@@ -50,22 +43,21 @@ namespace RockStates
     class TiltState : public RockState
     {
     public:
-        RockStates::RockState* HandleCollision(Rock&, const CollisionEvent& collision) override;
-        RockStates::RockState* Update(Rock& rock, float deltaTime) override;
+        std::unique_ptr<RockStates::RockState> HandleCollision(Rock&, const CollisionEvent& collision) override;
+        std::unique_ptr<RockStates::RockState> Update(Rock& rock, float deltaTime) override;
 
         void OnEnter(Rock& rock) override;
         void OnExit(Rock& rock) override;
 
     private:
-		ColliderComponent*  m_PlayerCollider{ nullptr };
-        dae::GameObject*    m_Player{nullptr};
+        std::vector<dae::GameObject*>    m_Players{nullptr};
     };
 
     class FallState : public RockState
     {
     public:
-        RockStates::RockState* HandleCollision(Rock& rock, const CollisionEvent& collision) override;
-        RockStates::RockState* Update(Rock& rock, float deltaTime) override;
+        std::unique_ptr<RockStates::RockState> HandleCollision(Rock& rock, const CollisionEvent& collision) override;
+        std::unique_ptr<RockStates::RockState> Update(Rock& rock, float deltaTime) override;
 
         void OnEnter(Rock& rock) override;
         void OnExit(Rock& rock) override;
@@ -76,8 +68,8 @@ namespace RockStates
     class BreakState : public RockState
     {
     public:
-        RockStates::RockState* HandleCollision(Rock&, const CollisionEvent& collision) override;
-        RockStates::RockState* Update(Rock& rock, float deltaTime) override;
+        std::unique_ptr<RockStates::RockState> HandleCollision(Rock&, const CollisionEvent& collision) override;
+        std::unique_ptr<RockStates::RockState> Update(Rock& rock, float deltaTime) override;
 
         void OnEnter(Rock& rock) override;
         void OnExit(Rock& rock) override;

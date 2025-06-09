@@ -19,25 +19,23 @@ Rock::Rock(dae::GameObject* owner, GridComponent* grid)
 
 void Rock::HandleCollision(const CollisionEvent& collision)
 {
-	auto newState = m_State->HandleCollision(*this, collision);
-
-	if (newState == nullptr) return;
-	SetState(newState);
+	if (auto newState = m_State->HandleCollision(*this, collision))
+	{
+		SetState(std::move(newState));
+	}
 }
 
 void Rock::Update(float deltaTime)
 {
-	auto newState = m_State->Update(*this, deltaTime);
-
-	if (newState == nullptr) return;
-	SetState(newState);
+	if (auto newState = m_State->Update(*this, deltaTime))
+	{
+		SetState(std::move(newState));
+	}
 }
 
-void Rock::SetState(RockStates::RockState* state)
+void Rock::SetState(std::unique_ptr<RockStates::RockState> state)
 {
-	if (m_State == state) return;
-
 	m_State->OnExit(*this);
-	m_State = state;
+	m_State = std::move(state);
 	m_State->OnEnter(*this);
 }
