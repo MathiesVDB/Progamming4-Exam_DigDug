@@ -5,6 +5,7 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "SpriteComponent.h"
+#include "Command.h"
 
 using namespace FygarStates;
 //-----------------------------------------------------
@@ -13,11 +14,24 @@ using namespace FygarStates;
 
 std::unique_ptr<FygarState> MovingState::Update(Fygar& fygar, float deltaTime)
 {
+	if		( fygar.IsLookingLeft() && !m_Sprite->IsAlreadyWithinBounds(8, 9)) m_Sprite->SetSpriteBounds(8, 9, true);
+	else if (!fygar.IsLookingLeft() && !m_Sprite->IsAlreadyWithinBounds(0, 1)) m_Sprite->SetSpriteBounds(0, 1, true);
+
+	if (!fygar.IsControlled()) return AILogic(fygar, deltaTime);
+
+	return nullptr;
+}
+
+std::unique_ptr<FygarState> MovingState::AILogic(Fygar& fygar, float deltaTime)
+{
+	if (fygar.GetOwner()->HasComponent<Fygar>() && !m_AttackCommand) m_AttackCommand = std::make_unique<AttackCommand>(fygar.GetOwner());
+
 	auto fygarPos{ fygar.GetOwner()->GetWorldPosition() };
 
 	if (m_AccumulatedTime >= GHOST_TIMER && std::abs(fygar.GetTarget().y - fygarPos.y) <= 10.f)
 	{
-		return std::make_unique<AttackState>();
+		m_AttackCommand->Execute();
+		return nullptr;
 	}
 
 	m_AccumulatedTime += deltaTime;
@@ -38,9 +52,6 @@ std::unique_ptr<FygarState> MovingState::Update(Fygar& fygar, float deltaTime)
 	SetDirection(fygar);
 
 	MoveTowardsGoal(fygar, deltaTime);
-
-	if		 (fygar.IsLookingLeft() && !m_Sprite->IsAlreadyWithinBounds(8, 9)) m_Sprite->SetSpriteBounds(8, 9, true);
-	else if (!fygar.IsLookingLeft() && !m_Sprite->IsAlreadyWithinBounds(0, 1)) m_Sprite->SetSpriteBounds(0, 1, true);
 
 	return nullptr;
 }
@@ -179,23 +190,27 @@ void MovingState::MoveTowardsGoal(const Fygar& fygar, float)
 
 void MovingState::OnEnter(Fygar& fygar)
 {
-	//Setup movement commands
+	// Get components here so it doesn't happen every frame
+	m_Sprite = fygar.GetOwner()->GetComponent<SpriteComponent>();
+	m_Collider = fygar.GetOwner()->GetComponent<ColliderComponent>();
+
+	//Setup animation
+	if (fygar.IsLookingLeft())  m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 8, 9);
+	else                        m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0, 1);
+
+	if (fygar.IsControlled()) return;
+
+	//Setup commands
 	m_MoveLeftUPtr	= std::make_unique<MoveCommand>(fygar.GetOwner(), MoveDirection::Left	, MOVEMENT_SPEED, true);
 	m_MoveRightUPtr = std::make_unique<MoveCommand>(fygar.GetOwner(), MoveDirection::Right	, MOVEMENT_SPEED, true);
 	m_MoveUpUPtr	= std::make_unique<MoveCommand>(fygar.GetOwner(), MoveDirection::Up		, MOVEMENT_SPEED, true);
 	m_MoveDownUPtr	= std::make_unique<MoveCommand>(fygar.GetOwner(), MoveDirection::Down	, MOVEMENT_SPEED, true);
 
+	if (fygar.GetOwner()->HasComponent<Fygar>()) m_AttackCommand = std::make_unique<AttackCommand>(fygar.GetOwner());
+
 	// Reset private member variables
 	m_HasReachedTarget = true;
 	m_AccumulatedTime = 0;
-
-	// Get components here so it doesn't happen every frame
-	m_Sprite	= fygar.GetOwner()->GetComponent<SpriteComponent>();
-	m_Collider	= fygar.GetOwner()->GetComponent<ColliderComponent>();
-
-	//Setup animation
-	if (fygar.IsLookingLeft())  m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 8, 9);
-	else                        m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0, 1);
 }
 
 void MovingState::OnExit(Fygar&)
@@ -300,42 +315,47 @@ void DeathState::OnExit(Fygar& )
 // GhostState Class
 //-----------------------------------------------------
 
-std::unique_ptr<FygarState> GhostState::Update(Fygar& fygar, float )
+std::unique_ptr<FygarState> GhostState::Update(Fygar& fygar, float deltaTime)
 {
-    glm::vec2 pookaCenter{ m_FygarCollider->GetBoundingBox().x + m_FygarCollider->GetBoundingBox().w / 2.0f,
-                           m_FygarCollider->GetBoundingBox().y + m_FygarCollider->GetBoundingBox().h / 2.0f };
-
-    int index{ fygar.GetGridPtr()->GetCellIndex(pookaCenter) };
-    index = std::max(index, 0);
-    if (fygar.GetGridPtr()->GetGrid()[index].hasBeenDug && index != m_StartIndex)
-    {
-        m_IsRematerialising = true;
-    }
-
-    if (glm::distance(fygar.GetGridPtr()->GetGrid()[index].centerPoint, pookaCenter) <= SNAP_DISTANCE && m_IsRematerialising)
-    {
-        return std::make_unique<MovingState>();
-    }
-
-    auto targetPos{ fygar.GetTarget() };
-    auto pookaPos{ fygar.GetOwner()->GetWorldPosition() };
-
-    if (m_IsRematerialising)
-    {
-        glm::vec2 newTarget{ fygar.GetGridPtr()->GetGrid()[index].centerPoint };
-
-        targetPos = {
-            newTarget.x - m_FygarCollider->GetBoundingBox().w / 2.f,
-            newTarget.y - m_FygarCollider->GetBoundingBox().h / 2.f };
-    }
-
-    glm::vec2 direction = targetPos - pookaPos;
-
-    glm::vec2 normalizedDir = glm::normalize(direction);
-
-    fygar.GetOwner()->SetVelocity(normalizedDir * MOVEMENT_SPEED);
+	if (!fygar.IsControlled()) return AILogic(fygar, deltaTime);
 
     return nullptr;
+}
+
+std::unique_ptr<FygarState> GhostState::AILogic(Fygar& fygar, float)
+{
+	glm::vec2 pookaCenter{ m_FygarCollider->GetBoundingBox().x + m_FygarCollider->GetBoundingBox().w / 2.0f,
+						   m_FygarCollider->GetBoundingBox().y + m_FygarCollider->GetBoundingBox().h / 2.0f };
+
+	int index{ fygar.GetGridPtr()->GetCellIndex(pookaCenter) };
+	index = std::max(index, 0);
+	if (fygar.GetGridPtr()->GetGrid()[index].hasBeenDug && index != m_StartIndex)
+	{
+		m_IsRematerialising = true;
+	}
+
+	if (glm::distance(fygar.GetGridPtr()->GetGrid()[index].centerPoint, pookaCenter) <= SNAP_DISTANCE && m_IsRematerialising)
+	{
+		return std::make_unique<MovingState>();
+	}
+
+	auto targetPos{ fygar.GetTarget() };
+	auto pookaPos{ fygar.GetOwner()->GetWorldPosition() };
+
+	if (m_IsRematerialising)
+	{
+		glm::vec2 newTarget{ fygar.GetGridPtr()->GetGrid()[index].centerPoint };
+
+		targetPos = {
+			newTarget.x - m_FygarCollider->GetBoundingBox().w / 2.f,
+			newTarget.y - m_FygarCollider->GetBoundingBox().h / 2.f };
+	}
+
+	glm::vec2 direction = targetPos - pookaPos;
+
+	glm::vec2 normalizedDir = glm::normalize(direction);
+
+	fygar.GetOwner()->SetVelocity(normalizedDir * MOVEMENT_SPEED);
 }
 
 void GhostState::OnEnter(Fygar& fygar)

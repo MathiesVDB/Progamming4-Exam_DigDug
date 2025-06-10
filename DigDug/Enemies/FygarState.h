@@ -4,9 +4,10 @@
 #include <vector>
 #include "Helpers.h"
 #include "GridComponent.h"
-#include "Command.h"
 #include "Level.h"
 
+class AttackCommand;
+class MoveCommand;
 class ColliderComponent;
 class SpriteComponent;
 class Fygar;
@@ -49,6 +50,8 @@ namespace FygarStates
         void SetDirection(Fygar& fygar);
         void MoveTowardsGoal(const Fygar& fygar, float deltaTime);
 
+        std::unique_ptr<FygarState> AILogic(Fygar& fygar, float deltaTime);
+
         // Private member variables
         MoveDirection m_Direction{ MoveDirection::Right };
         glm::vec2 m_CurrentTarget{};
@@ -62,6 +65,8 @@ namespace FygarStates
         std::unique_ptr<MoveCommand> m_MoveRightUPtr;
         std::unique_ptr<MoveCommand> m_MoveUpUPtr;
         std::unique_ptr<MoveCommand> m_MoveDownUPtr;
+
+        std::unique_ptr<AttackCommand> m_AttackCommand;
     };
 
     class InflatedState : public FygarState
@@ -106,6 +111,8 @@ namespace FygarStates
         void OnExit(Fygar& fygar) override;
 
     private:
+        std::unique_ptr<FygarState> AILogic(Fygar& fygar, float deltaTime);
+
         ColliderComponent* m_FygarCollider{};
 
         int m_StartIndex{};

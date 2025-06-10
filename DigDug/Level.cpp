@@ -174,6 +174,7 @@ void Level::LoadLevel(const std::string& fileName)
         case 'p': SpawnPlayer(spawnPos); break;
         case 'F': SpawnFygar(spawnPos);  break;
         case 'R': SpawnRock(spawnPos);   break;
+        case 'V': SpawnFygar(spawnPos, true);   break;
         default:
             break;
         }
@@ -295,18 +296,40 @@ void Level::SpawnPooka(const glm::vec2& spawnPos) const
 	m_Scene.MarkForAdd(std::move(PookaGameObject));
 }
 
-void Level::SpawnFygar(const glm::vec2& spawnPos) const
+void Level::SpawnFygar(const glm::vec2& spawnPos, bool isControlled) const
 {
 	auto FygarGameObject = std::make_unique<dae::GameObject>();
 	FygarGameObject->AddComponent<SpriteComponent>("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0.25f, 0, 1);
 	FygarGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
 	FygarGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
-    FygarGameObject->AddComponent<Fygar>(m_GridComponent);
+    FygarGameObject->AddComponent<Fygar>(m_GridComponent, isControlled);
     FygarGameObject->GetComponent<Fygar>()->AddObserver(m_SoundHandler);
     FygarGameObject->GetComponent<Fygar>()->AddObserver(m_ScoreHandler);
 
     FygarGameObject->SetRenderLayer(2);
     FygarGameObject->SetObjectTag("Entity");
+
+    if (isControlled)
+    {
+        auto& inputManager = InputManager::GetInstance();
+
+        // Keyboard commands
+        inputManager.AddCommand(SDL_SCANCODE_I, KeyState::Pressed, std::make_unique<MoveCommand>(FygarGameObject.get(), MoveDirection::Up   , 50.f, true));
+        inputManager.AddCommand(SDL_SCANCODE_J, KeyState::Pressed, std::make_unique<MoveCommand>(FygarGameObject.get(), MoveDirection::Left , 50.f, true));
+        inputManager.AddCommand(SDL_SCANCODE_K, KeyState::Pressed, std::make_unique<MoveCommand>(FygarGameObject.get(), MoveDirection::Down , 50.f, true));
+        inputManager.AddCommand(SDL_SCANCODE_L, KeyState::Pressed, std::make_unique<MoveCommand>(FygarGameObject.get(), MoveDirection::Right, 50.f, true));
+
+        inputManager.AddCommand(SDL_SCANCODE_N, KeyState::Down, std::make_unique<AttackCommand>(FygarGameObject.get()));
+
+        // Controller commands
+        inputManager.AddControllerCommand(1, SDL_CONTROLLER_BUTTON_DPAD_UP   , KeyState::Pressed, std::make_unique<MoveCommand>(FygarGameObject.get(), MoveDirection::Up    , 50.f, true));
+        inputManager.AddControllerCommand(1, SDL_CONTROLLER_BUTTON_DPAD_LEFT , KeyState::Pressed, std::make_unique<MoveCommand>(FygarGameObject.get(), MoveDirection::Left  , 50.f, true));
+        inputManager.AddControllerCommand(1, SDL_CONTROLLER_BUTTON_DPAD_DOWN , KeyState::Pressed, std::make_unique<MoveCommand>(FygarGameObject.get(), MoveDirection::Down  , 50.f, true));
+        inputManager.AddControllerCommand(1, SDL_CONTROLLER_BUTTON_DPAD_RIGHT, KeyState::Pressed, std::make_unique<MoveCommand>(FygarGameObject.get(), MoveDirection::Right , 50.f, true));
+
+        inputManager.AddControllerCommand(1, SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<AttackCommand>(FygarGameObject.get()));
+    }
+
 	m_Scene.MarkForAdd(std::move(FygarGameObject));
 }
 

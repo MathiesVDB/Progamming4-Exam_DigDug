@@ -2,6 +2,7 @@
 // Include Files
 //---------------------------
 #include "Fygar.h"
+#include "FygarState.h"
 #include "GridComponent.h"
 #include "GameObject.h"
 #include "PookaState.h"
@@ -14,10 +15,11 @@
 //---------------------------
 // Constructor & Destructor
 //---------------------------
-Fygar::Fygar(dae::GameObject* owner, GridComponent* grid)
+Fygar::Fygar(dae::GameObject* owner, GridComponent* grid, bool isControlled)
 	:	Component(owner),
 		m_GridPtr{ grid },
-		m_State{std::make_unique<FygarStates::MovingState>()}
+		m_State{std::make_unique<FygarStates::MovingState>()},
+		m_IsControlled{ isControlled }
 {
 	m_FleeingTarget = m_GridPtr->GetGrid()[14].centerPoint;
 	m_SpawnPosition = GetOwner()->GetWorldPosition();
@@ -58,6 +60,11 @@ void Fygar::Update(float deltaTime)
 	{
 		SetState(std::move(newState));
 	}
+}
+
+void Fygar::Attack()
+{
+	SetState(std::make_unique<FygarStates::AttackState>());
 }
 
 void Fygar::HandleCollision(const CollisionEvent& collision)

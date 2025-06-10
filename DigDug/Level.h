@@ -47,7 +47,7 @@ private:
 	//-------------------------------------------------
 	void SpawnPlayer			(const glm::vec2& spawnPos);
 	void SpawnPooka				(const glm::vec2& spawnPos)	const;
-	void SpawnFygar				(const glm::vec2& spawnPos)	const;
+	void SpawnFygar				(const glm::vec2& spawnPos, bool isControlled = false)	const;
 	void SpawnRock				(const glm::vec2& spawnPos)	const;
 	void SpawnDirtYellow		(const glm::vec2& spawnPos) const;
 	void SpawnDirtOrangeLight	(const glm::vec2& spawnPos) const;

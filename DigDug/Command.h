@@ -10,6 +10,7 @@
 #include "Scene.h"
 #include "SceneManager.h"
 #include "ServiceLocator.h"
+#include "Fygar.h"
 
 //------------------------------------------------
 // Current Commands
@@ -72,11 +73,18 @@ public:
 		: m_Owner(owner)
 	{
 		if (owner->HasComponent<Player>()) m_Player = owner->GetComponent<Player>();
-		else std::cout << "'Player' component required to attack!\n";
+		else if (owner->HasComponent<Fygar>()) m_Fygar = owner->GetComponent<Fygar>();
+		else std::cout << "'Player' or 'Fygar' component required to attack!\n";
 	}
 
 	void Execute() override
 	{
+		if (m_Fygar != nullptr)
+		{
+			m_Fygar->Attack();
+			return;
+		}
+
 		if (m_Player->IsDead()) return;
 
 		m_Player->Attack();
@@ -85,6 +93,7 @@ public:
 private:
 	dae::GameObject* m_Owner;
 	Player* m_Player{ nullptr };
+	Fygar*  m_Fygar { nullptr };
 };
 
 class LetterUpCommand : public Command

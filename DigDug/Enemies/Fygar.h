@@ -1,21 +1,23 @@
 ﻿#pragma once
 #include <vec2.hpp>
-#include "FygarState.h"
 #include "RealCollisionSystem.h"
 #include "Level.h"
+#include "FygarState.h"
 
 //-----------------------------------------------------
 // Fygar Class									 
 //-----------------------------------------------------
+
 class Fygar final : public dae::Component, public dae::Subject
 {
 public:
-	Fygar(dae::GameObject* owner, GridComponent* grid);
+	Fygar(dae::GameObject* owner, GridComponent* grid, bool isControlled = false);
 
 	//-------------------------------------------------
 	// Member functions						
 	//-------------------------------------------------
 	void Update(float deltaTime) override;
+	void Attack();
 
 	void HandleCollision(const CollisionEvent& collision);
 	RopeComponent* GetRopeFromCollision(const CollisionEvent& collision);
@@ -44,6 +46,7 @@ public:
 	bool IsLookingLeft() const { return m_IsLookingLeft; }
 	bool IsFleeing()	 const { return m_IsFleeing; }
 	bool IsDeadly()		 const;
+	bool IsControlled()  const { return m_IsControlled; }
 
 private:
 	GridComponent* m_GridPtr;
@@ -58,4 +61,5 @@ private:
 	bool m_IsLookingLeft{ false };
 	bool m_WasCrushed	{ false };
 	bool m_IsFleeing	{ false };
+	bool m_IsControlled;
 };
