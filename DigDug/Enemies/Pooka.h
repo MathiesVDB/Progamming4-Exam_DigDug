@@ -27,11 +27,11 @@ public:
 	RopeComponent* GetRopeFromCollision(const CollisionEvent& collision);
 
 	void SetState(std::unique_ptr<PookaStates::PookaState> newState);
-	void ResetPooka() const { GetOwner()->SetLocalPosition(m_SpawnPosition); }
+	void ResetPooka();
 	void NotifyDeath() const;
 
 	void IncreaseInflation();
-	void ResetInflation();
+	void DecreaseInflation();
 
 	void ToggleFleeing() { m_IsFleeing = !m_IsFleeing; }
 
@@ -61,4 +61,5 @@ private:
 	bool m_IsLookingLeft{ false };
 	bool m_WasCrushed	{ false };
 	bool m_IsFleeing	{ false };
+	bool m_IsDeflating	{ false };
 };

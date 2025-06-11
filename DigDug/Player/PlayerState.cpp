@@ -275,7 +275,7 @@ namespace PlayerStates
 		{
 			player.GetHealth()->TakeDamage();
 
-			//Only reset in singleplayer
+			//Don't reset in two player mode
 			if (dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Player").size() <= 1)
 			{
 				auto entities{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Entity") };

@@ -37,7 +37,7 @@ void HealthDisplay::CreateLives()
 
         auto life = std::make_unique<dae::GameObject>();
         life->ToggleOutOfBounds();
-        life->AddComponent<SpriteComponent>("Sprites/Player/WalkingSprite.png", 1, 8, 1.f, 1, 1);
+        life->AddComponent<SpriteComponent>("Sprites/Player/DiggingSprite.png", 1, 16, 1.f, 0, 0);
         life->SetLocalPosition(drawPos);
 
         m_DisplayedLives.emplace_back(life.get());

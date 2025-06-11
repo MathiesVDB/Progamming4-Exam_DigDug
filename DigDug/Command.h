@@ -27,6 +27,10 @@ public:
 			if (owner->HasComponent<Player>()) m_Player = owner->GetComponent<Player>();
 			else std::cout << "'Player' component required to check gridmovement!\n";
 		}
+		else if (owner->HasComponent<Fygar>())
+		{
+			m_Fygar = owner->GetComponent<Fygar>();
+		}
 	}
 
 	void Execute() override
@@ -37,6 +41,11 @@ public:
 			if (!m_Player) return;
 			if (m_Player->IsDead()) return;
 			if (!m_Player->CanSwitchMovement(m_Direction)) return;
+		}
+		else if (m_Fygar)
+		{
+			if (!m_Fygar->CanMove()) return;
+			if (!m_Fygar->CanSwitchMovement(m_Direction)) return;
 		}
 
 		switch (m_Direction)
@@ -57,9 +66,10 @@ public:
 	}
 
 private:
-	dae::GameObject* m_Owner;
-	MoveDirection m_Direction;
-	Player* m_Player;
+	dae::GameObject*	m_Owner;
+	MoveDirection		m_Direction;
+	Player*				m_Player;
+	Fygar*				m_Fygar;
 
 	float m_MovementSpeed{};
 

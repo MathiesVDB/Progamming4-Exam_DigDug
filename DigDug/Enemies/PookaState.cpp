@@ -16,16 +16,6 @@ using namespace PookaStates;
 
 void MovingState::Render(const Pooka&) const
 {
-	SDL_Renderer* sdlRenderer = dae::Renderer::GetInstance().GetSDLRenderer();
-	SDL_SetRenderDrawColor(sdlRenderer, 255, 0, 0, 255);
-
-	SDL_Rect cellRect{
-		static_cast<int>(m_CurrentTarget.x),
-		static_cast<int>(m_CurrentTarget.y),
-		10,
-		10 };
-
-	SDL_RenderFillRect(sdlRenderer, &cellRect);
 }
 
 std::unique_ptr<PookaState> MovingState::Update(Pooka& pooka, float deltaTime)
@@ -243,7 +233,7 @@ std::unique_ptr<PookaState> InflatedState::Update(Pooka& pooka, float deltaTime)
     {
         m_ResetTimer += deltaTime;
 
-		if (m_ResetTimer >= RESET_THRESHOLD) return std::make_unique<MovingState>();
+		if (m_ResetTimer >= RESET_THRESHOLD) pooka.DecreaseInflation();
 		return nullptr;
     }
 
@@ -282,7 +272,6 @@ void InflatedState::OnExit(Pooka& pooka)
 {
 	if (m_PreviousState != Inflated::Exploded)
 	{
-		pooka.ResetInflation();
 		pooka.GetOwner()->SetLocalPosition(m_StartPos);
 	}
 }

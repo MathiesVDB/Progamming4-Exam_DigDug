@@ -21,7 +21,7 @@
     <ClCompile Include="EventHandlers\HealthComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HealthDisplayer.cpp">
+    <ClCompile Include="Player\HealthDisplayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EventHandlers\SoundHandler.cpp">
@@ -77,7 +77,7 @@
     <ClInclude Include="EventHandlers\HealthComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HealthDisplayer.h">
+    <ClInclude Include="Player\HealthDisplayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EventHandlers\SoundHandler.h">

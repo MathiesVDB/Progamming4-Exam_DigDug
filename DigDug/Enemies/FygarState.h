@@ -23,10 +23,13 @@ namespace FygarStates
         virtual void OnEnter(Fygar&) {}
         virtual void OnExit(Fygar&) {}
 
-        static constexpr float MOVEMENT_SPEED   { 30.f };
-        static constexpr int   SNAP_DISTANCE    {  1 };
+        static constexpr float MOVEMENT_SPEED   { 30.f  };
+        static constexpr float GHOST_DELAY      {  1.f  };
+        static constexpr int   SNAP_DISTANCE    {  1    };
 
     protected:
+        float m_AccumulatedGhostTimer{};
+
         SpriteComponent* m_Sprite{ nullptr };
         ColliderComponent* m_Collider{ nullptr };
         glm::vec2 m_Target{};

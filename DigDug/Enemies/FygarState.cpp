@@ -19,6 +19,23 @@ std::unique_ptr<FygarState> MovingState::Update(Fygar& fygar, float deltaTime)
 
 	if (!fygar.IsControlled()) return AILogic(fygar, deltaTime);
 
+	m_AccumulatedGhostTimer += deltaTime;
+
+	if (m_AccumulatedGhostTimer <= GHOST_DELAY) return nullptr;
+
+	auto boundingBox = m_Collider->GetBoundingBox();
+
+	glm::vec2 center{
+			boundingBox.x + boundingBox.w / 2.0f,
+			boundingBox.y + boundingBox.h / 2.0f
+	};
+
+	int index{ fygar.GetGridPtr()->GetCellIndex(glm::vec2(center.x - boundingBox.w / 4.f, center.y - boundingBox.h / 4.0f)) };
+	if (!fygar.GetGridPtr()->GetGrid()[index].hasBeenDug) return std::make_unique<GhostState>();
+
+	index = fygar.GetGridPtr()->GetCellIndex(glm::vec2(center.x + boundingBox.w / 4.f, center.y + boundingBox.h / 4.0f));
+	if (!fygar.GetGridPtr()->GetGrid()[index].hasBeenDug) return std::make_unique<GhostState>();
+
 	return nullptr;
 }
 
@@ -191,8 +208,8 @@ void MovingState::MoveTowardsGoal(const Fygar& fygar, float)
 void MovingState::OnEnter(Fygar& fygar)
 {
 	// Get components here so it doesn't happen every frame
-	m_Sprite = fygar.GetOwner()->GetComponent<SpriteComponent>();
-	m_Collider = fygar.GetOwner()->GetComponent<ColliderComponent>();
+	m_Sprite	= fygar.GetOwner()->GetComponent<SpriteComponent>();
+	m_Collider	= fygar.GetOwner()->GetComponent<ColliderComponent>();
 
 	//Setup animation
 	if (fygar.IsLookingLeft())  m_Sprite->SetNewTexture("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 8, 9);
@@ -209,12 +226,13 @@ void MovingState::OnEnter(Fygar& fygar)
 	if (fygar.GetOwner()->HasComponent<Fygar>()) m_AttackCommand = std::make_unique<AttackCommand>(fygar.GetOwner());
 
 	// Reset private member variables
-	m_HasReachedTarget = true;
-	m_AccumulatedTime = 0;
+	m_HasReachedTarget	= true;
+	m_AccumulatedTime	= 0;
 }
 
 void MovingState::OnExit(Fygar&)
 {
+	m_AccumulatedTime = 0;
 }
 
 //-----------------------------------------------------
@@ -234,7 +252,7 @@ std::unique_ptr<FygarState> InflatedState::Update(Fygar& fygar, float deltaTime)
 	{
 		m_ResetTimer += deltaTime;
 
-		if (m_ResetTimer >= RESET_THRESHOLD) return std::make_unique<MovingState>();
+		if (m_ResetTimer >= RESET_THRESHOLD) fygar.DecreaseInflation();
 		return nullptr;
 	}
 
@@ -273,7 +291,6 @@ void InflatedState::OnExit(Fygar& fygar)
 {
 	if (m_PreviousState != Inflated::Exploded)
 	{
-		fygar.ResetInflation();
 		fygar.GetOwner()->SetLocalPosition(m_StartPos);
 	}
 }
@@ -319,6 +336,33 @@ std::unique_ptr<FygarState> GhostState::Update(Fygar& fygar, float deltaTime)
 {
 	if (!fygar.IsControlled()) return AILogic(fygar, deltaTime);
 
+	m_AccumulatedGhostTimer += deltaTime;
+
+	if (m_AccumulatedGhostTimer <= GHOST_DELAY) return nullptr;
+
+	auto boundingBox = m_FygarCollider->GetBoundingBox();
+
+	glm::vec2 center{
+			boundingBox.x + boundingBox.w / 2.0f,
+			boundingBox.y + boundingBox.h / 2.0f
+	};
+
+	int indexA = fygar.GetGridPtr()->GetCellIndex(glm::vec2(center.x - boundingBox.w / 4.f, center.y - boundingBox.h / 4.0f));
+	int indexB = fygar.GetGridPtr()->GetCellIndex(glm::vec2(center.x + boundingBox.w / 4.f, center.y + boundingBox.h / 4.0f));
+
+	// If either cell is dug and not the start index, transition to MovingState
+	if ((fygar.GetGridPtr()->GetGrid()[indexA].hasBeenDug && indexA != m_StartIndex) ||
+		(fygar.GetGridPtr()->GetGrid()[indexB].hasBeenDug && indexB != m_StartIndex))
+	{
+		return std::make_unique<MovingState>();
+	}
+
+	//Allow rematerialising on startindex after fygar has left it
+	if (indexA != m_StartIndex && indexB != m_StartIndex)
+	{
+		m_StartIndex = -1;
+	}
+
     return nullptr;
 }
 
@@ -356,6 +400,8 @@ std::unique_ptr<FygarState> GhostState::AILogic(Fygar& fygar, float)
 	glm::vec2 normalizedDir = glm::normalize(direction);
 
 	fygar.GetOwner()->SetVelocity(normalizedDir * MOVEMENT_SPEED);
+
+	return nullptr;
 }
 
 void GhostState::OnEnter(Fygar& fygar)
@@ -372,6 +418,10 @@ void GhostState::OnEnter(Fygar& fygar)
 
 void GhostState::OnExit(Fygar& fygar)
 {
+	m_AccumulatedGhostTimer = 0;
+
+	if (fygar.IsControlled()) return;
+
 	//Set position to center
 	int index{ fygar.GetGridPtr()->GetCellIndex(fygar.GetOwner()->GetLocalPosition()) };
 	auto cellCenter{ fygar.GetGridPtr()->GetGrid()[index].centerPoint };

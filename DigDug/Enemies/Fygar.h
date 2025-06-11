@@ -23,10 +23,10 @@ public:
 	RopeComponent* GetRopeFromCollision(const CollisionEvent& collision);
 
 	void SetState(std::unique_ptr<FygarStates::FygarState> newState);
-	void ResetFygar() const { GetOwner()->SetLocalPosition(m_SpawnPosition); }
+	void ResetFygar();
 
 	void IncreaseInflation();
-	void ResetInflation();
+	void DecreaseInflation();
 
 	void ToggleFleeing() { m_IsFleeing = !m_IsFleeing; }
 
@@ -47,6 +47,18 @@ public:
 	bool IsFleeing()	 const { return m_IsFleeing; }
 	bool IsDeadly()		 const;
 	bool IsControlled()  const { return m_IsControlled; }
+	bool CanMove()		 const;
+
+	//Movement functions
+	bool CanSwitchMovement(MoveDirection direction);
+	bool CanMoveHorizontal(const SDL_Rect& boundingBox);
+	bool CanMoveVertical(const SDL_Rect& boundingBox);
+	bool IsVertical(MoveDirection dir) const;
+	bool IsHorizontal(MoveDirection dir) const;
+	void SnapToCellCenter();
+
+	//Constants
+	static const int SNAP_DISTANCE{ 1 };
 
 private:
 	GridComponent* m_GridPtr;
@@ -58,8 +70,11 @@ private:
 	glm::vec2 m_CurrentTarget{};
 	glm::vec2 m_SpawnPosition{}; // Save for level reset
 
+	MoveDirection m_Direction;
+
 	bool m_IsLookingLeft{ false };
 	bool m_WasCrushed	{ false };
 	bool m_IsFleeing	{ false };
 	bool m_IsControlled;
+	bool m_IsDeflating	{ false };
 };

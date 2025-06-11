@@ -84,10 +84,11 @@ void Pooka::HandleCollision(const CollisionEvent& collision)
 
 		RopeComponent* rope = GetRopeFromCollision(collision);
 
-		if (dynamic_cast<PookaStates::InflatedState*>(m_State.get()) == nullptr)
+		if (dynamic_cast<PookaStates::InflatedState*>(m_State.get()) == nullptr || m_IsDeflating)
 		{
 			SetState(std::make_unique<PookaStates::InflatedState>());
 			rope->SetHasHit();
+			m_IsDeflating = false;
 		}
 
 		if (rope && rope->IsAttacking())
@@ -123,6 +124,12 @@ void Pooka::SetState(std::unique_ptr<PookaStates::PookaState> newState)
 	m_State->OnEnter(*this);
 }
 
+void Pooka::ResetPooka()
+{
+	GetOwner()->SetLocalPosition(m_SpawnPosition);
+	SetState(std::make_unique<PookaStates::MovingState>());
+}
+
 void Pooka::IncreaseInflation()
 {
 	if (m_InflatedState == Inflated::Exploded) return;
@@ -149,9 +156,30 @@ void Pooka::IncreaseInflation()
 	Notify(GetOwner(), PumpEnemyEventID);
 }
 
-void Pooka::ResetInflation()
+void Pooka::DecreaseInflation()
 {
-	m_InflatedState = Inflated::None;
+	m_IsDeflating = true;
+
+	if (m_InflatedState == Inflated::Exploded) return;
+
+	switch (m_InflatedState)
+	{
+	case Inflated::None:
+		SetState(std::make_unique<PookaStates::MovingState>());
+		m_IsDeflating = false;
+		break;
+	case Inflated::Stage1:
+		m_InflatedState = Inflated::None;
+		break;
+	case Inflated::Stage2:
+		m_InflatedState = Inflated::Stage1;
+		break;
+	case Inflated::Stage3:
+		m_InflatedState = Inflated::Stage2;
+		break;
+	default:
+		break;
+	}
 }
 
 void Pooka::NotifyDeath() const
