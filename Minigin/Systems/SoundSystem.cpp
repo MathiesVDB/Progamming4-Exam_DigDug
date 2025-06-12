@@ -6,6 +6,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
+#include <unordered_map>
 
 class RealSoundSystem::SoundSystemImpl
 {
@@ -21,6 +22,9 @@ public:
 		{
 			std::cout << "[Sound System] SDL_mixer initialized successfully." << std::endl;
 		}
+
+		s_Instance = this;
+		Mix_ChannelFinished(ChannelDoneCallback);
 	}
 
 	~SoundSystemImpl()
@@ -29,6 +33,15 @@ public:
 		m_Condition.notify_all();
 		if (m_WorkerThread.joinable())
 			m_WorkerThread.join();
+
+		{
+			std::lock_guard<std::mutex> lock(m_ChannelMapMutex);
+			for (auto& [channel, chunk] : m_ActiveSounds)
+			{
+				Mix_FreeChunk(chunk);
+			}
+			m_ActiveSounds.clear();
+		}
 
 		Mix_CloseAudio();
 	}
@@ -64,7 +77,12 @@ private:
 	std::atomic<bool>			m_Running;
 	std::jthread				m_WorkerThread;
 
+	std::mutex m_ChannelMapMutex;
+	std::unordered_map<int, Mix_Chunk*> m_ActiveSounds;
+
 	bool m_IsMuted{ false };
+
+	static SoundSystemImpl* s_Instance;
 
 	void Run()
 	{
@@ -105,15 +123,26 @@ private:
 			return;
 		}
 
-		// Wait until the sound finishes playing
-		while (Mix_Playing(channel) != 0 && m_Running)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+			std::lock_guard<std::mutex> lock(m_ChannelMapMutex);
+			m_ActiveSounds[channel] = sound;
 		}
+	}
 
-		Mix_FreeChunk(sound);
+	static void ChannelDoneCallback(int channel)
+	{
+		std::lock_guard<std::mutex> lock(s_Instance->m_ChannelMapMutex);
+		auto it = s_Instance->m_ActiveSounds.find(channel);
+		if (it != s_Instance->m_ActiveSounds.end())
+		{
+			Mix_FreeChunk(it->second);
+			s_Instance->m_ActiveSounds.erase(it);
+			std::cout << "[Sound System] Freed sound from channel " << channel << std::endl;
+		}
 	}
 };
+
+RealSoundSystem::SoundSystemImpl* RealSoundSystem::SoundSystemImpl::s_Instance = nullptr;
 
 RealSoundSystem::RealSoundSystem() : m_ImplPtr(std::make_unique<SoundSystemImpl>())
 {

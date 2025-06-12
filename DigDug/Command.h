@@ -20,7 +20,7 @@ class MoveCommand final : public Command
 {
 public:
 	explicit MoveCommand(dae::GameObject* owner, MoveDirection direction, float movementSpeed, bool isEnemy = false)
-		: m_Owner(owner), m_Direction(direction), m_Player{ nullptr }, m_IsEnemy{ isEnemy }, m_MovementSpeed{ movementSpeed }
+		: m_Owner(owner), m_Direction(direction), m_Player{ nullptr }, m_Fygar{ nullptr }, m_IsEnemy{ isEnemy }, m_MovementSpeed{ movementSpeed }
 	{
 		if (!m_IsEnemy)
 		{
