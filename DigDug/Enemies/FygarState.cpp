@@ -55,6 +55,21 @@ std::unique_ptr<FygarState> MovingState::AILogic(Fygar& fygar, float deltaTime)
 
 	if (m_HasReachedTarget)
 	{
+		if (fygar.IsFleeing())
+		{
+			glm::vec2 tempTarget{ fygar.GetTarget() };
+
+			tempTarget.x -= m_Collider->GetBoundingBox().w / 2.f;
+			tempTarget.y -= m_Collider->GetBoundingBox().h / 2.f;
+
+			if (glm::distance(tempTarget, fygar.GetOwner()->GetWorldPosition()) <= SNAP_DISTANCE)
+			{
+				dae::SceneManager::GetInstance().GetActiveScene().MarkForDeletion(fygar.GetOwner());
+				GameDirector::GetInstance().SwitchToNextScene(); //Do this directly to prevent points being rewarded
+				return nullptr;
+			}
+		}
+
 		m_HasReachedTarget = false;
 		m_CurrentTarget = FindBestNextTile(fygar);
 

@@ -20,7 +20,8 @@ Pooka::Pooka(dae::GameObject* owner, GridComponent* grid)
 
 void Pooka::Update(float deltaTime)
 {
-	if (m_IsFleeing) m_CurrentTarget = m_FleeingTarget;
+	if (m_IsFleeing) 
+		m_CurrentTarget = m_FleeingTarget;
 	else
 	{
 		const auto& players = dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Player");

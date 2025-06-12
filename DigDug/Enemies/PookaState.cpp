@@ -14,7 +14,7 @@ using namespace PookaStates;
 // MovingState Class
 //-----------------------------------------------------
 
-void MovingState::Render(const Pooka&) const
+void MovingState::Render(const Pooka& ) const
 {
 }
 
@@ -24,6 +24,21 @@ std::unique_ptr<PookaState> MovingState::Update(Pooka& pooka, float deltaTime)
 
 	if (m_HasReachedTarget)
 	{
+		if (pooka.IsFleeing())
+		{
+			glm::vec2 tempTarget{ pooka.GetTarget() };
+
+			tempTarget.x -= m_Collider->GetBoundingBox().w / 2.f;
+			tempTarget.y -= m_Collider->GetBoundingBox().h / 2.f;
+
+			if (glm::distance(tempTarget, pooka.GetOwner()->GetWorldPosition()) <= SNAP_DISTANCE)
+			{
+				dae::SceneManager::GetInstance().GetActiveScene().MarkForDeletion(pooka.GetOwner());
+				GameDirector::GetInstance().SwitchToNextScene(); //Do this directly to prevent points being rewarded
+				return nullptr;
+			}
+		}
+
 		m_HasReachedTarget = false;
 		m_CurrentTarget = FindBestNextTile(pooka);
 
