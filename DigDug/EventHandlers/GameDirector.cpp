@@ -22,6 +22,8 @@ void GameDirector::Init(std::shared_ptr<SoundHandler> soundHandler, std::shared_
 void GameDirector::LoadMainMenu()
 {
 	m_Scene = Scenes::MAIN;
+	m_Player1Health = 3;
+	m_Player2Health = 3;
 
 	dae::SceneSwitcher::GetInstance().QueueSceneChange([this]() {
 
