@@ -21,9 +21,21 @@ void MovingState::Render(const Pooka& ) const
 std::unique_ptr<PookaState> MovingState::Update(Pooka& pooka, float deltaTime)
 {
 	m_AccumulatedTime += deltaTime;
+	m_StuckTimer += deltaTime;
+
+	if (m_StuckTimer >= PREVENT_STUCK_TIMER)
+	{
+		m_CurrentTarget.x += m_Collider->GetBoundingBox().w / 2.f;
+		m_CurrentTarget.y += m_Collider->GetBoundingBox().h / 2.f;
+
+		m_BlockedTarget = m_CurrentTarget;
+		m_HasReachedTarget = true;
+	}
 
 	if (m_HasReachedTarget)
 	{
+		m_StuckTimer = 0;
+
 		if (pooka.IsFleeing())
 		{
 			glm::vec2 tempTarget{ pooka.GetTarget() };
@@ -148,7 +160,7 @@ std::vector<GridComponent::Cell> MovingState::GetPossibleCells(Pooka& pooka)
 
 	auto tryAddCell = [&](int possibleIndex, MoveDirection forbiddenDir)
 		{
-			if (possibleIndex > -1 && m_Direction != forbiddenDir)
+			if (possibleIndex > -1 && m_Direction != forbiddenDir && pooka.GetGridPtr()->GetGrid()[possibleIndex].centerPoint != m_BlockedTarget)
 				possibleCells.emplace_back(pooka.GetGridPtr()->GetGrid()[possibleIndex]);
 		};
 

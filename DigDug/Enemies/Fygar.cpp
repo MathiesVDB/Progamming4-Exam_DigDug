@@ -203,7 +203,15 @@ void Fygar::HandleCollision(const CollisionEvent& collision)
 		auto rockObject = (colliderTag == Tag::ROCK) ? collision.collider : collision.collided;
 		auto rock = rockObject->GetComponent<Rock>();
 
-		if (rock->IsFalling()) GetOwner()->SetLocalPosition({ rockObject->GetLocalPosition().x, rockObject->GetLocalPosition().y + 30 });
+		if (rock->IsFalling())
+		{
+			if (!m_HasRegisteredCrush)
+			{
+				rock->IncrementCrushCount();
+				m_HasRegisteredCrush = true;
+			}
+			GetOwner()->SetLocalPosition({ rockObject->GetLocalPosition().x, rockObject->GetLocalPosition().y + 30 });
+		}
 		else if (rock->IsBreaking())
 		{
 			m_WasCrushed = true;

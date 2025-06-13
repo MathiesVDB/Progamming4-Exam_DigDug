@@ -11,10 +11,12 @@
 //---------------------------
 Rock::Rock(dae::GameObject* owner, GridComponent* grid)
 	:	Component(owner),
-		m_GridPtr{ grid }
+		m_GridPtr{ grid },
+		m_CrushCount{}
 {
 	m_StartCellIndex = m_GridPtr->GetCellIndex({ owner->GetLocalPosition().x, owner->GetLocalPosition().y });
 	m_CellIndexBelow = m_StartCellIndex + m_GridPtr->GetColumns();
+	m_Collider = GetOwner()->GetComponent<ColliderComponent>();
 }
 
 void Rock::HandleCollision(const CollisionEvent& collision)
@@ -38,4 +40,11 @@ void Rock::SetState(std::unique_ptr<RockStates::RockState> state)
 	m_State->OnExit(*this);
 	m_State = std::move(state);
 	m_State->OnEnter(*this);
+}
+
+void Rock::NotifyBreak()
+{
+	dae::EventID RockBrokeEventID = dae::EventRegistry::GetInstance().GetEventID("RockBroke");
+
+	Notify(GetOwner(), RockBrokeEventID);
 }

@@ -107,12 +107,9 @@ int GameDirector::GetCurrentEnemies()
 
 	m_CurrentSceneName = activeScene.GetName();
 	m_AliveEnemies = 0;
-	const auto& objects{ activeScene.GetObjectsByTag("Entity") };
+	const auto& objects{ activeScene.GetObjectsByTag("Enemy") };
 
-	for (const auto& entity : objects)
-	{
-		if (entity->HasComponent<Fygar>() || entity->HasComponent<Pooka>()) ++m_AliveEnemies;
-	}
+	m_AliveEnemies = static_cast<int>(objects.size());
 
 	return m_AliveEnemies;
 }
@@ -121,19 +118,17 @@ void GameDirector::FleeLastEnemy()
 {
 	//Function only gets called on last enemy so first valid enemy is only enemy
 	const auto& activeScene{ dae::SceneManager::GetInstance().GetActiveScene() };
-	const auto& entities{ activeScene.GetObjectsByTag("Entity") };
+	const auto& entities{ activeScene.GetObjectsByTag("Enemy") };
 
 	for (const auto& entity : entities)
 	{
 		if (entity->HasComponent<Fygar>())
 		{
 			entity->GetComponent<Fygar>()->ToggleFleeing();
-			return;
 		}
-		if (entity->HasComponent<Pooka>())
+		else if (entity->HasComponent<Pooka>())
 		{
 			entity->GetComponent<Pooka>()->ToggleFleeing();
-			return;
 		}
 	}
 }

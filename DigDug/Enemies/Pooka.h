@@ -62,4 +62,5 @@ private:
 	bool m_WasCrushed	{ false };
 	bool m_IsFleeing	{ false };
 	bool m_IsDeflating	{ false };
+	bool m_HasRegisteredCrush	{ false };
 };

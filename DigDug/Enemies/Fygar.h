@@ -77,4 +77,5 @@ private:
 	bool m_IsFleeing	{ false };
 	bool m_IsControlled;
 	bool m_IsDeflating	{ false };
+	bool m_HasRegisteredCrush{ false };
 };

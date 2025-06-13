@@ -104,9 +104,16 @@ std::unique_ptr<RockStates::RockState> FallState::HandleCollision(Rock& rock, co
 
 	if		(colliderTag == Tag::GROUND) index = grid->GetCellIndex(glm::vec2{ collision.collider->GetLocalPosition() });
 	else if (collidedTag == Tag::GROUND) index = grid->GetCellIndex(glm::vec2{ collision.collided->GetLocalPosition() });
-	else return nullptr;
+	else
+	{
+		auto colliderHeight{ rock.GetColliderPtr()->GetBoundingBox().h };
 
-	if (index == rock.GetStartCellIndex() || grid->GetGrid()[index].hasBeenDug) return nullptr;
+		glm::vec2 bottomRock{ rock.GetOwner()->GetWorldPosition().x, rock.GetOwner()->GetWorldPosition().y + colliderHeight };
+		index = grid->GetCellIndex(bottomRock);
+		if (index > -1 && index < 238) return nullptr;
+	}
+
+	if (index == rock.GetStartCellIndex() || (grid->GetGrid()[index].hasBeenDug && index > -1 && index < 238)) return nullptr;
 
 	return std::make_unique<BreakState>();
 }
@@ -149,6 +156,8 @@ std::unique_ptr<RockStates::RockState> BreakState::Update(Rock& rock, float)
 
 void BreakState::OnEnter(Rock& rock)
 {
+	rock.NotifyBreak();
+
 	m_Sprite = rock.GetOwner()->GetComponent<SpriteComponent>();
 	m_Sprite->SetSpriteBounds(0, 3, true);
 }

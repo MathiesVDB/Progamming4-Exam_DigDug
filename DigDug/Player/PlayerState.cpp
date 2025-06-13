@@ -278,7 +278,7 @@ namespace PlayerStates
 			//Don't reset in two player mode
 			if (dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Player").size() <= 1)
 			{
-				auto entities{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Entity") };
+				auto entities{ dae::SceneManager::GetInstance().GetActiveScene().GetObjectsByTag("Enemy") };
 
 				for (const auto& entity : entities)
 				{

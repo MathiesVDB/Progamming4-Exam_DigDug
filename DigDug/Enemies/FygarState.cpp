@@ -52,9 +52,21 @@ std::unique_ptr<FygarState> MovingState::AILogic(Fygar& fygar, float deltaTime)
 	}
 
 	m_AccumulatedTime += deltaTime;
+	m_StuckTimer += deltaTime;
+
+	if (m_StuckTimer >= PREVENT_STUCK_TIMER)
+	{
+		m_CurrentTarget.x += m_Collider->GetBoundingBox().w / 2.f;
+		m_CurrentTarget.y += m_Collider->GetBoundingBox().h / 2.f;
+
+		m_BlockedTarget = m_CurrentTarget;
+		m_HasReachedTarget = true;
+	}
 
 	if (m_HasReachedTarget)
 	{
+		m_StuckTimer = 0;
+
 		if (fygar.IsFleeing())
 		{
 			glm::vec2 tempTarget{ fygar.GetTarget() };
@@ -176,7 +188,7 @@ std::vector<GridComponent::Cell> MovingState::GetPossibleCells(Fygar& fygar)
 
 	auto tryAddCell = [&](int possibleIndex, MoveDirection forbiddenDir)
 		{
-			if (possibleIndex > -1 && m_Direction != forbiddenDir)
+			if (possibleIndex > -1 && m_Direction != forbiddenDir && fygar.GetGridPtr()->GetGrid()[possibleIndex].centerPoint != m_BlockedTarget)
 				possibleCells.emplace_back(fygar.GetGridPtr()->GetGrid()[possibleIndex]);
 		};
 
@@ -513,5 +525,6 @@ void AttackState::OnExit(Fygar&)
 	{
 		dae::SceneManager::GetInstance().GetActiveScene().MarkForDeletion(m_AttackObject);
 		m_AttackObject = nullptr;
+		m_AttackSprite = nullptr;
 	}
 }

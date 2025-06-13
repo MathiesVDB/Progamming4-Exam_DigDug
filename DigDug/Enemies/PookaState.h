@@ -43,6 +43,7 @@ namespace PookaStates
     	void OnExit(Pooka& pooka) override;
 
         const float GHOST_TIMER{ 5.f };
+        const float PREVENT_STUCK_TIMER{ 4.f }; //max time an enemy can spend trying to reach a cell
 
     private:
         // Private member functions
@@ -55,8 +56,10 @@ namespace PookaStates
         // Private member variables
 		MoveDirection m_Direction{ MoveDirection::Right };
 		glm::vec2 m_CurrentTarget{};
+        glm::vec2 m_BlockedTarget{};
 
         float m_AccumulatedTime{};
+        float m_StuckTimer{};
 
         bool m_HasReachedTarget{};
 

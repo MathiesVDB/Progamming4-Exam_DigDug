@@ -292,7 +292,7 @@ void Level::SpawnPooka(const glm::vec2& spawnPos) const
     PookaGameObject->GetComponent<Pooka>()->AddObserver(m_ScoreHandler);
 
     PookaGameObject->SetRenderLayer(2);
-    PookaGameObject->SetObjectTag("Entity");
+    PookaGameObject->SetObjectTag("Enemy");
 	m_Scene.MarkForAdd(std::move(PookaGameObject));
 }
 
@@ -307,7 +307,7 @@ void Level::SpawnFygar(const glm::vec2& spawnPos, bool isControlled) const
     FygarGameObject->GetComponent<Fygar>()->AddObserver(m_ScoreHandler);
 
     FygarGameObject->SetRenderLayer(2);
-    FygarGameObject->SetObjectTag("Entity");
+    FygarGameObject->SetObjectTag("Enemy");
 
     if (isControlled)
     {
@@ -340,6 +340,7 @@ void Level::SpawnRock(const glm::vec2& spawnPos) const
 	RockGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x + 8, spawnPos.y);
 	RockGameObject->AddComponent<ColliderComponent>(ROCK);
     RockGameObject->AddComponent<Rock>(GetOwner()->GetComponent<GridComponent>());
+    RockGameObject->GetComponent<Rock>()->AddObserver(m_ScoreHandler);
 
     m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasRock = true;
 

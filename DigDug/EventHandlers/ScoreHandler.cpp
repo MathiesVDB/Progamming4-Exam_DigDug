@@ -4,6 +4,8 @@
 #include "Scene.h"
 #include "Fygar.h"
 #include "GameDirector.h"
+#include "Pooka.h"
+#include "Rock.h"
 #include "ScoreDisplayer.h"
 
 ScoreHandler::ScoreHandler()
@@ -16,8 +18,20 @@ void ScoreHandler::Notify(dae::GameObject* gameObject, dae::EventID event)
 
 	std::string eventName = dae::EventRegistry::GetInstance().GetName(event);
 
+    GameDirector::GetInstance().Notify(gameObject, event);
+
 	if (eventName == "EnemyDied")
 	{
+        //Rock scores will be handled separately so if crushed no need for score calculation
+        if (gameObject->HasComponent<Fygar>())
+        {
+            if (gameObject->GetComponent<Fygar>()->WasCrushed()) return;
+        }
+        else if (gameObject->HasComponent<Pooka>())
+        {
+            if (gameObject->GetComponent<Pooka>()->WasCrushed()) return;
+        }
+
         const auto position = gameObject->GetWorldPosition();
         int scoreToAdd = 0;
 
@@ -62,6 +76,30 @@ void ScoreHandler::Notify(dae::GameObject* gameObject, dae::EventID event)
 
         m_Displayer->ChangeScore(m_Score);
 	}
+    else if (eventName == "RockBroke")
+    {
+        if (!gameObject->HasComponent<Rock>()) return;
 
-    GameDirector::GetInstance().Notify(gameObject, event);
+        int crushCount{ gameObject->GetComponent<Rock>()->GetCrushCount() };
+
+        int scoreToAdd = 0;
+        switch (crushCount)
+        {
+        case 1: scoreToAdd = 1000; break;
+        case 2: scoreToAdd = 2500; break;
+        case 3: scoreToAdd = 4000; break;
+        case 4: scoreToAdd = 6000; break;
+        case 5: scoreToAdd = 8000; break;
+        case 6: scoreToAdd = 10000; break;
+        case 7: scoreToAdd = 12000; break;
+        case 8: scoreToAdd = 15000; break;
+        default: return;
+        }
+
+        m_Displayer->CreateNewScore(scoreToAdd, gameObject->GetWorldPosition());
+
+        m_Score += scoreToAdd;
+
+        m_Displayer->ChangeScore(m_Score);
+    }
 }
