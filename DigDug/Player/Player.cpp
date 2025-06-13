@@ -138,8 +138,64 @@ void Player::HandleCollision(const CollisionEvent& collision)
     }
 }
 
+bool Player::CheckRock(MoveDirection direction)
+{
+    const auto& grid = m_GridPtr->GetGrid();
+    int columns = m_GridPtr->GetColumns();
+
+    auto collider = GetOwner()->GetComponent<ColliderComponent>();
+    auto boundingBox = collider->GetBoundingBox();
+
+    glm::vec2 playerCenter = {
+        boundingBox.x + boundingBox.w / 2.0f,
+        boundingBox.y + boundingBox.h / 2.0f
+    };
+
+    int currentIndex = m_GridPtr->GetCellIndex(playerCenter);
+    if (currentIndex < 0 || currentIndex >= static_cast<int>(grid.size())) return false;
+
+    auto cellCenter = grid[currentIndex].centerPoint;
+
+    int nextIndex = currentIndex;
+    bool movingPastCenter = false;
+
+    switch (direction)
+    {
+    case MoveDirection::Left:
+        nextIndex = currentIndex - 1;
+        movingPastCenter = playerCenter.x < cellCenter.x;
+        break;
+    case MoveDirection::Right:
+        nextIndex = currentIndex + 1;
+        movingPastCenter = playerCenter.x > cellCenter.x;
+        break;
+    case MoveDirection::Up:
+        nextIndex = currentIndex - columns;
+        movingPastCenter = playerCenter.y < cellCenter.y;
+        break;
+    case MoveDirection::Down:
+        nextIndex = currentIndex + columns;
+        movingPastCenter = playerCenter.y > cellCenter.y;
+        break;
+    default:
+        break;
+    }
+
+    //Only check if the player is past center moving toward rock
+    if (movingPastCenter &&
+        nextIndex >= 0 && nextIndex < static_cast<int>(grid.size()) &&
+        grid[nextIndex].hasRock)
+    {
+        SnapToCellCenter();
+        return false;
+    }
+    return true;
+}
+
 bool Player::CanSwitchMovement(MoveDirection direction)
 {
+    if (!CheckRock(direction)) return false;
+
     const auto boundingBox = GetOwner()->GetComponent<ColliderComponent>()->GetBoundingBox();
 
     if (m_Direction == direction) return true;

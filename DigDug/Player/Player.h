@@ -27,6 +27,7 @@ public:
 	void Attack();
 
 	void HandleCollision(const CollisionEvent& collision);
+	bool CheckRock(MoveDirection direction);
 	bool CanSwitchMovement(MoveDirection direction);
 
 	void SnapToCellCenter();
