@@ -1,18 +1,24 @@
-# Minigin
+Link to my source control depot (this github): https://github.com/MathiesVDB/Progamming4-Exam_DigDug
 
-Minigin is a very small project using [SDL2](https://www.libsdl.org/) and [glm](https://github.com/g-truc/glm) for 2D c++ game projects. It is in no way a game engine, only a barebone start project where everything sdl related has been set up. It contains glm for vector math, to aleviate the need to write custom vector and matrix classes.
+# Dig Dug
 
-[![Build Status](https://github.com/avadae/minigin/actions/workflows/msbuild.yml/badge.svg)](https://github.com/avadae/msbuild/actions)
-[![GitHub Release](https://img.shields.io/github/v/release/avadae/minigin?logo=github&sort=semver)](https://github.com/avadae/minigin/releases/latest)
+For my final project for Programming 4 I had to make the arcade game Dig Dug from practically scratch. This is quite the task, but luckily we got the entire semester for this task. We started with some assignments to help us get started and provide feedback on important parts of the engine that are created using design patterns.
 
-# Goal
+## Our turn
 
-Minigin can/may be used as a start project for the exam assignment in the course [Programming 4](https://youtu.be/j96Oh6vzhmg) at DAE. In that assignment students need to recreate a popular 80's arcade game with a game engine they need to program themselves. During the course we discuss several game programming patterns, using the book '[Game Programming Patterns](https://gameprogrammingpatterns.com/)' by [Robert Nystrom](https://github.com/munificent) as reading material. 
+After this we were on our own. 
+- Gridcomponent: A component that has default values for Dig Dug, but can be adjusted to create any size grid. It holds Cells that remember coverTiles, spawnposition, centerpoint,.... Since this can be used for any game it is part of the engine.
+- Level: This class will read a Dig Dug level, but only a Dig Dug level so it is part of the game instead of the engine.
+- Scene/Scenemanager: I changed this to have an active scene, this way I could easily retrieve certain objects from my current active scene. This uses tags.
+- Sceneswitcher: Code used to switch between scenes ensuring the switch happens between updates and not during. It also automatically clears the previous scene with all commands, colliders,...
+- ColliderSystem: Checks collisions between registered collidercomponents (collidercomponents register in their constructor so user does not need to worry about this). If a collision is found it will call a collisionevent which the user can handle however they want in their game code.
+- Selfdestructcomponent: Component that can be used in any game to create temporary objects that only need to be alive for a certain amount of time (I use them to make sure my scoretextures get deleted after a couple of seconds)
+- SpriteComponent: Animates any spritesheet you give it. Also has option for accumulating frames so when you have a sprite that doubles every frame you can use this (I use this in my game for the Fygar fire, which gets bigger with each frame).
+- Gamepad/Inputmanager: These handle the commands, they have the command class for input actions. These check wether a keybind that has a command linked to it is interacted with and reacts accordingly. The command class also has the option to create a global command which will not be deleted upon calling clearcommands so they last over multiple scenes. Gamepad also registers controllers and gives them their according indices.
 
-# Disclaimer
-
-Minigin is, despite perhaps the suggestion in its name, **not** a game engine. It is just a very simple sdl2 ready project with some of the scaffolding in place to get started. None of the patterns discussed in the course are used yet (except singleton which use we challenge during the course). It is up to the students to implement their own vision for their engine, apply patterns as they see fit, create their game as efficient as possible.
-
-# Use
-
-Either download the latest release of this project and compile/run in visual studio or, since students need to have their work on github too, they can use this repository as a template (see the "Use this template" button at the top right corner). There is no point in forking this project.
+The other classes I didn't mention are mainly found in the game part of my program. 
+- Pooka and Fygar are AI controlled expect if a Fygar is set as controlled, then all AI logic is ignored.
+- Player has a rope which gets moved out of screen if not needed.
+- The digging is just placing an empty tile over a ground tile partly to give the illusion of digging part of the texture.
+- Enemies will flee to the top left of the screen if they are the last enemy alive.
+- In singleplayer, completing the 3 levels will allow you to give in a name and see the previous highscores and, if you got high enough, your own score.
