@@ -131,6 +131,8 @@ void FallState::OnEnter(Rock& rock)
 {
 	m_Sprite = rock.GetOwner()->GetComponent<SpriteComponent>();
 	m_Sprite->SetSpriteBounds(0, 0, true);
+
+	rock.GetGridPtr()->GetGrid()[rock.GetStartCellIndex()].hasRock = false;
 }
 
 void FallState::OnExit(Rock&)
