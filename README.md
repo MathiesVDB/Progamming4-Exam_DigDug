@@ -22,3 +22,4 @@ The other classes I didn't mention are mainly found in the game part of my progr
 - The digging is just placing an empty tile over a ground tile partly to give the illusion of digging part of the texture.
 - Enemies will flee to the top left of the screen if they are the last enemy alive.
 - In singleplayer, completing the 3 levels will allow you to give in a name and see the previous highscores and, if you got high enough, your own score.
+- GameDirector manages the flow of the scenes the player(s) go through depending on the option selected on the main screen. It also makes sure enemies flee when they are last alive, it counts the current enemies alive and makes sure every level has the sound- and scorehandler.
