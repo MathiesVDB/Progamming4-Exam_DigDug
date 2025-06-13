@@ -337,6 +337,10 @@ namespace PlayerStates
 	
 	std::unique_ptr<PlayerState> AttackState::Update(Player& player, float deltaTime)
 	{
+		m_AccumulatedTime += deltaTime;
+
+		if (m_AccumulatedTime >= ATTACK_TIMER) return std::make_unique<MovingState>();
+
 		if (player.GetOwner()->GetVelocity() != glm::vec2{ 0, 0 }) return std::make_unique<MovingState>();
 
 		if (!player.GetRopePtr()->GetRopeStatus()) return std::make_unique<MovingState>();
@@ -344,7 +348,11 @@ namespace PlayerStates
 		if (player.GetRopePtr()->GetHasHit() && !m_InitializedPump) m_IsPumping = true;
 		if (m_IsPumping) SetPlayerPump(player);
 
-		if (player.GetRopePtr()->IsAttacking()) m_Sprite->SetSpriteBounds(++m_StartPumpFrame, ++m_StartPumpFrame, true);
+		if (player.GetRopePtr()->IsAttacking())
+		{
+			m_Sprite->SetSpriteBounds(++m_StartPumpFrame, ++m_StartPumpFrame, true);
+			m_AccumulatedTime = 0;
+		}
 		else									m_Sprite->SetSpriteBounds(  m_StartPumpFrame  , m_StartPumpFrame, true);
 
 		player.GetRopePtr()->Update(deltaTime);

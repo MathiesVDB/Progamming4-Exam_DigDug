@@ -85,6 +85,9 @@ namespace PlayerStates
         void OnEnter(Player& player) override;
         void OnExit(Player& player) override;
 
+        //Constants
+        static constexpr float ATTACK_TIMER{ 1.f };
+
     private:
         void SetPlayerThrow(Player& player) const;
         void SetPlayerPump(Player& player);
@@ -92,5 +95,6 @@ namespace PlayerStates
         bool m_IsPumping{ false };
         bool m_InitializedPump{ false };
         int m_StartPumpFrame{ 0 };
+        float m_AccumulatedTime{};
     };
 }
