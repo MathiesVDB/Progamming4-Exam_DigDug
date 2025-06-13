@@ -15,6 +15,7 @@ public:
 	void SetScoreTextDisplay(ScoreDisplayer* display) { m_Displayer = display; };
 
 	int GetScore() const { return m_Score; }
+	void ResetScore() { m_Score = 0; }
 
 	//Constants
 	//Layers

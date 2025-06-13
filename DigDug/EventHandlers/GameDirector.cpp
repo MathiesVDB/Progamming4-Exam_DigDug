@@ -9,6 +9,7 @@
 #include "Scene.h"
 #include "SceneManager.h"
 #include "SceneSwitcher.h"
+#include "ScoreHandler.h"
 
 void GameDirector::Init(std::shared_ptr<SoundHandler> soundHandler, std::shared_ptr<ScoreHandler> scoreHandler)
 {
@@ -24,6 +25,7 @@ void GameDirector::LoadMainMenu()
 	m_Scene = Scenes::MAIN;
 	m_Player1Health = 3;
 	m_Player2Health = 3;
+	m_ScoreHandler->ResetScore();
 
 	dae::SceneSwitcher::GetInstance().QueueSceneChange([this]() {
 
