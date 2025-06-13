@@ -191,6 +191,14 @@ void Pooka::DecreaseInflation()
 	}
 }
 
+bool Pooka::IsDeadly() const
+{
+	bool isGhost	{ dynamic_cast<PookaStates::GhostState*>(m_State.get()) != nullptr };
+	bool isMoving	{ dynamic_cast<PookaStates::MovingState*>(m_State.get()) != nullptr };
+
+	return isMoving || isGhost;
+}
+
 void Pooka::NotifyDeath() const
 {
 	dae::EventID EnemyDiedEventID = dae::EventRegistry::GetInstance().GetEventID("EnemyDied");

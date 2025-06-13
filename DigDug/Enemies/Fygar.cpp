@@ -338,6 +338,7 @@ bool Fygar::IsDeadly() const
 {
 	bool isMoving	{ dynamic_cast<FygarStates::MovingState*>(m_State.get()) != nullptr };
 	bool isAttacking{ dynamic_cast<FygarStates::AttackState*>(m_State.get()) != nullptr };
+	bool isGhost	{ dynamic_cast<FygarStates::GhostState*>(m_State.get())  != nullptr };
 
-	return isMoving || isAttacking;
+	return isMoving || isAttacking || isGhost;
 }
