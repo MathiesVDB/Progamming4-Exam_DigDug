@@ -7,12 +7,13 @@
 #include "Pooka.h"
 #include "RealCollisionSystem.h"
 
-RopeComponent::RopeComponent(dae::GameObject* owner, dae::GameObject* head, dae::GameObject* middle, dae::GameObject* tail)
+RopeComponent::RopeComponent(dae::GameObject* owner, dae::GameObject* head, dae::GameObject* middle, dae::GameObject* tail, GridComponent* grid)
 	:	Component(owner),
 		m_RopeHead	{ head   },
 		m_RopeMiddle{ middle },
 		m_RopeTail	{ tail   },
-		m_StartPos	{ 0, 0 },
+		m_GridPtr	{ grid },
+		m_StartPos	{ 0, 0 }, 
 		m_Active	{ false },
 		m_IsAttacking{false},
 		m_ElapsedDistance{}
@@ -70,6 +71,13 @@ void RopeComponent::Update(float deltaTime)
 void RopeComponent::HandleCollision(const CollisionEvent& collision)
 {
 	if (!m_Active) return;
+
+	int index{ m_GridPtr->GetCellIndex(GetOwner()->GetWorldPosition()) };
+	if (m_GridPtr->GetGrid()[index].coverTile != nullptr) return;
+
+	auto boundingBox{ GetOwner()->GetComponent<ColliderComponent>()->GetBoundingBox() };
+	index = m_GridPtr->GetCellIndex({GetOwner()->GetWorldPosition().x + boundingBox.w, GetOwner()->GetWorldPosition().y + boundingBox.h});
+	if (m_GridPtr->GetGrid()[index].coverTile != nullptr) return;
 
 	const auto& colliderTag = collision.collider->GetComponent<ColliderComponent>()->GetTag();
 	const auto& collidedTag = collision.collided->GetComponent<ColliderComponent>()->GetTag();

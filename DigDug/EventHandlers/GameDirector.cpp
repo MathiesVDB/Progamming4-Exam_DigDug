@@ -16,6 +16,13 @@ void GameDirector::Init(std::shared_ptr<SoundHandler> soundHandler, std::shared_
 	m_SoundHandler		= std::move(soundHandler);
 	m_ScoreHandler		= std::move(scoreHandler);
 
+	LoadMainMenu();
+}
+
+void GameDirector::LoadMainMenu()
+{
+	m_Scene = Scenes::MAIN;
+
 	dae::SceneSwitcher::GetInstance().QueueSceneChange([this]() {
 
 		auto& scene = dae::SceneManager::GetInstance().CreateScene("StartScreen");
@@ -24,7 +31,7 @@ void GameDirector::Init(std::shared_ptr<SoundHandler> soundHandler, std::shared_
 
 		auto logoGO = std::make_unique<dae::GameObject>();
 		auto texture = logoGO->AddComponent<TextureComponent>("Sprites/Misc/StartLogo.png");
-		logoGO->SetLocalPosition({dae::Minigin::WINDOW_WIDTH / 2.f - texture->GetWidth() / 2.f, 100.f});
+		logoGO->SetLocalPosition({ dae::Minigin::WINDOW_WIDTH / 2.f - texture->GetWidth() / 2.f, 100.f });
 		logoGO->SetObjectTag("UI");
 
 		scene.MarkForAdd(std::move(logoGO));
@@ -172,11 +179,16 @@ void GameDirector::SwitchToNextScene()
 			auto gameOverText = std::make_unique<dae::GameObject>();
 			gameOverText->AddComponent<dae::TextObject>("GAME OVER", font);
 			gameOverText->SetLocalPosition({
-				dae::Minigin::WINDOW_WIDTH / 2.f - 150.f, // Adjust as needed
+				dae::Minigin::WINDOW_WIDTH / 2.f - 150.f,
 				dae::Minigin::WINDOW_HEIGHT / 2.f - 24.f
 				});
 			gameOverText->SetObjectTag("UI");
 			gameOverText->SetRenderLayer(3);
+
+			auto& inputManager = InputManager::GetInstance();
+
+			inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Down, std::make_unique<ReplayCommand>());
+			inputManager.AddControllerCommand(0, SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<ReplayCommand>());
 
 			scene.MarkForAdd(std::move(gameOverText));
 			break;

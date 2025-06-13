@@ -104,6 +104,11 @@ void HighScore::LoadHighScoreScene()
         scene.MarkForAdd(std::move(scoreGO));
     }
 
+    auto& inputManager = InputManager::GetInstance();
+
+    inputManager.AddCommand(SDL_SCANCODE_C, KeyState::Down, std::make_unique<ReplayCommand>());
+    inputManager.AddControllerCommand(0, SDL_CONTROLLER_BUTTON_A, KeyState::Down, std::make_unique<ReplayCommand>());
+
     dae::SceneManager::GetInstance().SetActiveScene(m_SaveScene);
 }
 

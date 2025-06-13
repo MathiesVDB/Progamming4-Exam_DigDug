@@ -5,6 +5,7 @@
 #include "Component.h"
 #include "Helpers.h"
 
+class GridComponent;
 struct CollisionEvent;
 
 namespace dae
@@ -17,7 +18,7 @@ class ColliderComponent;
 class RopeComponent : public dae::Component
 {
 public:
-	RopeComponent(dae::GameObject* owner, dae::GameObject* head, dae::GameObject* middle, dae::GameObject* tail);
+	RopeComponent(dae::GameObject* owner, dae::GameObject* head, dae::GameObject* middle, dae::GameObject* tail, GridComponent* grid);
 
 	void Update(float deltaTime) override;
 	void HandleCollision(const CollisionEvent& collision);
@@ -45,7 +46,8 @@ private:
 
 	dae::GameObject* m_HitTarget{ nullptr };
 
-	ColliderComponent* m_RopeCollider;
+	ColliderComponent*	m_RopeCollider;
+	GridComponent*		m_GridPtr;
 
 	glm::vec2 m_StartPos;
 

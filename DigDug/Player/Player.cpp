@@ -88,7 +88,7 @@ void Player::SnapToCellCenter()
     float newX = cellCenter.x - boundingBox.w / 2.0f;
     float newY = cellCenter.y - boundingBox.h / 2.0f;
 
-    GetOwner()->GetComponent<dae::Transform>()->SetPosition(newX, newY);
+    GetOwner()->SetLocalPosition({newX, newY});
 }
 
 void Player::NotifyAttack() const
@@ -100,7 +100,7 @@ void Player::NotifyAttack() const
 
 void Player::HandleCollision(const CollisionEvent& collision)
 {
-    if (dynamic_cast<PlayerStates::AttackState*>(m_State.get()) != nullptr) m_Rope->HandleCollision(collision);
+    //if (dynamic_cast<PlayerStates::AttackState*>(m_State.get()) != nullptr) m_Rope->HandleCollision(collision);
     if (dynamic_cast<PlayerStates::DeathState*>(m_State.get()) != nullptr) return;
     if (m_IsInvincible) return;
 
@@ -251,7 +251,7 @@ bool Player::CanMoveHorizontal(const SDL_Rect& boundingBox)
 
     float correction = 1 * (distanceToCenter > 0 ? -1.f : 1.f); // move up/down
     auto currentPos = GetOwner()->GetComponent<dae::Transform>()->GetPosition();
-    GetOwner()->GetComponent<dae::Transform>()->SetPosition(currentPos.x, currentPos.y + correction);
+    GetOwner()->SetLocalPosition({currentPos.x, currentPos.y + correction});
 
     return false;
 }
@@ -279,7 +279,7 @@ bool Player::CanMoveVertical(const SDL_Rect& boundingBox)
 
     float correction = 2 * (distanceToCenter > 0 ? -1.f : 1.f); // move up/down
     auto currentPos = GetOwner()->GetComponent<dae::Transform>()->GetPosition();
-    GetOwner()->GetComponent<dae::Transform>()->SetPosition(currentPos.x + correction, currentPos.y);
+    GetOwner()->SetLocalPosition({currentPos.x + correction, currentPos.y});
 
     return false;
 }

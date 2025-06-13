@@ -47,7 +47,7 @@ void Fygar::SnapToCellCenter()
 	float newX = cellCenter.x - boundingBox.w / 2.0f;
 	float newY = cellCenter.y - boundingBox.h / 2.0f;
 
-	GetOwner()->GetComponent<dae::Transform>()->SetPosition(newX, newY);
+	GetOwner()->SetLocalPosition({newX, newY});
 }
 
 bool Fygar::CanMove() const
@@ -105,7 +105,7 @@ bool Fygar::CanMoveHorizontal(const SDL_Rect& boundingBox)
 
 	float correction = 1 * (distanceToCenter > 0 ? -1.f : 1.f); // move up/down
 	auto currentPos = GetOwner()->GetComponent<dae::Transform>()->GetPosition();
-	GetOwner()->GetComponent<dae::Transform>()->SetPosition(currentPos.x, currentPos.y + correction);
+	GetOwner()->SetLocalPosition({currentPos.x, currentPos.y + correction});
 
 	return false;
 }
@@ -132,7 +132,7 @@ bool Fygar::CanMoveVertical(const SDL_Rect& boundingBox)
 
 	float correction = 2 * (distanceToCenter > 0 ? -1.f : 1.f); // move left/right
 	auto currentPos = GetOwner()->GetComponent<dae::Transform>()->GetPosition();
-	GetOwner()->GetComponent<dae::Transform>()->SetPosition(currentPos.x + correction, currentPos.y);
+	GetOwner()->SetLocalPosition({currentPos.x + correction, currentPos.y});
 
 	return false;
 }

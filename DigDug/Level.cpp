@@ -193,23 +193,24 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
     auto RopeHeadGameObject = std::make_unique<dae::GameObject>();
     RopeHeadGameObject->ToggleOutOfBounds();
     RopeHeadGameObject->AddComponent<TextureComponent>("Sprites/Player/Weapon/Right/RightHead.png");
-    RopeHeadGameObject->GetComponent<dae::Transform>()->SetPosition(-100, -100);
+    RopeHeadGameObject->SetLocalPosition({-100, -100});
     RopeHeadGameObject->AddComponent<ColliderComponent>(ROPE);
-    RopeHeadGameObject->SetObjectTag("Entity");
+    auto headComponent{ RopeHeadGameObject->AddComponent<RopeHeadComponent>() };
+    RopeHeadGameObject->SetObjectTag("Rope");
     RopeHeadGameObject->SetRenderLayer(2);
 
     auto RopeMiddleGameObject = std::make_unique<dae::GameObject>();
     RopeMiddleGameObject->ToggleOutOfBounds();
     RopeMiddleGameObject->AddComponent<TextureComponent>("Sprites/Player/Weapon/Right/RightMiddle.png");
-    RopeMiddleGameObject->GetComponent<dae::Transform>()->SetPosition(-100, -100);
-    RopeMiddleGameObject->SetObjectTag("Entity");
+    RopeMiddleGameObject->SetLocalPosition({-100, -100});
+    RopeMiddleGameObject->SetObjectTag("Rope");
     RopeMiddleGameObject->SetRenderLayer(2);
 
     auto RopeTailGameObject = std::make_unique<dae::GameObject>();
     RopeTailGameObject->ToggleOutOfBounds();
     RopeTailGameObject->AddComponent<TextureComponent>("Sprites/Player/Weapon/Right/RightTail.png");
-    RopeTailGameObject->GetComponent<dae::Transform>()->SetPosition(-100, -100);
-    RopeTailGameObject->SetObjectTag("Entity");
+    RopeTailGameObject->SetLocalPosition({-100, -100});
+    RopeTailGameObject->SetObjectTag("Rope");
     RopeTailGameObject->SetRenderLayer(2);
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -218,15 +219,15 @@ void Level::SpawnPlayer(const glm::vec2& spawnPos)
 
     auto Player1 = std::make_unique<dae::GameObject>();
     Player1->AddComponent<SpriteComponent>("Sprites/Player/WalkingSprite.png", 1, 8, 0.25f, 0, 1);
-    Player1->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
+    Player1->SetLocalPosition({spawnPos.x, spawnPos.y});
     if (m_PlayerCount == 0) Player1->AddComponent<HealthComponent>(m_Player1Health);
     else                    Player1->AddComponent<HealthComponent>(m_Player2Health);
 	Player1->AddComponent<ColliderComponent>(FRIENDLY_ENTITY);
-    auto ropeComponent = Player1->AddComponent<RopeComponent>(RopeHeadGameObject.get(), RopeMiddleGameObject.get(), RopeTailGameObject.get());
+    auto ropeComponent = Player1->AddComponent<RopeComponent>(RopeHeadGameObject.get(), RopeMiddleGameObject.get(), RopeTailGameObject.get(), m_GridComponent);
     Player1->AddComponent<Player>(m_GridComponent);
 	Player1->GetComponent<Player>()->SetLevelPtr(this);
 
-    RopeHeadGameObject->AddComponent<RopeHeadComponent>(ropeComponent);
+    headComponent->SetRopeComponent(ropeComponent);
 
     auto healthDisplay = std::make_shared<HealthDisplay>(Player1.get(), m_GridComponent);
     Player1->GetComponent<HealthComponent>()->AddObserver(healthDisplay);
@@ -285,7 +286,7 @@ void Level::SpawnPooka(const glm::vec2& spawnPos) const
 {
 	auto PookaGameObject = std::make_unique<dae::GameObject>();
 	PookaGameObject->AddComponent<SpriteComponent>("Sprites/Pooka/PookaDefaultSprite.png", 2, 5, 0.25f, 0, 1);
-	PookaGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
+	PookaGameObject->SetLocalPosition({spawnPos.x, spawnPos.y});
 	PookaGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
 	PookaGameObject->AddComponent<Pooka>(m_GridComponent);
     PookaGameObject->GetComponent<Pooka>()->AddObserver(m_SoundHandler);
@@ -300,7 +301,7 @@ void Level::SpawnFygar(const glm::vec2& spawnPos, bool isControlled) const
 {
 	auto FygarGameObject = std::make_unique<dae::GameObject>();
 	FygarGameObject->AddComponent<SpriteComponent>("Sprites/Fygar/FygarDefaultSprite.png", 2, 8, 0.25f, 0, 1);
-	FygarGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
+	FygarGameObject->SetLocalPosition({spawnPos.x, spawnPos.y});
 	FygarGameObject->AddComponent<ColliderComponent>(ENEMY_ENTITY);
     FygarGameObject->AddComponent<Fygar>(m_GridComponent, isControlled);
     FygarGameObject->GetComponent<Fygar>()->AddObserver(m_SoundHandler);
@@ -337,7 +338,7 @@ void Level::SpawnRock(const glm::vec2& spawnPos) const
 {
 	auto RockGameObject = std::make_unique<dae::GameObject>();
 	RockGameObject->AddComponent<SpriteComponent>("Sprites/Misc/EnvironmentSprite.png", 1, 7, 0.25f, 0, 0);
-	RockGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x + 8, spawnPos.y);
+	RockGameObject->SetLocalPosition({spawnPos.x + 8, spawnPos.y});
 	RockGameObject->AddComponent<ColliderComponent>(ROCK);
     RockGameObject->AddComponent<Rock>(GetOwner()->GetComponent<GridComponent>());
     RockGameObject->GetComponent<Rock>()->AddObserver(m_ScoreHandler);
@@ -354,7 +355,7 @@ void Level::SpawnDirtYellow(const glm::vec2& spawnPos) const
 	auto DirtYellowGameObject = std::make_unique<dae::GameObject>();
 	DirtYellowGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/Yellow.png");
 	DirtYellowGameObject->AddComponent<ColliderComponent>(GROUND);
-	DirtYellowGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
+	DirtYellowGameObject->SetLocalPosition({spawnPos.x, spawnPos.y});
 
 	m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
@@ -368,7 +369,7 @@ void Level::SpawnDirtOrangeLight(const glm::vec2& spawnPos) const
 	auto DirtOrangeLightGameObject = std::make_unique<dae::GameObject>();
 	DirtOrangeLightGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/OrangeLight.png");
 	DirtOrangeLightGameObject->AddComponent<ColliderComponent>(GROUND);
-	DirtOrangeLightGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
+	DirtOrangeLightGameObject->SetLocalPosition({spawnPos.x, spawnPos.y});
 
     m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
@@ -382,7 +383,7 @@ void Level::SpawnDirtOrangeDark(const glm::vec2& spawnPos) const
 	auto DirtOrangeDarkGameObject = std::make_unique<dae::GameObject>();
 	DirtOrangeDarkGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/OrangeDark.png");
 	DirtOrangeDarkGameObject->AddComponent<ColliderComponent>(GROUND);
-	DirtOrangeDarkGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
+	DirtOrangeDarkGameObject->SetLocalPosition({spawnPos.x, spawnPos.y});
 
     m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
@@ -396,7 +397,7 @@ void Level::SpawnDirtRed(const glm::vec2& spawnPos) const
 	auto DirtRedGameObject = std::make_unique<dae::GameObject>();
 	DirtRedGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/Red.png");
 	DirtRedGameObject->AddComponent<ColliderComponent>(GROUND);
-	DirtRedGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
+	DirtRedGameObject->SetLocalPosition({spawnPos.x, spawnPos.y});
 
     m_GridComponent->GetGrid()[m_GridComponent->GetCellIndex(spawnPos)].hasBeenDug = false;
 
@@ -409,7 +410,7 @@ std::unique_ptr<dae::GameObject> Level::SpawnEmpty(const glm::vec2& spawnPos) co
 {
 	auto EmptyGameObject = std::make_unique<dae::GameObject>();
 	EmptyGameObject->AddComponent<TextureComponent>("Sprites/Misc/WorldTiles/DiggedArea.png");
-	EmptyGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
+	EmptyGameObject->SetLocalPosition({spawnPos.x, spawnPos.y});
     EmptyGameObject->AddComponent<ColliderComponent>(EMPTY_GROUND);
 
     EmptyGameObject->SetRenderLayer(1);
@@ -420,7 +421,7 @@ std::unique_ptr<dae::GameObject> Level::SpawnEmpty(const glm::vec2& spawnPos) co
 std::unique_ptr<dae::GameObject> Level::SpawnRope(const glm::vec2& spawnPos) const
 {
 	auto RopeGameObject = std::make_unique<dae::GameObject>();
-	RopeGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
+	RopeGameObject->SetLocalPosition({spawnPos.x, spawnPos.y});
 
     RopeGameObject->SetRenderLayer(3);
     RopeGameObject->SetObjectTag("Entity");
@@ -431,7 +432,7 @@ void Level::SpawnFlower(const glm::vec2& spawnPos) const
 {
 	auto FlowerGameObject = std::make_unique<dae::GameObject>();
 	FlowerGameObject->AddComponent<SpriteComponent>("Sprites/Misc/EnvironmentSprite.png", 1, 7, 0.25f, 5, 5);
-	FlowerGameObject->GetComponent<dae::Transform>()->SetPosition(spawnPos.x, spawnPos.y);
+	FlowerGameObject->SetLocalPosition({spawnPos.x, spawnPos.y});
 
     FlowerGameObject->SetRenderLayer(0);
     FlowerGameObject->SetObjectTag("Ground");

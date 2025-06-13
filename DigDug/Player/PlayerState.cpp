@@ -192,7 +192,7 @@ namespace PlayerStates
 
 		if (!IsTileMoveAllowed(digDir, currentTilePos, playerPos)) return;
 
-		coverTile->GetComponent<dae::Transform>()->SetPosition(playerPos.x, playerPos.y);
+		coverTile->SetLocalPosition({playerPos.x, playerPos.y});
 
 		player.GetGridPtr()->GetGrid()[index].hasBeenDug = CheckHasBeenDug(player, coverTile, index);
 
@@ -205,7 +205,7 @@ namespace PlayerStates
 			}
 
 			glm::vec2 spawnPosition{ player.GetGridPtr()->GetGrid()[index].spawnPosition.x, player.GetGridPtr()->GetGrid()[index].spawnPosition.y };
-			coverTile->GetComponent<dae::Transform>()->SetPosition(spawnPosition.x, spawnPosition.y);
+			coverTile->SetLocalPosition({spawnPosition.x, spawnPosition.y});
 		}
 	}
 

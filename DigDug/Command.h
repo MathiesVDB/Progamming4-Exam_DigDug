@@ -106,6 +106,15 @@ private:
 	Fygar*  m_Fygar { nullptr };
 };
 
+class ReplayCommand : public Command
+{
+public:
+	void Execute() override
+	{
+		GameDirector::GetInstance().LoadMainMenu();
+	}
+};
+
 class LetterUpCommand : public Command
 {
 public:

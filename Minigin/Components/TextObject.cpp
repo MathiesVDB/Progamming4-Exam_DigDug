@@ -70,7 +70,7 @@ void dae::TextObject::SetText(const std::string& text)
 
 void dae::TextObject::SetPosition(const float x, const float y)
 {
-	GetOwner()->GetComponent<dae::Transform>()->SetPosition(x, y);
+	GetOwner()->SetLocalPosition({x, y});
 }
 
 

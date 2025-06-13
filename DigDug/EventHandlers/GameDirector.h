@@ -14,6 +14,7 @@ class GameDirector : public dae::Singleton<GameDirector>
 {
 public:
 	void Init(std::shared_ptr<SoundHandler> soundHandler, std::shared_ptr<ScoreHandler> scoreHandler);
+	void LoadMainMenu();
 
 	void Notify(dae::GameObject* gameObject, dae::EventID event);
 

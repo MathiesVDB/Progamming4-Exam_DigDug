@@ -6,6 +6,7 @@
 #include "Fygar.h"
 #include "Rock.h"
 #include "RopeComponent.h"
+#include "RopeHeadComponent.h"
 
 void CollisionHandler::Notify(dae::GameObject* gameObject, dae::EventID event)
 {
@@ -25,7 +26,10 @@ void CollisionHandler::Notify(dae::GameObject* gameObject, dae::EventID event)
 		return;
 	}
 
-	if (gameObject->HasComponent<Player>())
+	if (gameObject->HasComponent<RopeHeadComponent>())
+		gameObject->GetComponent<RopeHeadComponent>()->GetRopeOwner()->HandleCollision(collision);
+	
+	else if (gameObject->HasComponent<Player>())
 		gameObject->GetComponent<Player>()->HandleCollision(collision);
 
 	else if (gameObject->HasComponent<Pooka>())

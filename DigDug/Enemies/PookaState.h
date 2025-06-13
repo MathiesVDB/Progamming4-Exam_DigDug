@@ -24,7 +24,7 @@ namespace PookaStates
         virtual void OnEnter(Pooka& ) {}
     	virtual void OnExit(Pooka& ) {}
 
-        const float MOVEMENT_SPEED{ 30.f };
+        const float MOVEMENT_SPEED{ 40.f };
         const int   SNAP_DISTANCE {  1   };
 
     protected:

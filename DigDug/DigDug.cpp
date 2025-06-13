@@ -59,6 +59,16 @@
         static auto scoreHandler = std::make_shared<ScoreHandler>();
 
         GameDirector::GetInstance().Init(soundHandler, scoreHandler);
+
+        std::cout << "\033[1;31m" << "=== DIG DUG ===\n";
+        std::cout << "Menu Controls:\n";
+        std::cout << "  [W/S] || [D-Pad Up/Down]    - Navigate Menu\n";
+        std::cout << "  [C]   || [Controller South] - Confirm choice\n" << "\033[0m";
+        std::cout << "\033[1;33m" << "Game Controls:\n";
+        std::cout << "  [WASD] || [D-Pad]               - Move player\n";
+        std::cout << "  [C]    || [Controller South]    - Attack\n" << "\033[0m";
+        std::cout << "\033[1;34m" << "Endscreen Controls:\n";
+        std::cout << "  [C]    || [Controller South]    - Restart\n" << "\033[0m";
     }
 
     int main(int, char* []) {
